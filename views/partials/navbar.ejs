@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sidebar - Weldon Paints</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: #f9fafb;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 230px;
+      height: 100vh;
+      background: #fff;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      position: fixed;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo img {
+      width: 75px;
+      display: block;
+      margin: 0 auto 8px;
+    }
+
+    .logo h2 {
+      font-weight: 700;
+      font-size: 18px;
+      color: #000;
+      text-transform: lowercase;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      color: #6b7280;
+      padding: 12px 15px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 15px;
+    }
+
+    li:hover {
+      background: #f3f4f6;
+    }
+
+    li.active {
+      background: #6a35ff;
+      color: #fff;
+    }
+
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      background: #f9fafb;
+      border-radius: 8px;
+      margin-top: 5px;
+      padding-left: 10px;
+    }
+
+    .submenu.open {
+      max-height: 120px;
+      padding: 8px 0 8px 10px;
+    }
+
+    .submenu li {
+      font-size: 14px;
+      color: #555;
+      background: none;
+      margin: 4px 0;
+    }
+
+    .submenu li:hover {
+      color: #6a35ff;
+      background: #fff;
+    }
+
+    .logout {
+      margin-top: auto;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      width: 100%;
+    }
+
+    main {
+      margin-left: 250px;
+      padding: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="/images/weldon-paints-logo.png" alt="Weldon Paints Logo" />
+      <h2>weldon paints</h2>
+    </div>
+
+    <ul>
+      <li><a href="/"><div class="menu-item"><i data-lucide="home"></i> Home</div></a></li>
+
+      <li class="dropdown">
+        <div class="menu-item"><i data-lucide="package"></i> Product</div>
+        <i data-lucide="chevron-right" class="arrow"></i>
+        <ul class="submenu">
+          <li><a href="/products/add">Add Product</a></li>
+          <li><a href="/products/all">All Products</a></li>
+        </ul>
+      </li>
+
+      <li class="dropdown">
+        <div class="menu-item"><i data-lucide="bar-chart-2"></i> Sales</div>
+        <i data-lucide="chevron-right" class="arrow"></i>
+        <ul class="submenu">
+          <li><a href="/sales/add">Add Sale</a></li>
+          <li><a href="/sales/all">All Sales</a></li>
+        </ul>
+      </li>
+
+      <li class="dropdown">
+        <div class="menu-item"><i data-lucide="users"></i> Agents</div>
+        <i data-lucide="chevron-right" class="arrow"></i>
+        <ul class="submenu">
+          <li><a href="/agents/add">Add Agent</a></li>
+          <li><a href="/agents/all">All Agents</a></li>
+        </ul>
+      </li>
+
+      <li class="logout"><a href="/logout"><div class="menu-item"><i data-lucide="log-out"></i> Logout</div></a></li>
+    </ul>
+  </div>
+
+  <main>
+    <h1>Welcome to Weldon Paints Dashboard</h1>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    document.querySelectorAll(".dropdown").forEach((item) => {
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const submenu = item.querySelector(".submenu");
+        const arrow = item.querySelector(".arrow");
+        const isOpen = submenu.classList.contains("open");
+
+        // Close all others
+        document.querySelectorAll(".submenu").forEach((s) => s.classList.remove("open"));
+        document.querySelectorAll(".arrow").forEach((a) => (a.style.transform = "rotate(0deg)"));
+
+        if (!isOpen) {
+          submenu.classList.add("open");
+          arrow.style.transform = "rotate(90deg)";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

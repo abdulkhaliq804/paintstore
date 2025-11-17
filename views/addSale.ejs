@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Sale</title>
+  <link rel="icon" href="/images/weldon-paints-logo.png" type="image/png">
+  <link rel="stylesheet" href="/stylesheets/addSale.css">
+</head>
+<body>
+  <h1>Add New Sale</h1>
+
+  <div class="form-container">
+    <!-- Brand dropdown -->
+    <select id="brandSelect">
+      <option value="">Select Brand</option>
+      <% const brands = [...new Set(products.map(p => p.brandName).filter(b => b && b.trim() !== ""))]; %>
+      <% brands.forEach(brand => { %>
+        <option value="<%= brand %>"><%= brand %></option>
+      <% }) %>
+    </select>
+
+    <!-- Item dropdown -->
+    <select id="itemSelect" disabled>
+      <option value="">Select Item</option>
+    </select>
+
+    <!-- Unit dropdown -->
+    <select id="unitSelect" disabled>
+      <option value="">Select Unit</option>
+    </select>
+
+    <!-- Colour dropdown -->
+    <select id="colourSelect" disabled>
+      <option value="">Select Colour</option>
+    </select>
+
+    <!-- Quantity and Rate -->
+    <input id="quantitySold" type="number" placeholder="Quantity Sold" min="1" />
+    <input id="rate" type="number" placeholder="Rate" min="0" />
+
+    <!-- Total Stock readonly -->
+    <input id="totalStock" type="number" placeholder="Total Stock" readonly />
+
+    <button onclick="addSaleEntry()" id="add">Add Sale</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Stock ID</th>
+        <th>Sale ID</th>
+        <th>Brand</th>
+        <th>Item</th>
+        <th>Unit</th>
+        <th>Colour</th>
+        <th>Quantity Sold</th>
+        <th>Rate</th>
+        <th>Total</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="saleTableBody">
+      <tr class="no-data"><td colspan="10">No sales added yet</td></tr>
+    </tbody>
+  </table>
+
+  <button class="submit-btn" onclick="submitSales()">Submit & Save</button>
+
+<script>
+const products = JSON.parse('<%- JSON.stringify(products || []) %>');
+let tempSales = [];
+
+const brandSelect = document.getElementById("brandSelect");
+const itemSelect = document.getElementById("itemSelect");
+const unitSelect = document.getElementById("unitSelect");
+const colourSelect = document.getElementById("colourSelect");
+const quantitySold = document.getElementById("quantitySold");
+const rate = document.getElementById("rate");
+const totalStock = document.getElementById("totalStock");
+
+// --- Brand change ---
+brandSelect.addEventListener("change", function() {
+  const brand = this.value;
+  resetDropdowns();
+  if (!brand) return;
+
+  const brandItems = products.filter(p => p.brandName === brand && p.remaining > 0);
+  const uniqueItems = [...new Set(brandItems.map(p => p.itemName).filter(i => i && i.trim() !== ""))];
+  uniqueItems.forEach(item => {
+    itemSelect.innerHTML += `<option value="${item}">${item}</option>`;
+  });
+  itemSelect.disabled = false;
+});
+
+// --- Item change ---
+itemSelect.addEventListener("change", function() {
+  const brand = brandSelect.value;
+  const item = this.value;
+  resetUnitColour();
+  if (!item) return;
+
+  const filteredProducts = products.filter(p => p.brandName === brand && p.itemName === item && p.remaining > 0);
+  const hasEmptyUnitOrColour = filteredProducts.every(p => (!p.qty || p.qty.trim() === "") && (!p.colourName || p.colourName.trim() === ""));
+
+  colourSelect.innerHTML = '<option value="">Select Option</option>';
+
+  if (hasEmptyUnitOrColour) {
+    // ✅ Brand + Item only
+    filteredProducts.forEach(p => {
+      colourSelect.innerHTML += `<option value="${p.stockID}" data-remaining="${p.remaining}" data-rate="${p.rate}">
+        ${p.itemName} — Rate: ${p.rate} | Stock: ${p.remaining}
+      </option>`;
+    });
+    colourSelect.disabled = false;
+  } else {
+    // ✅ Brand + Item + Unit
+    const validProducts = filteredProducts.filter(p => p.qty && p.qty.trim() !== "");
+    const uniqueUnits = [...new Set(validProducts.map(p => p.qty))];
+    uniqueUnits.forEach(unit => {
+      unitSelect.innerHTML += `<option value="${unit}">${unit}</option>`;
+    });
+    unitSelect.disabled = false;
+  }
+});
+
+// --- Unit change ---
+unitSelect.addEventListener("change", function() {
+  const brand = brandSelect.value;
+  const item = itemSelect.value;
+  const unit = this.value;
+  colourSelect.innerHTML = '<option value="">Select Colour</option>';
+  colourSelect.disabled = true;
+  quantitySold.value = "";
+  rate.value = "";
+  totalStock.value = "";
+
+  if (!unit) return;
+
+  const filtered = products.filter(p =>
+    p.brandName === brand &&
+    p.itemName === item &&
+    p.qty === unit &&
+    p.remaining > 0
+  );
+
+  // ✅ Dynamic option labels based on Unit + Colour presence
+  filtered.forEach(p => {
+    let label = '';
+    if (p.colourName && p.colourName.trim() !== '') {
+      // Brand + Item + Unit + Colour
+      label = `${p.colourName} — Rate: ${p.rate} | Stock: ${p.remaining}`;
+    } else {
+      // Brand + Item + Unit only
+      label = `${p.itemName} | ${p.qty} — Rate: ${p.rate} | Stock: ${p.remaining}`;
+    }
+    colourSelect.innerHTML += `<option value="${p.stockID}" data-remaining="${p.remaining}" data-rate="${p.rate}">${label}</option>`;
+  });
+  colourSelect.disabled = false;
+});
+
+// --- Colour change ---
+colourSelect.addEventListener("change", function() {
+  const selected = this.selectedOptions[0];
+  if (selected) {
+    rate.value = selected.dataset.rate || 0;
+    totalStock.value = selected.dataset.remaining || 0;
+  } else {
+    rate.value = "";
+    totalStock.value = "";
+  }
+});
+
+// --- Generate Sale ID ---
+function generateSaleID(itemName) {
+  const prefix = itemName.slice(0, 3).toUpperCase();
+  const random = Math.floor(Math.random() * 900000 + 100000);
+  return `${prefix}-${random}`;
+}
+
+// --- Add Sale Entry ---
+function addSaleEntry() {
+  const brand = brandSelect.value.trim();
+  const item = itemSelect.value.trim();
+  const unit = unitSelect.value.trim();
+  const colourOption = colourSelect.selectedOptions[0];
+  const qtySold = parseInt(quantitySold.value) || 0;
+  const rateVal = parseFloat(rate.value) || 0;
+
+  // 🧩 Basic validation
+  if (!brand || !item || qtySold <= 0 || rateVal <= 0) {
+    alert("⚠️ Please fill all fields correctly!");
+    return;
+  }
+
+  // 🟢 Find the selected product safely
+  let selectedProduct = null;
+
+  if (colourOption && colourOption.value) {
+    // Match using stockID from dropdown
+    selectedProduct = products.find(
+      p => String(p.stockID) === String(colourOption.value)
+    );
+  } else {
+    // Fallback: match by brand + item + unit
+    selectedProduct = products.find(
+      p =>
+        p.brandName === brand &&
+        p.itemName === item &&
+        p.qty === unit
+    );
+  }
+
+  if (!selectedProduct) {
+    alert("⚠️ Product not found!");
+    console.warn("No product found for:", { brand, item, unit });
+    return;
+  }
+
+  // 🧮 Check remaining stock
+  const remaining = parseInt(selectedProduct.remaining) || 0;
+
+  if (remaining <= 0) {
+    alert(`⚠️ Product out of stock! (0 left)`);
+    return;
+  }
+
+  if (qtySold > remaining) {
+    alert(`⚠️ Only ${remaining} units left in stock!`);
+    return;
+  }
+
+  // 🆔 Generate Sale ID
+  const saleID = generateSaleID(item);
+
+  // 💰 Calculate total
+  const total = qtySold * rateVal;
+
+  // 📝 Push new sale into temp array
+  tempSales.push({
+    stockID: selectedProduct.stockID,
+    saleID,
+    brandName: brand,
+    itemName: selectedProduct.itemName || item,
+    qty: selectedProduct.qty || unit || "",
+    colourName: selectedProduct.colourName || "",
+    quantitySold: qtySold,
+    rate: rateVal,
+    total,
+  });
+
+  // 🧾 Refresh sale table
+  renderSalesTable();
+
+  // 🧹 Clear inputs
+  quantitySold.value = "";
+  rate.value = "";
+  totalStock.value = "";
+
+  // Optionally update the stock display in dropdown or input
+  totalStock.placeholder = `Remaining: ${remaining - qtySold}`;
+}
+
+
+
+// --- Render Table, Delete & Submit logic (same as original) ---
+function renderSalesTable() {
+  const tbody = document.getElementById("saleTableBody");
+  tbody.innerHTML = "";
+  if (tempSales.length === 0) {
+    tbody.innerHTML = '<tr class="no-data"><td colspan="10">No sales added yet</td></tr>';
+    return;
+  }
+
+  tempSales.forEach((p, i) => {
+    tbody.innerHTML += `<tr>
+      <td>${p.stockID}</td>
+      <td>${p.saleID}</td>
+      <td>${p.brandName}</td>
+      <td>${p.itemName}</td>
+      <td>${p.qty}</td>
+      <td>${p.colourName}</td>
+      <td>${p.quantitySold}</td>
+      <td>${p.rate}</td>
+      <td>${p.total}</td>
+      <td><button onclick="deleteSale(${i})" id="delete">Delete</button></td>
+    </tr>`;
+  });
+}
+
+function deleteSale(index) {
+  tempSales.splice(index, 1);
+  renderSalesTable();
+}
+
+async function submitSales() {
+  if (tempSales.length === 0) {
+    alert("⚠️ No sales to submit!");
+    return;
+  }
+  try {
+    for (const sale of tempSales) {
+      const res = await fetch("/sales/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sale)
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || "Failed to save sale");
+    }
+    alert("✅ Sales saved successfully!");
+    const printData = encodeURIComponent(JSON.stringify(tempSales));
+    window.open(`/sales/print?data=${printData}`, "_blank");
+    tempSales = [];
+    renderSalesTable();
+    setTimeout(() => location.reload(), 1000);
+  } catch (err) {
+    alert("❌ Error: " + err.message);
+    console.error(err);
+  }
+}
+
+function resetDropdowns() {
+  itemSelect.innerHTML = '<option value="">Select Item</option>';
+  unitSelect.innerHTML = '<option value="">Select Unit</option>';
+  colourSelect.innerHTML = '<option value="">Select Colour</option>';
+  itemSelect.disabled = true;
+  unitSelect.disabled = true;
+  colourSelect.disabled = true;
+  quantitySold.value = "";
+  rate.value = "";
+  totalStock.value = "";
+}
+
+function resetUnitColour() {
+  unitSelect.innerHTML = '<option value="">Select Unit</option>';
+  colourSelect.innerHTML = '<option value="">Select Colour</option>';
+  unitSelect.disabled = true;
+  colourSelect.disabled = true;
+  quantitySold.value = "";
+  rate.value = "";
+  totalStock.value = "";
+}
+</script>
+
+
+</body>
+</html>

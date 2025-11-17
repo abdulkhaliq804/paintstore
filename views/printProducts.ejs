@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Entry Bill</title>
+  <link rel="icon" href="/images/weldon-paints-logo.png" type="image/png">
+  <link rel="stylesheet" href="/stylesheets/printProducts.css">
+</head>
+
+<body onload="window.print()">
+  <!-- <h1>Product Entry Bill</h1> -->
+   <h2> <img src="/images/weldon-paints-logo.png" id="logo"> <br> weldon paints</h2>
+  <p><b>Entry Date:</b> <%= currentDate %></p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Stock ID</th>
+        <th>Brand Name</th>
+        <th>Item Name</th>
+        <th>Item Colour</th>
+        <th>Unit</th>
+        <th>Total Product</th>
+        <th>Rate</th>
+        <th>Total Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% let totalAmount = 0; %>
+      <% products.forEach(p => { 
+           const total = p.totalProduct * p.rate;
+           totalAmount += total;
+      %>
+      <tr>
+        <td><%= p.stockID %></td>
+        <td><%= p.brandName %></td>
+        <td><%= p.itemName %></td>
+        <td><%= p.colourName %></td>
+        <td><%= p.qty %></td>
+        <td><%= p.totalProduct %></td>
+        <td><%= p.rate %></td>
+        <td><%= total %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <span>Total Items: <%= products.length %></span>
+    <span>Total Amount: <%= totalAmount %></span>
+  </div>
+</body>
+</html>

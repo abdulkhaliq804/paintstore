@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refund Products</title>
+  <link rel="icon" href="/images/weldon-paints-logo.png" type="image/png">
+  <link rel="stylesheet" href="/stylesheets/refundProducts.css">
+</head>
+<body>
+
+<div class="form-wrapper">
+  <h1>Refund Products</h1>
+
+  <form id="refundForm" class="form-container">
+    <input type="text" name="stockID" placeholder="Enter Sale StockID" required />
+    <input type="text" name="saleID"  placeholder="Enter Sale SaleID" required />
+    <input type="number" name="productQuantity" placeholder="Enter Quantity of Sale" required />
+    <button type="submit" id="add">Refund Now</button>
+  </form>
+
+  <div id="refundResult" style="margin-top:20px; font-size:16px;"></div>
+</div>
+
+<script>
+const refundForm = document.getElementById("refundForm");
+const refundResult = document.getElementById("refundResult");
+const addButton = document.getElementById("add");
+
+refundForm.addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  addButton.disabled = true; // prevent multiple clicks
+
+  const formData = new FormData(refundForm);
+  const data = {
+     stockID: formData.get("stockID").trim(),
+     saleID: formData.get("saleID").trim(),
+    productQuantity: parseInt(formData.get("productQuantity"))
+  };
+
+  try {
+    // Call refund API
+    const res = await fetch("/products/refund", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.text();
+
+    // ✅ Show only refund message
+    refundResult.innerHTML = `<span style="color:${res.ok ? 'green' : 'red'}">${result}</span>`;
+
+    if(res.ok){
+      refundForm.reset();
+    }
+
+  } catch(err) {
+    console.error(err);
+    refundResult.innerHTML = `<span style="color:red">❌ Something went wrong. Try again!</span>`;
+  }
+
+  addButton.disabled = false;
+});
+</script>
+
+
+</body>
+</html>

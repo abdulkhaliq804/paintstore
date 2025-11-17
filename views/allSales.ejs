@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>All Sales</title>
+  <link rel="icon" href="/images/weldon-paints-logo.png" type="image/png">
+  <link rel="stylesheet" href="/stylesheets/allSales.css">
+
+</head>
+<body>
+  
+  <h1>All Sales</h1>
+
+  <!-- 🔍 Filter Section -->
+ <!-- 🔍 Filter Section -->
+<form class="filter-container" method="GET" action="/sales/all">
+  <!-- Date / Time Filter -->
+  <select name="filter" id="filter" onchange="toggleDateInputs(this.value)">
+    <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All</option>
+    <option value="today" <%= filter === 'today' ? 'selected' : '' %>>Today</option>
+    <option value="yesterday" <%= filter === 'yesterday' ? 'selected' : '' %>>Yesterday</option>
+    <option value="month" <%= filter === 'month' ? 'selected' : '' %>>This Month</option>
+    <option value="lastMonth" <%= filter === 'lastMonth' ? 'selected' : '' %>>Last Month</option>
+    <option value="custom" <%= filter === 'custom' ? 'selected' : '' %>>Custom Range</option>
+  </select>
+
+  <!-- Brand Filter Added -->
+  <select name="brand" id="brandFilter" onchange="this.form.submit()">
+    <option value="all" <%= selectedBrand === 'all' ? 'selected' : '' %>>All Brands</option>
+    <option value="Weldon Paints" <%= selectedBrand === 'Weldon Paints' ? 'selected' : '' %>>Weldon Paints</option>
+    <option value="Sparco Paints" <%= selectedBrand === 'Sparco Paints' ? 'selected' : '' %>>Sparco Paints</option>
+    <option value="Value Paints" <%= selectedBrand === 'Value Paints' ? 'selected' : '' %>>Value Paints</option>
+    <option value="Other" <%= selectedBrand === 'Other' ? 'selected' : '' %>>Other</option>
+  </select>
+
+  <!-- Item Name Filter -->
+<select name="itemName" id="itemNameFilter" onchange="this.form.submit()">
+  <option value="all" <%= selectedItem === 'all' ? 'selected' : '' %>>All Items</option>
+  <option value="Weather Shield" <%= selectedItem === 'Weather Shield' ? 'selected' : '' %>>Weather Shield</option>
+  <option value="Emulsion" <%= selectedItem === 'Emulsion' ? 'selected' : '' %>>Emulsion</option>
+  <option value="Enamel" <%= selectedItem === 'Enamel' ? 'selected' : '' %>>Enamel</option>
+  <option value="Other" <%= selectedItem === 'Other' ? 'selected' : '' %>>Other</option>
+</select>
+
+<!-- Item Colour Filter -->
+<select name="colourName" id="colourNameFilter" onchange="this.form.submit()">
+  <option value="all" <%= selectedColour === 'all' ? 'selected' : '' %>>All Colours</option>
+  <option value="Blue" <%= selectedColour === 'Blue' ? 'selected' : '' %>>Blue</option>
+  <option value="Red" <%= selectedColour === 'Red' ? 'selected' : '' %>>Red</option>
+  <option value="Green" <%= selectedColour === 'Green' ? 'selected' : '' %>>Green</option>
+  <option value="Other" <%= selectedItem === 'Other' ? 'selected' : '' %>>Other</option>
+</select>
+ 
+
+<!-- Units Filter -->
+<select name="unit" id="unitFilter" onchange="this.form.submit()">
+  <option value="all" <%= selectedUnit === 'all' ? 'selected' : '' %>>All Units</option>
+  <option value="Gallon" <%= selectedUnit === 'Gallon' ? 'selected' : '' %>>Gallon</option>
+  <option value="Quarter" <%= selectedUnit === 'Quarter' ? 'selected' : '' %>>Quarter</option>
+  <option value="Drum" <%= selectedUnit === 'Drum' ? 'selected' : '' %>>Drum</option>
+  <option value="Liter" <%= selectedUnit === 'Liter' ? 'selected' : '' %>>Liter</option>
+  <option value="Other" <%= selectedUnit === 'Other' ? 'selected' : '' %>>Other</option>
+</select>
+
+<!-- Refund Status Filter -->
+<select name="refund" id="refundFilter" onchange="this.form.submit()">
+  <option value="all" <%= selectedRefund === 'all' ? 'selected' : '' %>>All Status</option>
+  <option value="none" <%= selectedRefund === 'none' ? 'selected' : '' %>>Not Refunded</option>
+  <option value="Partially Refunded" <%= selectedRefund === 'Partially Refunded' ? 'selected' : '' %>>Partially Refunded</option>
+  <option value="Fully Refunded" <%= selectedRefund === 'Fully Refunded' ? 'selected' : '' %>>Fully Refunded</option>
+</select>
+
+
+
+
+
+
+
+
+  <!-- Custom Date Range -->
+  <input type="date" name="from" id="from" value="<%= from || '' %>" style="display:none;">
+  <input type="date" name="to" id="to" value="<%= to || '' %>" style="display:none;">
+
+  <button type="submit" id="apply">Apply</button>
+</form>
+
+
+
+  <!-- Stats Display -->
+  <div class="stats">
+    <div class="stat-box">
+      <h3>Total Sold</h3>
+      <p><%= stats.totalSold || 0 %></p>
+    </div>
+    <div class="stat-box">
+      <h3>Total Sales</h3>
+      <p>Rs <%= stats.totalRevenue || 0 %></p>
+    </div>
+   <div class="stat-box">
+  <h3>Total Profit</h3>
+  <p>Rs <%= stats.totalProfit ? stats.totalProfit.toFixed(2) : '0.00' %></p> <!-- Display total profit -->
+</div>
+<div class="stat-box">
+  <h3>Total Loss</h3>
+  <p id="total-loss">Rs <%= stats.totalLoss ? stats.totalLoss.toFixed(2) : '0.00' %></p> <!-- Display total loss -->
+</div>
+
+<div class="stat-box">
+  <h3>Refund Sales</h3>
+  <p id="refund-sales">Rs <%= stats.totalRefunded ? stats.totalRefunded.toFixed(2) : '0.00' %></p> 
+</div>
+
+
+  </div>
+
+
+<!-- Sales Table -->
+<table>
+  <thead>
+    <tr>
+      <th>Stock ID</th>
+      <th>Sale ID</th>
+      <th>Brand Name</th>
+      <th>Item Name</th>
+      <th>Item Colour</th>
+      <th>Unit</th>
+      <th>Quantity Sold</th>
+      <th>Rate</th>
+      <th>Total Amount</th>
+      <th>Profit/Loss</th>
+      <th>Status</th>
+      <th>Refund (Qty)</th>
+      <th>Date</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (sales.length === 0) { %>
+      <tr><td colspan="8" class="no-data">No sales found for the selected filter.</td></tr>
+    <% } else { %>
+      <% sales.forEach(s => { %> <!-- Loop through filtered sales here -->
+        <tr>
+          <td><%= s.stockID %></td>
+          <td><%= s.saleID %></td>
+          <td><%= s.brandName %></td>
+          <td><%= s.itemName %></td>
+          <td><%= s.colourName %></td>
+          <td><%= s.qty %></td>
+          <td><%= s.quantitySold %></td>
+          <td>Rs <%= s.rate %></td>
+          <td>Rs <%= (s.quantitySold * s.rate) %></td> <!-- Correct total calculation -->
+          <td class="<%= s.profit < 0 ? 'loss' : 'profit' %>">Rs <%= s.profit %></td>
+          <td class="refund-status"><%= s.refundStatus %></td>
+          <td class="refund-quantity"><%= s.refundQuantity %></td>
+          <td><%= new Date(s.createdAt).toLocaleDateString() %></td>
+          <td><button onclick="deleteSale('<%= s._id %>')" id="delete">Delete</button></td>
+        </tr>
+      <% }) %>
+    <% } %>
+  </tbody>
+</table>
+
+
+
+  <script>
+    function toggleDateInputs(value) {
+      const from = document.getElementById("from");
+      const to = document.getElementById("to");
+      if (value === "custom") {
+        from.style.display = "inline-block";
+        to.style.display = "inline-block";
+      } else {
+        from.style.display = "none";
+        to.style.display = "none";
+      }
+    }
+
+    // Page load pe bhi check ho
+    toggleDateInputs("<%= filter %>");
+
+    // Function to delete sale (example API request)
+    async function deleteSale(saleId) {
+      const confirmDelete = confirm("Are you sure you want to delete this sale?");
+      if (confirmDelete) {
+        try {
+          const res = await fetch(`/sales/delete-sale/${saleId}`, { method: "DELETE" });
+          const data = await res.json();
+          if (data.success) {
+            alert("Sale deleted successfully!");
+            location.reload(); // Reload the page to reflect changes
+          } else {
+            alert("Failed to delete sale");
+          }
+        } catch (err) {
+          alert("Error deleting sale");
+        }
+      }
+    }
+  </script>
+</body>
+</html>

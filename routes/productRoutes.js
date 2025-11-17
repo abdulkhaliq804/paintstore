@@ -1,0 +1,268 @@
+import express from 'express';
+import Product from "../models/Product.js";
+import Sale from "../models/Sale.js";
+
+const router = express.Router();
+
+/* ================================
+   🟢 1️⃣ Add Product Page (GET)
+   -> Renders the Add Product form (EJS)
+================================ */
+// 🟢 Add Product Page (GET)
+router.get("/add", async (req, res) => {
+  try {
+    const products = await Product.find().sort({ itemName: 1 }); // Fetch existing products
+   res.render("addProduct", { products, layout: false });
+
+
+  } catch (err) {
+    console.error("❌ Error loading Add Product page:", err);
+    res.status(500).send("Error loading Add Product page");
+  }
+});
+
+
+/* ================================
+   🟢 2️⃣ Add Multiple Products (POST)
+   -> Adds multiple products at once
+================================ */
+// 🔹 Add multiple products at once
+router.post("/add-multiple", async (req, res) => {
+  try {
+    const { products } = req.body;
+
+    if (!products || products.length === 0) {
+      return res.status(400).json({ success: false, message: "No products provided." });
+    }
+
+    // Validate and prepare data
+    const formatted = products.map((p) => ({
+      brandName:p.brandName,
+      itemName: p.itemName,
+      colourName: p.colourName,
+      qty: p.qty,
+      totalProduct: p.totalProduct,
+      remaining: p.totalProduct, // starting remaining = total
+      rate: p.rate,
+      stockID: p.stockID  // Pass the stockID here
+    }));
+
+    // Save all to database
+    await Product.insertMany(formatted);
+
+    res.json({ success: true, message: "Products added successfully!" });
+  } catch (err) {
+    console.error("❌ Failed to save products:", err);
+    res.status(500).json({ success: false, message: "Server error: " + err.message });
+  }
+});
+
+
+
+/* ================================
+   🟢 3️⃣ All Products Page (GET)
+   -> Shows all products with stats
+================================ */
+// 🟢 3️⃣ All Products Page (GET) — with filters
+router.get("/all", async (req, res) => {
+  try {
+    let { filter, from, to, brand, itemName, colourName, unit, stockStatus, refund } = req.query;
+    let query = {};
+    const now = new Date();
+    let start, end;
+
+    // --- Date Filters ---
+    if (filter === "today") {
+      start = new Date(now.setHours(0,0,0,0)); end = new Date();
+    } else if (filter === "yesterday") {
+      start = new Date(now); start.setDate(start.getDate()-1); start.setHours(0,0,0,0);
+      end = new Date(start); end.setHours(23,59,59,999);
+    } else if (filter === "month") { start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(); }
+    else if (filter === "lastMonth") { start = new Date(now.getFullYear(), now.getMonth()-1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0, 23,59,59,999); }
+    else if (filter === "custom" && from && to) { start = new Date(from); start.setHours(0,0,0,0); end = new Date(to); end.setHours(23,59,59,999); }
+
+    if (start && end) query.createdAt = { $gte: start, $lte: end };
+
+    // --- Brand, Item, Colour, Unit, Stock, Refund filters ---
+    if (brand && brand !== "all") {
+      if (brand === "Weldon Paints") query.brandName = /weldon/i;
+      else if (brand === "Sparco Paints") query.brandName = /sparco/i;
+      else if (brand === "Value Paints") query.brandName = /value/i;
+      else if (brand === "Other") query.brandName = { $in: ["", null] };
+    }
+
+    if (itemName && itemName !== "all") {
+      const knownNames = ["Weather Shield","Emulsion","Enamel"];
+      if (itemName === "Other") query.itemName = { $nin: knownNames };
+      else query.itemName = new RegExp(itemName, "i");
+    }
+
+    if (colourName && colourName !== "all") query.colourName = new RegExp(colourName, "i");
+    if (unit && unit !== "all") query.qty = new RegExp(unit, "i");
+    if (stockStatus && stockStatus !== "all") {
+      query.remaining = stockStatus === "in" ? { $gt: 0 } : { $eq: 0 };
+    }
+    if (refund && refund !== "all") query.refundStatus = refund;
+
+    // --- Fetch Products ---
+    const filteredProducts = await Product.find(query).sort({ createdAt: -1 });
+
+    // --- Stats ---
+    let totalStock = 0, totalRemaining = 0, totalValue = 0, remaining=0, totalRefundedValue = 0;
+
+    filteredProducts.forEach(p => {
+      totalStock += p.totalProduct || 0;
+      totalValue += (p.totalProduct || 0) * (p.rate || 0);
+      totalRemaining += Math.min(p.remaining, p.totalProduct);
+      totalRefundedValue += Math.min(p.refundQuantity || 0, p.totalProduct) * (p.rate || 0);
+
+      remaining += (p.remaining || 0) * (p.rate || 0);
+
+      // console.log(p.totalProduct,p.remaining,remaining);
+
+      
+    });
+
+    res.render("allProducts", {
+      products: filteredProducts,
+      stats: { totalStock, totalRemaining, totalValue, remaining, totalRefundedValue },
+      filter, from, to,
+      selectedBrand: brand || "all",
+      selectedItem: itemName || "all",
+      selectedColour: colourName || "all",
+      selectedUnit: unit || "all",
+      stockStatus: stockStatus || "all",
+      selectedRefund: refund || "all"
+    });
+
+  } catch (err) {
+    console.error("❌ Error loading All Products:", err);
+    res.status(500).send("Error loading products page");
+  }
+});
+
+
+
+
+
+
+
+
+/* ================================
+   🟢  Delete Product (DELETE)
+================================ */
+router.delete("/delete-product/:id", async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+    if (!deletedProduct) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+    res.json({ success: true, message: "Product deleted successfully!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error deleting Product" });
+  }
+});
+
+
+
+router.get('/refund',(req,res)=>{
+res.render('refundProducts');
+});
+
+
+
+
+
+router.post('/refund', async (req, res) => {
+  try {
+    let { stockID, saleID, productQuantity } = req.body;
+
+    saleID = saleID.trim(); // 🆕 added
+
+    stockID = stockID.trim();
+    productQuantity = parseInt(productQuantity);
+
+    if (!stockID || !productQuantity || productQuantity <= 0) {
+      return res.status(400).send("❌ Invalid StockID or quantity");
+    }
+
+    const sale = await Sale.findOne({ stockID, saleID }); // 🔄 changed
+    const product = await Product.findOne({ stockID });
+
+    if (!sale || !product) {
+      return res.status(404).send("❌ Sale or Product not found");
+    }
+
+    // Maximum refundable quantity based on sale
+    const maxRefundable = sale.quantitySold - sale.refundQuantity;
+    if (productQuantity > maxRefundable) {
+      return res.status(400).send(`❌ Refund quantity exceeds remaining sold quantity. Max allowed: ${maxRefundable}`);
+    }
+
+    const refundQty = productQuantity;
+
+    // --- Update Sale ---
+    const purchaseRate = product.rate || 0;
+    const refundProfit = (sale.rate - purchaseRate) * refundQty;
+
+    sale.refundQuantity += refundQty;
+    sale.profit -= refundProfit;
+    if (sale.profit < 0) sale.profit = 0;
+
+    if (sale.refundQuantity === 0) sale.refundStatus = "Not Refunded";
+    else if (sale.refundQuantity >= sale.quantitySold) sale.refundStatus = "Fully Refunded";
+    else sale.refundStatus = "Partially Refunded";
+
+    await sale.save();
+
+    // --- Update Product ---
+    product.remaining = Math.min(product.remaining + refundQty, product.totalProduct);
+    
+    const allSales = await Sale.find({ stockID });
+    const totalRefundedQty = allSales.reduce((acc, s) => acc + (s.refundQuantity || 0), 0);
+    product.refundQuantity = Math.min(totalRefundedQty, product.totalProduct);
+
+    if (product.refundQuantity === 0) product.refundStatus = "Not Refunded";
+    else if (product.refundQuantity >= product.totalProduct) product.refundStatus = "Fully Refunded";
+    else product.refundStatus = "Partially Refunded";
+
+    await product.save();
+
+    res.send(`✅ Refund successful. ${refundQty} items returned to stock for SaleID: ${saleID}`); // 🔄 changed
+
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("❌ Internal Server Error");
+  }
+});
+
+
+
+
+
+router.get('/print', (req, res) => {
+  let products = [];
+  if (req.query.data) {
+    try {
+      products = JSON.parse(decodeURIComponent(req.query.data));
+    } catch (err) {
+      console.error("Error parsing print data:", err);
+    }
+  }
+  const currentDate = new Date().toLocaleString('en-US', { 
+    weekday:'long', year:'numeric', month:'long', day:'numeric', 
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+  res.render('printProducts', { products, currentDate });
+});
+
+
+
+
+
+
+// Use export default to export the router in ES Modules
+export default router;
