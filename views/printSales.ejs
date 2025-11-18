@@ -31,7 +31,7 @@
     <tbody>
       <% let totalAmount = 0; %>
       <% sales.forEach(s => { 
-           const total = s.quantitySold * s.rate;
+           const total = parseFloat((s.quantitySold * s.rate).toFixed(2));
            totalAmount += total;
       %>
         <tr>
@@ -40,7 +40,7 @@
           <td><%= s.itemName %></td>
           <td><%= s.qty %></td>
           <td><%= s.quantitySold %></td>
-          <td><%= s.rate %></td>
+          <td>Rs <%= parseFloat(s.rate.toFixed(2)) %></td>
           <td><%= total %></td>
         </tr>
       <% }) %>

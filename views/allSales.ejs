@@ -118,9 +118,11 @@
           <td><%= s.colourName %></td>
           <td><%= s.qty %></td>
           <td><%= s.quantitySold %></td>
-          <td>Rs <%= s.rate %></td>
-          <td>Rs <%= s.quantitySold * s.rate %></td>
-          <td class="<%= s.profit < 0 ? 'loss' : 'profit' %>">Rs <%= s.profit %></td>
+           <td>Rs <%= parseFloat(s.rate.toFixed(2)) %></td>
+         <td>Rs <%= parseFloat((s.quantitySold * s.rate).toFixed(2)) %></td>
+          <td class="<%= s.profit < 0 ? 'loss' : 'profit' %>">
+      Rs <%= parseFloat(s.profit.toFixed(2)) %>
+  </td>
           <td class="refund-status"><%= s.refundStatus %></td>
           <td class="refund-quantity"><%= s.refundQuantity %></td>
           <td><%= new Date(s.createdAt).toLocaleDateString() %></td>
