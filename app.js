@@ -4,14 +4,19 @@ import dotenv from "dotenv"; // dotenv for environment variables
 import connectDB from "./config/db.js"; 
 import { fileURLToPath } from "url"; // for handling ES modules' file paths
 import cookieParser from "cookie-parser";
-import { isAdminLoggedIn } from "./middleware/isadminloggedin.js";
-   
+import { isLoggedIn } from "./middleware/isLoggedIn.js";
+import { allowRoles } from "./middleware/allowRoles.js";
+
+// import helmet from "helmet";
+
 
 
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import saleRoutes from "./routes/saleRoutes.js";
 import agentRoutes from "./routes/agentRoutes.js";
+
+
 
 
 
@@ -25,6 +30,27 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+
+app.disable('x-powered-by');
+
+// app.use(
+//   helmet({
+//     contentSecurityPolicy: {
+//       useDefaults: true,
+//       directives: {
+//         "script-src": [
+//           "'self'",
+//           "'unsafe-inline'",
+//           "https://unpkg.com",
+//           "https://cdn.jsdelivr.net"
+//         ],
+//         "img-src": ["'self'", "data:", "https:"],
+//       },
+//     },
+//   })
+// );
+
 
 // Middleware
 app.use(express.json()); // Replaces body-parser.json()
@@ -49,11 +75,23 @@ app.use("/auth", authRoutes);
 // Default route (redirect to 'add-sale')
 app.get("/", (req, res) => res.redirect("/auth/login"));
 
+// app.set('trust proxy', true);
 
 
-app.get("/home",isAdminLoggedIn,(req,res)=>{
-  res.render('home');
+app.get("/home", isLoggedIn, (req, res) => {
+  const role=req.user.role;
+  // const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  // console.log("Client IP:", ip);
+  res.render('home',{role});
 });
+
+
+
+app.get('/navi-bar',isLoggedIn,allowRoles("admin", "worker"),(req,res)=>{
+  const role=req.user.role;
+  console.log(role);
+  res.render("partials/navbar",{role});
+})
 
 
 

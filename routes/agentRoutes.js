@@ -2,15 +2,18 @@ import express from 'express';
 const router = express.Router();
 import Agent from '../models/Agent.js';
 import Item from '../models/Item.js';
-import { isAdminLoggedIn } from '../middleware/isadminloggedin.js';
+import { isLoggedIn } from "../middleware/isLoggedIn.js";
+import { allowRoles } from "../middleware/allowRoles.js";
 
 
-router.get('/add',isAdminLoggedIn,(req,res)=>{
-res.render('addAgent');
+router.get('/add',isLoggedIn,allowRoles("admin", "worker"),(req,res)=>{
+const role=req.user.role;
+res.render('addAgent',{role});
 });
 
 
-router.post("/add",isAdminLoggedIn, async (req, res) => {
+
+router.post("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
   try {
     const { name, phone, cnic } = req.body;
 
@@ -51,7 +54,9 @@ router.post("/add",isAdminLoggedIn, async (req, res) => {
 
 
 
-router.get("/all",isAdminLoggedIn, async (req, res) => {
+router.get("/all",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
+   const role=req.user.role;
+ 
   try {
     let { filter, from, to } = req.query;
     let query = {};
@@ -114,6 +119,7 @@ router.get("/all",isAdminLoggedIn, async (req, res) => {
     // SEND TO EJS
     // --------------------------
     res.render("allAgents", {
+      role,
       agents,
       stats: {
         totalAgents,
@@ -135,9 +141,7 @@ router.get("/all",isAdminLoggedIn, async (req, res) => {
 
 
 
-
-
-router.delete("/delete-agent/:id",isAdminLoggedIn, async (req, res) => {
+router.delete("/delete-agent/:id",isLoggedIn,allowRoles("admin"), async (req, res) => {
   try {
     const agentId = req.params.id;
     const deletedAgent = await Agent.findByIdAndDelete(agentId);
@@ -155,7 +159,9 @@ router.delete("/delete-agent/:id",isAdminLoggedIn, async (req, res) => {
 
 
 
-router.get('/view-agent/:id',isAdminLoggedIn,async(req,res)=>{
+router.get('/view-agent/:id', isLoggedIn, allowRoles("admin", "worker"), async (req, res) => {
+  const role=req.user.role;
+
   try {
     let { filter, from, to } = req.query;
     let query = {};
@@ -166,20 +172,20 @@ router.get('/view-agent/:id',isAdminLoggedIn,async(req,res)=>{
     // DATE FILTERS
     // --------------------------
     if (filter === "today") {
-      start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0,0);
-      end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23,59,59,999);
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     } else if (filter === "yesterday") {
       const y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-      start = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 0,0,0,0);
-      end = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 23,59,59,999);
+      start = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 0, 0, 0, 0);
+      end = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 23, 59, 59, 999);
     } else if (filter === "month") {
       start = new Date(now.getFullYear(), now.getMonth(), 1);
-      end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23,59,59,999);
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     } else if (filter === "lastMonth") {
       const lmYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
       const lmMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
       start = new Date(lmYear, lmMonth, 1);
-      end = new Date(lmYear, lmMonth + 1, 0, 23,59,59,999);
+      end = new Date(lmYear, lmMonth + 1, 0, 23, 59, 59, 999);
     } else if (filter === "custom" && from && to) {
       const f = new Date(from);
       const t = new Date(to);
@@ -196,13 +202,18 @@ router.get('/view-agent/:id',isAdminLoggedIn,async(req,res)=>{
     // --------------------------
     // FETCH AGENT + ITEMS
     // --------------------------
-    const agent = await Agent.findOne({ _id: req.params.id }).populate({
-    path: "items",
-    match: query,
-    options: { sort: { createdAt: -1 } }
+    const agent = await Agent.findById(req.params.id).populate({
+      path: "items",
+      match: query,
+      options: { sort: { createdAt: -1 } }
     });
 
+    if (!agent) {
+      return res.status(404).send("Agent not found");
+    }
 
+    // Safe access to items
+    const items = agent.items || [];
 
     // --------------------------
     // GLOBAL STATS
@@ -211,17 +222,17 @@ router.get('/view-agent/:id',isAdminLoggedIn,async(req,res)=>{
     let totalPercentageAmountGiven = 0;
     let totalPercentageAmountLeft = 0;
 
-      agent.items.forEach(item => {
-        totalPercentageAmount += Number(item.percentageAmount || 0);
-        totalPercentageAmountGiven += Number(item.paidAmount || 0);
-        totalPercentageAmountLeft += Number(item.percentageAmount || 0) - Number(item.paidAmount || 0);
-      });
-    
+    items.forEach(item => {
+      totalPercentageAmount += Number(item.percentageAmount || 0);
+      totalPercentageAmountGiven += Number(item.paidAmount || 0);
+      totalPercentageAmountLeft += Number(item.percentageAmount || 0) - Number(item.paidAmount || 0);
+    });
 
     // --------------------------
     // SEND TO EJS
     // --------------------------
     res.render("viewAgent", {
+      role,
       agent,
       stats: {
         totalPercentageAmount,
@@ -234,16 +245,15 @@ router.get('/view-agent/:id',isAdminLoggedIn,async(req,res)=>{
     });
 
   } catch (err) {
-    console.error("❌ Error in /view agents route:", err);
-    res.status(500).send("Error loading agents page");
+    console.error("❌ Error in /view-agent route:", err);
+    res.status(500).send("Error loading agent page");
   }
-
 });
 
 
 
 
-router.delete("/delete-item/:id",isAdminLoggedIn, async (req, res) => {
+router.delete("/delete-item/:id",isLoggedIn,allowRoles("admin"), async (req, res) => {
   try {
     const itemId = req.params.id;
     const deletedItem = await Item.findByIdAndDelete(itemId);
@@ -261,7 +271,7 @@ router.delete("/delete-item/:id",isAdminLoggedIn, async (req, res) => {
 
 
 
-router.post("/pay-item/:id",isAdminLoggedIn, async (req, res) => {
+router.post("/pay-item/:id",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
 

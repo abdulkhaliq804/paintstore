@@ -81,7 +81,10 @@
           <td><%= new Date(a.createdAt).toLocaleDateString() %></td>
           <td>
             <button onclick="viewAgent('<%= a._id %>')" id="view"><a href="/agents/view-agent/<%= a._id %>" target="_blank" style="text-decoration: none; color: #008767; ">View</a></button>
-            <button onclick="deleteAgent('<%= a._id %>')" id="delete">Delete</button>
+            <%if(role=="admin"){ %> 
+              <button onclick="deleteAgent('<%= a._id %>')" id="delete">Delete</button>
+              <%} %>
+            
           </td>
         </tr>
       <% }) %>
@@ -118,19 +121,22 @@ async function deleteAgent(agentId) {
       method: "DELETE"
     });
 
+    // Parse JSON safely
     const data = await res.json();
 
     if (data.success) {
       alert("Agent deleted successfully!");
       location.reload();
     } else {
-      alert("Failed to delete agent");
+      alert(data.message || "Failed to delete agent");
     }
 
   } catch (err) {
     alert("Error deleting agent");
+    console.error("Delete Agent Error:", err);
   }
 }
+
 
 
 

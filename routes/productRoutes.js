@@ -1,7 +1,8 @@
 import express from 'express';
 import Product from "../models/Product.js";
 import Sale from "../models/Sale.js";
-import { isAdminLoggedIn } from '../middleware/isadminloggedin.js';
+import { isLoggedIn } from "../middleware/isLoggedIn.js";
+import { allowRoles } from "../middleware/allowRoles.js";
 
 
 
@@ -12,10 +13,11 @@ const router = express.Router();
    -> Renders the Add Product form (EJS)
 ================================ */
 // 🟢 Add Product Page (GET)
-router.get("/add",isAdminLoggedIn, async (req, res) => {
+router.get("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
+  const role=req.user.role;
   try {
     const products = await Product.find().sort({ itemName: 1 }); // Fetch existing products
-   res.render("addProduct", { products, layout: false });
+   res.render("addProduct", { products, layout: false ,role});
 
 
   } catch (err) {
@@ -30,7 +32,7 @@ router.get("/add",isAdminLoggedIn, async (req, res) => {
    -> Adds multiple products at once
 ================================ */
 // 🔹 Add multiple products at once
-router.post("/add-multiple",isAdminLoggedIn, async (req, res) => {
+router.post("/add-multiple",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
   try {
     const { products } = req.body;
 
@@ -67,7 +69,9 @@ router.post("/add-multiple",isAdminLoggedIn, async (req, res) => {
    -> Shows all products with stats
 ================================ */
 // 🟢 3️⃣ All Products Page (GET) — with filters
-router.get("/all",isAdminLoggedIn, async (req, res) => {
+router.get("/all",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
+  const role=req.user.role;
+  
   try {
     let { filter, from, to, brand, itemName, colourName, unit, stockStatus, refund } = req.query;
     let query = {};
@@ -163,7 +167,8 @@ router.get("/all",isAdminLoggedIn, async (req, res) => {
       selectedColour: colourName || "all",
       selectedUnit: unit || "all",
       stockStatus: stockStatus || "all",
-      selectedRefund: refund || "all"
+      selectedRefund: refund || "all",
+      role
     });
   } catch (err) {
     console.error("❌ Error loading All Products:", err);
@@ -174,15 +179,10 @@ router.get("/all",isAdminLoggedIn, async (req, res) => {
 
 
 
-
-
-
-
-
 /* ================================
    🟢  Delete Product (DELETE)
 ================================ */
-router.delete("/delete-product/:id",isAdminLoggedIn, async (req, res) => {
+router.delete("/delete-product/:id",isLoggedIn,allowRoles("admin"), async (req, res) => {
   try {
     const productId = req.params.id;
     const deletedProduct = await Product.findByIdAndDelete(productId);
@@ -198,15 +198,15 @@ router.delete("/delete-product/:id",isAdminLoggedIn, async (req, res) => {
 
 
 
-router.get('/refund',isAdminLoggedIn,(req,res)=>{
-res.render('refundProducts');
+router.get('/refund',isLoggedIn,allowRoles("admin", "worker"),(req,res)=>{
+const role=req.user.role;
+res.render('refundProducts',{role});
 });
 
 
 
 
-
-router.post('/refund',isAdminLoggedIn, async (req, res) => {
+router.post('/refund',isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
   try {
     let { stockID, saleID, productQuantity } = req.body;
 
@@ -273,7 +273,7 @@ router.post('/refund',isAdminLoggedIn, async (req, res) => {
 
 
 
-router.get('/print',isAdminLoggedIn, (req, res) => {
+router.get('/print',isLoggedIn,allowRoles("admin", "worker"), (req, res) => {
   let products = [];
   if (req.query.data) {
     try {

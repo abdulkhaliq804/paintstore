@@ -3,7 +3,9 @@ import Product from "../models/Product.js";
 import Sale from "../models/Sale.js";
 import Agent from '../models/Agent.js';
 import Item from '../models/Item.js';
-import { isAdminLoggedIn } from '../middleware/isadminloggedin.js';
+import { isLoggedIn } from "../middleware/isLoggedIn.js";
+import { allowRoles } from "../middleware/allowRoles.js";
+
 
 
 const router = express.Router();
@@ -11,7 +13,8 @@ const router = express.Router();
 /* ================================
    🟢 1️⃣ Add Sale Page (GET)
 ================================ */
-router.get("/add",isAdminLoggedIn, async (req, res) => {
+router.get("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
+  const role=req.user.role;
   try {
     // Fetch all products
     const products = await Product.find();
@@ -20,7 +23,7 @@ router.get("/add",isAdminLoggedIn, async (req, res) => {
     const agents = await Agent.find();
 
     // Render EJS with products and agents
-    res.render("addSale", { products, agents });
+    res.render("addSale", { products, agents,role });
   } catch (err) {
     console.error("❌ Error loading Add Sale page:", err);
     res.status(500).send("Error loading Add Sale page");
@@ -36,7 +39,7 @@ router.get("/add",isAdminLoggedIn, async (req, res) => {
    ✅ No FIFO logic, directly decrease stock
 ================================ */
 // Add Sale (POST) - with FIFO logic removed but ensuring proper profit/loss calculation
-router.post("/add",isAdminLoggedIn, async (req, res) => {
+router.post("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
   try {
     const { sales, agentID, percentage } = req.body; // frontend se pura tempSales array bhejna
 
@@ -121,7 +124,8 @@ router.post("/add",isAdminLoggedIn, async (req, res) => {
 ================================ */
 
 
-router.get("/all",isAdminLoggedIn, async (req, res) => {
+router.get("/all",isLoggedIn,allowRoles("admin"), async (req, res) => {
+  const role=req.user.role;
   try {
     let { filter, from, to, brand, itemName, colourName, unit, refund } = req.query;
     let query = {};
@@ -225,6 +229,7 @@ router.get("/all",isAdminLoggedIn, async (req, res) => {
 
 
     res.render("allSales", {
+      role,
       sales: filteredSales,
       stats: { totalSold, totalRevenue, totalProfit, totalLoss, totalRefunded },
       filter,
@@ -251,7 +256,7 @@ router.get("/all",isAdminLoggedIn, async (req, res) => {
 /* ================================
    🟢 4️⃣ Delete Sale (DELETE)
 ================================ */
-router.delete("/delete-sale/:id",isAdminLoggedIn, async (req, res) => {
+router.delete("/delete-sale/:id",isLoggedIn,allowRoles("admin"), async (req, res) => {
   try {
     const saleId = req.params.id;
     const deletedSale = await Sale.findByIdAndDelete(saleId);
@@ -267,7 +272,7 @@ router.delete("/delete-sale/:id",isAdminLoggedIn, async (req, res) => {
 
 
 
-router.get('/print',isAdminLoggedIn, async (req, res) => {
+router.get('/print',isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
   let sales = [];
 
   if (req.query.data) {

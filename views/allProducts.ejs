@@ -107,7 +107,9 @@
       <th>Status</th>
       <th>Refund (Qty)</th>
       <th>Date</th>
+      <% if(role=="admin"){ %>
       <th>Action</th>
+      <% } %>
     </tr>
   </thead>
   <tbody>
@@ -127,7 +129,10 @@
           <td class="refund-status"><%= p.refundStatus %></td>
           <td class="refund-quantity"><%= p.refundQuantity %></td>
           <td><%= new Date(p.createdAt).toLocaleDateString() %></td>
-          <td><button onclick="deleteProduct('<%= p._id %>')" id="delete">Delete</button></td>
+         <% if(role=="admin"){ %>
+        <td><button onclick="deleteProduct('<%= p._id %>')" id="delete">Delete</button></td>
+        <% } %>
+          
         </tr>
       <% }) %>
     <% } %>
@@ -522,16 +527,33 @@ function populateItemFilter(brand) {
   });
 
   async function deleteProduct(productId) {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+  if (!confirm("Are you sure you want to delete this product?")) return;
+
+  try {
+    const res = await fetch(`/products/delete-product/${productId}`, { method: "DELETE" });
+    
+    // Attempt to parse JSON; fallback to text for access denied messages
+    let data;
     try {
-      const res = await fetch(`/products/delete-product/${productId}`, { method: "DELETE" });
-      const data = await res.json();
-      if (data.success) location.reload();
-      else alert("Failed to delete product");
+      data = await res.json();
     } catch {
-      alert("Error deleting product");
+      const text = await res.text();
+      data = { success: false, message: text };
     }
+
+    if (data.success) {
+      alert("Product deleted successfully!");
+      location.reload();
+    } else {
+      alert(data.message || "Failed to delete product");
+    }
+
+  } catch (err) {
+    alert("Error deleting product");
+    console.error("Delete product error:", err);
   }
+}
+
 </script>
 </body>
 </html>

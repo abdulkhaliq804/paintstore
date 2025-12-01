@@ -3,30 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weldon Paints Dashboard</title>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <title>Weldon Paints Sidebar</title>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-      ::-webkit-scrollbar {
-  width: 5px;
-}
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background-color: #06A56C; }
+    ::-webkit-scrollbar-track { background-color: #f1f1f1; }
 
-::-webkit-scrollbar-thumb {
-  background-color: #06A56C;
-}
+    body { font-family: 'Segoe UI', sans-serif; background: #f6f7fb; }
 
-::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
-}
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f6f7fb;
-    }
-
-    /* ------------------- Sidebar ------------------- */
+    /* Sidebar */
     .sidebar {
       width: 200px;
       height: 100vh;
@@ -38,28 +26,12 @@
       overflow-y: auto;
     }
 
-    .logo {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+    .logo { text-align: center; margin-bottom: 30px; }
+    .logo img { width: 60px; border-radius: 12px; }
+    .logo h3 { margin-top: 10px; font-size: 19px; color: #06A56C; font-weight: 600; }
 
-    .logo img {
-      width: 60px;
-      border-radius: 12px;
-    }
+    ul { list-style: none; padding-left: 0; }
 
-    .logo h3 {
-      margin-top: 10px;
-      font-size: 19px;
-      color: #06A56C;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    ul { list-style: none; }
-
-
-    /* ------------------- MAIN MENU ITEMS ------------------- */
     .dropdown {
       padding: 14px 16px;
       font-size: 15px;
@@ -72,36 +44,17 @@
       cursor: pointer;
       transition: 0.25s;
       border: 1px solid transparent;
-      
     }
 
-    .dropdown:hover {
-      background: #f3f4f6;
-      border-color: #e5e7eb;
-    }
+    .dropdown:hover { background: #f3f4f6; border-color: #e5e7eb; }
+    .menu-left { display: flex; align-items: center; gap: 10px; flex: 1; }
 
-    .menu-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-    }
+    .arrow { transition: 0.25s ease; opacity: 0.6; }
 
-    .menu-left i {
-      opacity: 0.8;
-    }
-
-    .arrow {
-      transition: 0.25s ease;
-      opacity: 0.6;
-    }
-
-
-    /* ------------------- SUBMENU ------------------- */
     .submenu {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.30s ease, padding 0.3s;
+      transition: max-height 0.3s ease, padding 0.3s;
       background: #f9fafb;
       border-radius: 10px;
       margin: 4px 0 14px 0;
@@ -109,35 +62,12 @@
       border-left: 3px solid #06A56C;
     }
 
-    .submenu.open {
-      max-height: 260px;
-      padding: 10px 0 14px 12px;
-    }
+    .submenu.open { max-height: 260px; padding: 10px 0 14px 12px; }
+    .submenu li { padding: 10px 12px; font-size: 13px; border-radius: 8px; margin-bottom: 6px; color: #09A66E; }
+    .submenu li:hover { background: #ffffff; color: #106beb; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
 
-    .submenu li {
-      padding: 10px 12px;
-      font-size: 13px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      transition: 0.25s;
-      color: #09A66E;
-    }
+    a { color: inherit; text-decoration: none; display: block; width: 100%; }
 
-    .submenu li:hover {
-      background: #ffffff;
-      color: #106beb;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
-
-    a{
-      color: inherit;
-      text-decoration: none;
-      display: block;
-      width: 100%;
-    }
-
-
-    /* ------------------- LOGOUT BUTTON ------------------- */
     .logout {
       margin-top: 40px;
       padding: 14px 16px;
@@ -152,38 +82,29 @@
       font-size: 17px;
     }
 
-    .logout:hover {
-      background: #f3f4f6;
-      border-color: #e5e7eb;
-    }
-
-    main {
-      margin-left: 200px;
-      padding: 10px;
-    }
+    .logout:hover { background: #f3f4f6; border-color: #e5e7eb; }
+    main { margin-left: 200px; padding: 10px; }
   </style>
 </head>
-
 <body>
 
   <div class="sidebar">
-
     <div class="logo">
       <img src="/images/weldon-paints-logo.png" />
       <h3>Hamza Paints</h3>
     </div>
 
     <ul>
-
+      <!-- Home -->
       <li><a href="/home" class="dropdown">
-        <div class="menu-left"><i data-lucide="home"></i> Home</div>
+        <div class="menu-left">🏠 Home</div>
       </a></li>
 
-      <!-- PRODUCT GROUP -->
+      <!-- Products -->
       <div class="menu-group">
         <li class="dropdown">
-          <div class="menu-left"><i data-lucide="package"></i> Products</div>
-          <i data-lucide="chevron-right" class="arrow"></i>
+          <div class="menu-left">📦 Products</div>
+          <span class="arrow">▶</span>
         </li>
         <ul class="submenu">
           <li><a href="/products/add">Add Product</a></li>
@@ -192,23 +113,26 @@
         </ul>
       </div>
 
-      <!-- SALES GROUP -->
+      <!-- Sales -->
       <div class="menu-group">
         <li class="dropdown">
-          <div class="menu-left"><i data-lucide="bar-chart-2"></i> Sales</div>
-          <i data-lucide="chevron-right" class="arrow"></i>
+          <div class="menu-left">📊 Sales</div>
+          <span class="arrow">▶</span>
         </li>
         <ul class="submenu">
           <li><a href="/sales/add">Add Sale</a></li>
+          <% if(role=="admin"){ %>
           <li><a href="/sales/all">All Sales</a></li>
+            <% } %>
+         
         </ul>
       </div>
 
-      <!-- AGENT GROUP -->
+      <!-- Agents -->
       <div class="menu-group">
         <li class="dropdown">
-          <div class="menu-left"><i data-lucide="users"></i> Agents</div>
-          <i data-lucide="chevron-right" class="arrow"></i>
+          <div class="menu-left">👥 Agents</div>
+          <span class="arrow">▶</span>
         </li>
         <ul class="submenu">
           <li><a href="/agents/add">Add Agent</a></li>
@@ -216,38 +140,25 @@
         </ul>
       </div>
 
-      <li><a href="/auth/logout" class="logout">
-        <i data-lucide="log-out"></i> Logout
-      </a></li>
-
+      <!-- Logout -->
+      <li><a href="/auth/logout" class="logout">🔓 Logout</a></li>
     </ul>
   </div>
 
-  <main></main>
+  <!-- <main></main> -->
 
   <script>
-    lucide.createIcons();
-
+    // Submenu toggle
     document.querySelectorAll(".menu-group").forEach(group => {
       const dropdown = group.querySelector(".dropdown");
       const submenu = group.querySelector(".submenu");
       const arrow = group.querySelector(".arrow");
 
       dropdown.addEventListener("click", () => {
-
-        // Close all other submenu
-        document.querySelectorAll(".submenu").forEach(s => {
-          if (s !== submenu) s.classList.remove("open");
-        });
-
-        document.querySelectorAll(".arrow").forEach(a => {
-          if (a !== arrow) a.style.transform = "rotate(0deg)";
-        });
-
-        // Toggle current
+        document.querySelectorAll(".submenu").forEach(s => { if (s !== submenu) s.classList.remove("open"); });
+        document.querySelectorAll(".arrow").forEach(a => { if (a !== arrow) a.textContent = '▶'; });
         submenu.classList.toggle("open");
-        arrow.style.transform =
-          submenu.classList.contains("open") ? "rotate(90deg)" : "rotate(0deg)";
+        arrow.textContent = submenu.classList.contains("open") ? '▼' : '▶';
       });
     });
   </script>

@@ -31,7 +31,7 @@
       100% { background-position: 0% 50%; }
     }
 
-    /* ===== Interactive Particles ===== */
+    /* ===== Particles ===== */
     .particle {
       position: absolute;
       border-radius: 50%;
@@ -45,17 +45,16 @@
       100% { transform: translateY(-10vh) translateX(50vw); }
     }
 
-    /* ===== Login Form Wrapper ===== */
+    /* ===== Login Wrapper ===== */
     .login-wrapper {
       z-index: 10;
       width: 100%;
       max-width: 400px;
       padding: 30px 25px;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255,255,255,0.15);
       border-radius: 20px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.25);
       backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -98,7 +97,6 @@
       background: rgba(255,255,255,0.95);
     }
 
-    /* Show/Hide password icon */
     .toggle-password {
       position: absolute;
       top: 50%;
@@ -106,7 +104,6 @@
       transform: translateY(-50%);
       cursor: pointer;
       font-size: 18px;
-      color: #555;
       user-select: none;
     }
 
@@ -135,7 +132,6 @@
       text-shadow: 0 1px 4px rgba(0,0,0,0.5);
     }
 
-    /* ===== Responsive ===== */
     @media (max-width: 600px) {
       h1 { font-size: 24px; }
       .login-wrapper { padding: 20px; border-radius: 15px; }
@@ -146,7 +142,6 @@
       .login-wrapper { padding: 15px; }
       h1 { font-size: 22px; }
     }
-
   </style>
 </head>
 <body>
@@ -157,7 +152,7 @@
       <input type="text" name="username" placeholder="Enter Username" required />
       <div class="password-wrapper">
         <input type="password" name="password" placeholder="Enter Password" required id="password" />
-        <span class="toggle-password" id="togglePassword">&#128065;</span>
+        <span class="toggle-password" id="togglePassword">👁️</span>
       </div>
       <button id="login" type="submit">Login</button>
     </form>
@@ -169,8 +164,8 @@
     const particleCount = 30;
     const particles = [];
 
-    for(let i=0; i<particleCount; i++){
-      const p = document.createElement('div');
+    for(let i=0;i<particleCount;i++){
+      const p=document.createElement('div');
       p.classList.add('particle');
       const size = 5 + Math.random()*8;
       p.style.width = `${size}px`;
@@ -179,64 +174,71 @@
       p.style.top = `${Math.random()*100}vh`;
       p.style.opacity = 0.2 + Math.random()*0.6;
       document.body.appendChild(p);
-      particles.push({el: p, speedX: Math.random()*0.5, speedY: Math.random()*0.3});
+      particles.push({el:p,speedX:Math.random()*0.5,speedY:Math.random()*0.3});
     }
 
     function animateParticles(){
-      particles.forEach(p => {
-        let top = parseFloat(p.el.style.top);
-        let left = parseFloat(p.el.style.left);
-        top -= p.speedY;
-        left += Math.sin(Date.now() * 0.001) * p.speedX;
-        if(top < -10) top = 100;
-        if(left > 100) left = 0;
-        p.el.style.top = top + 'vh';
-        p.el.style.left = left + 'vw';
+      particles.forEach(p=>{
+        let top=parseFloat(p.el.style.top);
+        let left=parseFloat(p.el.style.left);
+        top-=p.speedY;
+        left+=Math.sin(Date.now()*0.001)*p.speedX;
+        if(top<-10) top=100;
+        if(left>100) left=0;
+        p.el.style.top=top+'vh';
+        p.el.style.left=left+'vw';
       });
       requestAnimationFrame(animateParticles);
     }
     animateParticles();
 
-    // ===== Show/Hide Password =====
+    // ===== Toggle Password =====
     const togglePassword = document.getElementById("togglePassword");
     const password = document.getElementById("password");
-    togglePassword.addEventListener("click", () => {
-      password.type = password.type === "password" ? "text" : "password";
+
+    togglePassword.addEventListener("click",()=>{
+      if(password.type==="password"){
+        password.type="text";
+        togglePassword.textContent="🙈";
+      } else {
+        password.type="password";
+        togglePassword.textContent="👁️";
+      }
     });
 
-    // ===== Login Form Handling =====
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    // ===== Login Form Submit =====
+    const loginForm=document.getElementById("loginForm");
+    loginForm.addEventListener("submit", async (e)=>{
       e.preventDefault();
-      const username = e.target.username.value.trim();
-      const passwordVal = e.target.password.value.trim();
-      const messageEl = document.getElementById("message");
-      messageEl.textContent = "";
+      const username=e.target.username.value.trim();
+      const passwordVal=e.target.password.value.trim();
+      const messageEl=document.getElementById("message");
+      messageEl.textContent="";
 
       try {
-        const res = await fetch("/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password: passwordVal })
+        const res=await fetch("/auth/login",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({username,password:passwordVal})
         });
 
-        const data = await res.json();
+        const data=await res.json();
         if(!data.success){
-          messageEl.style.color = "red";
-          messageEl.textContent = data.message;
+          messageEl.style.color="red";
+          messageEl.textContent=data.message;
           return;
         }
 
-        messageEl.style.color = "lightgreen";
-        messageEl.textContent = "Logged In Successfully! Redirecting...";
-        e.target.username.value = "";
-        e.target.password.value = "";
-
-        setTimeout(() => { window.location.href = "/home"; }, 1000);
+        messageEl.style.color="lightgreen";
+        messageEl.textContent="Logged In Successfully! Redirecting...";
+        e.target.username.value="";
+        e.target.password.value="";
+        setTimeout(()=>{window.location.href="/home";},1000);
 
       } catch(err){
         console.error(err);
-        messageEl.style.color = "red";
-        messageEl.textContent = "Server error occurred. Try again!";
+        messageEl.style.color="red";
+        messageEl.textContent="Server error occurred. Try again!";
       }
     });
   </script>

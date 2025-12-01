@@ -90,7 +90,11 @@
   <button onclick="openPayBox('<%= i._id %>', '<%= i.percentageAmount %>', '<%= i.paidAmount %>')" id="pay">
     Pay
   </button>
-
+ <% if(role=="admin"){ %>  
+<button onclick="deleteItem('<%= i._id %>')" class="delete-btn">
+  Delete
+</button>
+ <% } %>
   
 
   <!-- Pay Input Box -->
@@ -163,17 +167,24 @@ async function deleteItem(itemId) {
 
   try {
     const res = await fetch(`/agents/delete-item/${itemId}`, { method: "DELETE" });
+
+    // Parse JSON safely
     const data = await res.json();
+
     if (data.success) {
       alert("Item deleted successfully!");
       location.reload();
     } else {
-      alert("Failed to delete Item");
+      // Show the middleware message if access denied or other failure
+      alert(data.message || "Failed to delete item");
     }
+
   } catch (err) {
     alert("Error deleting item");
+    console.error("Delete Item Error:", err);
   }
 }
+
 </script>
 
 
