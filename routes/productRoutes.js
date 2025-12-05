@@ -16,7 +16,7 @@ const router = express.Router();
 router.get("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
   const role=req.user.role;
   try {
-    const products = await Product.find().sort({ itemName: 1 }); // Fetch existing products
+   const products = await Product.find().sort({ itemName: 1 }); // Fetch existing products
    res.render("addProduct", { products, layout: false ,role});
 
 

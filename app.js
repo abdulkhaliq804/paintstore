@@ -31,34 +31,33 @@ const app = express();
 // =======================================================
 // 🛡 SECURITY LAYER 1 → Hide Express
 // =======================================================
-app.disable("x-powered-by");
-
+// app.disable("x-powered-by");
 // =======================================================
 // 🛡 SECURITY LAYER 2 → Helmet
 // =======================================================
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      useDefaults: true,
-      directives: {
-        "script-src": [
-          "'self'",
-          "'unsafe-inline'",
-          "https://unpkg.com",
-          "https://cdn.jsdelivr.net"
-        ],
-        "style-src": [
-          "'self'", 
-          "'unsafe-inline'", 
-          "https://fonts.googleapis.com"
-        ],
-        "img-src": ["'self'", "data:", "https:"],
-      },
-    },
-    crossOriginEmbedderPolicy: false,
-    crossOriginOpenerPolicy: false,
-  })
-);
+// app.use(
+//   helmet({
+//     contentSecurityPolicy: {
+//       useDefaults: true,
+//       directives: {
+//         "script-src": [
+//           "'self'",
+//           "'unsafe-inline'",
+//           "https://unpkg.com",
+//           "https://cdn.jsdelivr.net"
+//         ],
+//         "style-src": [
+//           "'self'", 
+//           "'unsafe-inline'", 
+//           "https://fonts.googleapis.com"
+//         ],
+//         "img-src": ["'self'", "data:", "https:"],
+//       },
+//     },
+//     crossOriginEmbedderPolicy: false,
+//     crossOriginOpenerPolicy: false,
+//   })
+// );
 
 // =======================================================
 // 🛡 SECURITY LAYER 3 → CORS+ORIGIN (Local + Vercel ready)
@@ -73,14 +72,14 @@ app.use(cors({
   credentials: true
 }));
 
-// app.use((req, res, next) => {
-//   const origin = req.headers.origin;
-//   if (!origin || allowedOrigins.includes(origin)) {
-//     next();
-//   } else {
-//     return res.status(403).json({ success: false, message: "❌ Forbidden: Origin not allowed" });
-//   }
-// });
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (!origin || allowedOrigins.includes(origin)) {
+    next();
+  } else {
+    return res.status(403).json({ success: false, message: "❌ Forbidden: Origin not allowed" });
+  }
+});
 
 
 

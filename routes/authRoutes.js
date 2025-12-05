@@ -1,16 +1,15 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import Admin from "../models/Admin.js";
 import { isLoggedIn } from "../middleware/isLoggedIn.js";
 import { isAlreadyLoggedIn } from "../middleware/isAlreadyLoggedIn.js";
 import { allowRoles } from "../middleware/allowRoles.js";
 import { checkIPBlocked } from "../middleware/checkIPBlocked.js";
 import { ensure2FA } from "../middleware/ensure2FA.js";
 import rateLimit from "express-rate-limit";
-import BlockedIP from "../models/BlockedIP.js";
 import nodemailer from "nodemailer";
-
+import Admin from "../models/Admin.js";
+import BlockedIP from "../models/BlockedIP.js";
 
 
 const router = express.Router();
@@ -162,7 +161,7 @@ const loginLimiter = rateLimit({
 
     return res.status(429).json({
       success: false,
-      message: "Too many attempts! Your IP is permanently blocked."
+      message: `Too many attempts! Your IP ${ip} is permanently blocked.`
     });
   }
 });
@@ -248,7 +247,7 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
 
 
 router.get('/2FA',ensure2FA,(req,res)=>{
-res.render("2FA")
+res.render("2FA");
 });
 
 
@@ -289,14 +288,14 @@ router.post("/verify-otp",ensure2FA, async (req, res) => {
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       process.env.SECRET_KEY,
-      { expiresIn: "1d" }
+      { expiresIn: "365d" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000
+      maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year in milliseconds
     });
 
     return res.json({ success: true, message: "OTP verified successfully!" });
