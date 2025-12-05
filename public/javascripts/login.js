@@ -96,7 +96,7 @@ function initLoginForm2FA() {
 
     } catch (err) {
       console.error(err);
-      showMessage("Server error occurred. Try to fuck fareha!", "blue");
+      showMessage("Server error occurred. Try again!", "red");
     }
   });
 
