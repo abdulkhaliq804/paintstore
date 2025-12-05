@@ -14,10 +14,9 @@ import productRoutes from "./routes/productRoutes.js";
 import saleRoutes from "./routes/saleRoutes.js";
 import agentRoutes from "./routes/agentRoutes.js";
 
-// middlewares
+// Middlewares
 import { isLoggedIn } from "./middleware/isLoggedIn.js";
 import { allowRoles } from "./middleware/allowRoles.js";
-
 
 // Load .env
 dotenv.config();
@@ -61,18 +60,23 @@ app.use(
 );
 
 // =======================================================
-// 🛡 SECURITY LAYER 3 → CORS (CLOSE PUBLIC ACCESS)
+// 🛡 SECURITY LAYER 3 → CORS (Local + Vercel ready)
 // =======================================================
+const allowedOrigins = process.env.NODE_ENV === "production"
+  ? ["https://your-vercel-app.vercel.app"]  // ⚠️ Replace with your deployed domain
+  : ["http://localhost:3000"];
+
 app.use(cors({
-  origin: ["https://yourdomain.com"],  // ⚠️ change domain here
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 
 // =======================================================
-// 🛡 SECURITY LAYER 4 → IP detection + Rate Limiting (Anti‑DDoS & Brute Force)
+// 🛡 SECURITY LAYER 4 → Trust proxy (for Vercel)
 // =======================================================
-app.set("trust proxy", false);
+app.set("trust proxy", process.env.NODE_ENV === "production");
+
 // =======================================================
 // 🛡 SECURITY LAYER 5 → Parsers
 // =======================================================
@@ -81,30 +85,28 @@ app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 app.use(cookieParser());
 
 // =======================================================
-// 🛡 SECURITY LAYER 6 → STATIC FILES
+// 🛡 SECURITY LAYER 6 → STATIC FILES & VIEWS
 // =======================================================
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 
-// ===============================================================
-// EXPRESS SESSION 
-// ==================================================================
+// =======================================================
+// 🛡 SESSION
+// =======================================================
 app.use(session({
-  secret: process.env.SESSION_SECRET, // kisi strong secret use karo
+  secret: process.env.SESSION_SECRET || "defaultsecret",
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    maxAge: 5 * 60 * 1000, // 5 minutes, OTP ke liye
+    maxAge: 5 * 60 * 1000, // 5 minutes
     httpOnly: true,
     secure: process.env.NODE_ENV === "production"
   }
 }));
-// ===============================================================
 
-
-// ================================================================
-// Routes
+// =======================================================
+// ROUTES
 // =======================================================
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
@@ -123,10 +125,8 @@ app.get("/navi-bar", isLoggedIn, allowRoles("admin", "worker"), (req, res) => {
   res.render("partials/navbar", { role });
 });
 
-
-
 // =======================================================
-// 🛑 404
+// 🛑 404 Handler
 // =======================================================
 app.use((req, res) => {
   res.status(404).send("❌ Page not found.");
@@ -141,9 +141,9 @@ app.use((err, req, res, next) => {
 });
 
 // =======================================================
-// Server
+// SERVER
 // =======================================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on ${process.env.NODE_ENV === "production" ? "Vercel" : "http://localhost:" + PORT}`);
 });
