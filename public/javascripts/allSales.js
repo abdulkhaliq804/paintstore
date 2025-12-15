@@ -22,7 +22,7 @@
     "Emulsion", "Primer", "Wall Putty", "Exterior Primer", "Enamel"
   ],
   "Other Paints": [
-    "PEARL PASTE 1000G", "PEARL PASTE 500G","PEARL PASTE 100G","MASKAN TAPE 2",
+    "WALL PUTTY","GODKA WALLPUTTY","EMULSION","GODKA EMULSION","ENAMEL","PEARL PASTE 1000G", "PEARL PASTE 500G","PEARL PASTE 100G","MASKAN TAPE 2",
     "MASKAN TAPE 1","MASKAN TAPE 1/2","MASKAN TAPE 2 SOTTER","MASKAN TAPE 1 SOTTER",
     "BRUSH EMULSION 6","BRUSH EMULSION 5","BRUSH EMULSION 4","BRUSH TIGER PAINT 4",
     "BRUSH TIGER PAINT 3","BRUSH TIGER PAINT 2 Double","BRUSH TIGER PAINT 2 Single",
@@ -43,7 +43,8 @@
   "Weldon Paints": ["Gallons", "Quarters", "Drumi", "Dabbi"],
   "Sparco Paints": ["Gallons", "Quarters", "Drumi", "Dabbi"],
   "Value Paints":  ["Gallons", "Quarters", "Drumi", "Dabbi"],
-  "Corona Paints": ["Gallons", "Quarters", "Drumi", "Dabbi", "Ponts"]
+  "Corona Paints": ["Gallons", "Quarters", "Drumi", "Dabbi", "Ponts"],
+  "Other Paints":  ["Gallons", "Quarters", "Drumi", "Dabbi"]
 };
 
   const productOptions = {
