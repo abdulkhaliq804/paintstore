@@ -297,16 +297,22 @@ router.get('/print',isLoggedIn,allowRoles("admin", "worker"), async (req, res) =
     sales = await Sale.find().sort({ createdAt: -1 }).lean();
   }
 
-  const currentDate = new Date().toLocaleString('en-US', { 
-  timeZone: 'Asia/Karachi',  // explicitly set Pakistan time
-  weekday: 'long', 
-  year: 'numeric', 
-  month: 'long', 
-  day: 'numeric', 
-  hour: '2-digit', 
-  minute: '2-digit', 
-  second: '2-digit'
-});
+  let currentDate;
+if (process.env.NODE_ENV === 'production') {
+  // deployed server, force PKT
+  currentDate = new Date().toLocaleString('en-US', { 
+    timeZone: 'Asia/Karachi',
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+} else {
+  // localhost, just use local time
+  currentDate = new Date().toLocaleString('en-US', { 
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+}
+
 
 
   res.render('printSales', { sales, currentDate });
