@@ -128,7 +128,17 @@
           <td>Rs <%= (p.totalProduct * p.rate).toFixed(2) %></td>
           <td class="refund-status"><%= p.refundStatus %></td>
           <td class="refund-quantity"><%= p.refundQuantity %></td>
-          <td><%= new Date(p.createdAt).toLocaleDateString() %></td>
+          <td>
+  <%= new Date(p.createdAt).toLocaleDateString('en-GB', { 
+      day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Karachi' 
+  }) %>
+  <br>
+  <small style="color: #007bff; font-weight: bold;">
+    <%= new Date(p.createdAt).toLocaleTimeString('en-GB', { 
+        hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Karachi' 
+    }) %>
+  </small>
+</td>
          <% if(role=="admin"){ %>
        <td><button type="button" id="delete" class="delete-btn" data-id="<%= p._id %>">Delete</button></td>
 
