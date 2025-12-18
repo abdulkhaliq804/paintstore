@@ -1,4 +1,5 @@
-  const brandItems = {
+// ====================== BRAND-WISE ITEMS =========================
+const brandItems = {
   "Weldon Paints": [
     "Weather Shield", "Emulsion", "Enamel", "Betek Emulsion", "Betek Wall Putty",
     "Wall Putty", "Metallic", "Under Coat", "Red Oxide Primer", "Varnish",
@@ -22,24 +23,28 @@
     "Emulsion", "Primer", "Wall Putty", "Exterior Primer", "Enamel"
   ],
   "Other Paints": [
-    "WALL PUTTY","GODKA WALLPUTTY","EMULSION","GODKA EMULSION","ENAMEL","PEARL PASTE 1000G", "PEARL PASTE 500G","PEARL PASTE 100G","MASKAN TAPE 2",
+    "Oil Tupe","Paints SPRAY","WALL PUTTY","GODKA WALLPUTTY","EMULSION","GODKA EMULSION","ENAMEL","PEARL PASTE 1000G", "PEARL PASTE 500G","PEARL PASTE 100G","MASKAN TAPE 2",
     "MASKAN TAPE 1","MASKAN TAPE 1/2","MASKAN TAPE 2 SOTTER","MASKAN TAPE 1 SOTTER",
     "BRUSH EMULSION 6","BRUSH EMULSION 5","BRUSH EMULSION 4","BRUSH TIGER PAINT 4",
     "BRUSH TIGER PAINT 3","BRUSH TIGER PAINT 2 Double","BRUSH TIGER PAINT 2 Single",
-    "BRUSH TIGER PAINT 1 Double","BRUSH TIGER PAINT 3 Single","MARSHAL BRUSH 3",
+    "BRUSH TIGER PAINT 1 Double","BRUSH TIGER PAINT 1 Single","MARSHAL BRUSH 3",
     "COMMANDER BURSH 2","CAPTAN BRUSH 4","CAPTAN BRUSH 3 Double","CAPTAN BRUSH 2 Double",
-    "CAPTAN BRUSH 2 Single","ROBINA QALAM","WHITE QALAM","CHAPA","BOADE CHAPA","BRUSH EMULSION 5 SINGLE",
-    "BRUSH EMULSION 5 SINGLE","CAPTAN BRUSH 3 SINGLE","MATTI OIL 1500G","MATTI OIL 1000G","MATTI OIL DAMIND",
-    "MATTI OIL 500G","MATTI OIL 300G","RAGMAL ADDID","RAGMAL ROLLE","RAGMAL KERMALA","COMMANDER ROLLER",
-    "SADA ROLLER","ROLA STAKE","ROLLER 4","ROLLA PUFF ADDID","BALCAK ROLLER","BLACAK ROLLA PUFF","NEEL PKT 100G",
-    "NEEL PKT 40G","NEEL","CHAK MATTI","PARIS","GLUE 1KG","GLUE 1/2 KG","GLUE DABBI","NOBLE GLUE","ACRYLIC 1 KG",
-    "ACRYLIC 1/2 KG","DIKOO SET","MITTI OIL SMALL","SAMAD BOND","OIL TUBE ADDID","CAHILLANGER ADDID",
+    "CAPTAN BRUSH 2 Single","ROBINA QALAM","WHITE QALAM","STENSEL","STENSEL BOADER","CHAPA","BOADE CHAPA","CAPTAN BRUSH 3 SINGLE",
+    "MATTI OIL 1500G","MATTI OIL 1000G","MATTI OIL 900G","MATTI OIL DAMIND",
+    "MATTI OIL 500G","MATTI OIL 250G","MATTI OIL 300G","RAGMAL ADDID","RAGMAL ROLLE","RAGMAL FUFF","RAGMAL KERMALA","COMMANDER ROLLER",
+    "SADA ROLLER","ROLA STAKE","ROLLER 4","ROLLA PUFF 4","ROLLA PUFF ADDID","BALCAK ROLLER","BLACAK ROLLA PUFF 8","NEEL PKT 100G",
+    "NEEL PKT 40G","NEEL","CHAK MATTI KG","PARIS","GLUE 1KG","GLUE 1/2 KG","GLUE DABBI","NOBLE GLUE","ACRYLIC 1 KG",
+    "ACRYLIC 1/2 KG","DIKOO SET","MITTI OIL SMALL","SAMAD BOND DABBI","OIL TUBE ADDID","CAHILLANGER ADDID",
     "SPRAY MUBAH","SPRAY STEEL","SPRAY GOLDEN","SPRAY ZANG","MAGIC","SCRAPER 8","SCRAPER 4","SCRAPER SAFAYE",
     "PATRA","TURKEY UMBER","YELLOW UMBER","R/O UMBER","BLACK UMBER","CHOONA","FARMKEA GANKE","MALMAL",
+    "Tinter Tube","Challanger Tube","Samad Bond Tube","Sycle Pump","Sycle","Hickory","20KG H.D Putty",
+    "5KG H.D Putty","5KG Wallcoat","White Cement","Lakdana","Chamky",
   ]
 };
 
-  const brandUnits = {
+// ====================== BRAND-WISE UNITS =========================
+
+const brandUnits = {
   "Weldon Paints": ["Gallons", "Quarters", "Drumi", "Dabbi"],
   "Sparco Paints": ["Gallons", "Quarters", "Drumi", "Dabbi"],
   "Value Paints":  ["Gallons", "Quarters", "Drumi", "Dabbi"],
@@ -47,9 +52,10 @@
   "Other Paints":  ["Gallons", "Quarters", "Drumi", "Dabbi"]
 };
 
-  const productOptions = {
-  "Weather Shield": [
+// ===================== COLOURS FOR SELECT ITEMS + BRAND ONLY ==============
 
+const productOptions = {
+  "Weldon Paints-Weather Shield": [
     { code: "1951", colour: "White" },
     { code: "1952", colour: "Off White" },
     { code: "7030", colour: "Apricot" },
@@ -111,11 +117,9 @@
     { code: "2088", colour: "Avocado" },
     { code: "7056", colour: "Expresso (New)" },
     { code: "6853", colour: "Green Yellow" },
-
   ],
-  "Emulsion": [
-    
-    { code: "0", colour: "White" },
+  "Weldon Paints-Emulsion": [
+     { code: "0", colour: "White" },
     { code: "10", colour: "Off White" },
     { code: "43", colour: "Kitten White" },
     { code: "97", colour: "Rose White" },
@@ -183,13 +187,9 @@
     { code: "36", colour: "Spring Leaf" },
     { code: "72", colour: "Jonquil" },
     { code: "90", colour: "Jade" },
-
-
-
   ],
-  "Enamel": [
-
-    { code: "241", colour: "Black" },
+  "Weldon Paints-Enamel": [
+     { code: "241", colour: "Black" },
     { code: "0", colour: "White" },
     { code: "222", colour: "Bone White" },
     { code: "272", colour: "Apricot (New)" },
@@ -262,11 +262,42 @@
     { code: "5107", colour: "Golden Dust" },
     { code: "5120", colour: "Sea Blue" },
     { code: "5109", colour: "Brilliant Green" },
-    
-
+  ],
+  "Other Paints-Oil Tupe": [
+    { code: "106", colour: "White" },
+    { code: "443", colour: "Blue" }, 
+    { code: "560", colour: "Viridian" },  
+    { code: "227", colour: "Yellow" },  
+    { code: "794", colour: "Lamp Black" },  
+    { code: "313", colour: "Orange Red" },  
+    { code: "453", colour: "Cobalt Blue" }, 
+    { code: "559", colour: "Emerald Green" },   
+    { code: "676", colour: "Yellow Ochre" },
+    { code: "302", colour: "Scarlet" },  
+    { code: "688", colour: "Raw Umber" },  
+    { code: "601", colour: "Raw Siena" },
+    { code: "687", colour: "Burnt Umber" },
+    { code: "215", colour: "Lemon Yellow" },
+    { code: "684", colour: "Burnt Siena" },
+    { code: "336", colour: "Rose" },  
+    { code: "402", colour: "Mauve" },
+  ],
+  "Other Paints-Paints SPRAY": [
+    { code: "37", colour: "Onion Green" },
+    { code: "23", colour: "Red" }, 
+    { code: "39", colour: "Black" },  
+    { code: "30", colour: "Pink" },  
+    { code: "21", colour: "Vivdid Blue" },  
+    { code: "22", colour: "Medium Grey" },  
+    { code: "36", colour: "Silver" }, 
+    { code: "35", colour: "Gold" },   
+    { code: "318", colour: "Chrome" },
+    { code: "25", colour: "Yellow" },  
+    { code: "15", colour: "Sky Blue" },  
+    { code: "40", colour: "white" },
+    { code: "29", colour: "Brown" },  
   ]
 };
-
 
 
 // --- DOM Elements ---
@@ -290,6 +321,7 @@ function populateItemFilter(brand) {
         if (itemFilter.dataset.value === it) o.selected = true;
         itemFilter.appendChild(o);
     });
+    // Apka "Other" option
     const oOther = document.createElement('option'); oOther.value = 'Other'; oOther.textContent = 'Other';
     if (itemFilter.dataset.value === 'Other') oOther.selected = true;
     itemFilter.appendChild(oOther);
@@ -309,8 +341,12 @@ function populateUnitFilter(brand) {
 function populateColourFilter(brand, item) {
     colourFilter.innerHTML = '<option value="all">All Colours</option>';
     const selectedColourValue = colourFilter.dataset.value;
-    if (brand === 'Weldon Paints' && productOptions[item]) {
-        productOptions[item].forEach(c => {
+    
+    // Sirf yahan tabdeeli ki hai taake Weldon ke ilawa Other Paints ke rang bhi dikhein
+    const lookupKey = `${brand}-${item}`;
+
+    if (productOptions[lookupKey]) {
+        productOptions[lookupKey].forEach(c => {
             const actualValue = c.code ? `${c.colour} (Code: ${c.code})` : c.colour;
             const o = document.createElement('option');
             o.value = actualValue; o.textContent = actualValue;
@@ -327,19 +363,19 @@ function populateColourFilter(brand, item) {
     }
 }
 
-// --- NEW TOGGLE LOGIC (Handles Apply Button Visibility) ---
 function toggleDateInputs(value) {
     if (value === "custom") {
         fromInput.style.display = "inline-block";
         toInput.style.display = "inline-block";
-        applyBtn.style.display = "inline-block"; // Custom par button dikhao
+        if(applyBtn) applyBtn.style.display = "inline-block";
     } else {
         fromInput.style.display = "none";
         toInput.style.display = "none";
-        applyBtn.style.display = "none"; // Baki par chupa do
+        if(applyBtn) applyBtn.style.display = "none";
     }
 }
 
+// Aapka Delete Logic (Wapis add kar diya)
 async function deleteSale(saleId) {
     if (!confirm("Are you sure you want to delete this sale?")) return;
     try {
@@ -356,7 +392,6 @@ window.addEventListener('DOMContentLoaded', () => {
     populateUnitFilter(brandFilter.dataset.value === 'all' ? null : brandFilter.dataset.value);
     populateColourFilter(brandFilter.dataset.value, itemFilter.dataset.value === 'all' ? '' : itemFilter.dataset.value);
 
-    // Initial value setup
     if (brandFilter.dataset.value) brandFilter.value = brandFilter.dataset.value;
     if (itemFilter.dataset.value) itemFilter.value = itemFilter.dataset.value;
     if (unitFilter.dataset.value) unitFilter.value = unitFilter.dataset.value;
@@ -366,9 +401,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     toggleDateInputs(dateFilter.value);
 
-    // --- Event Listeners ---
-
-    // 1. Dependent filters (Auto-submit on change)
+    // Event Listeners
     brandFilter.addEventListener('change', () => {
         populateItemFilter(brandFilter.value);
         populateUnitFilter(brandFilter.value);
@@ -380,12 +413,10 @@ window.addEventListener('DOMContentLoaded', () => {
         itemFilter.form.submit();
     });
 
-    // 2. Simple filters (Auto-submit on change)
     [unitFilter, colourFilter, refundFilter].forEach(f => {
-        f.addEventListener('change', () => f.form.submit());
+        if(f) f.addEventListener('change', () => f.form.submit());
     });
 
-    // 3. Smart Date Filter (Auto-submit for presets, Manual for custom)
     dateFilter.addEventListener('change', () => {
         toggleDateInputs(dateFilter.value);
         if (dateFilter.value !== 'custom') {
@@ -393,14 +424,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 4. Custom Inputs (User clicks Apply to submit)
-    [fromInput, toInput].forEach(input => {
-        input.addEventListener('change', () => {
-            console.log("Range date selected: " + input.value);
-        });
-    });
-
-    // Delete buttons
+    // Aapka Delete Button listener (Wapis add kar diya)
     document.querySelectorAll('.delete-sale').forEach(btn => {
         btn.addEventListener('click', e => {
             const saleId = e.currentTarget.dataset.id;
@@ -408,6 +432,3 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
-
-

@@ -138,7 +138,8 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
         }
 
         // --- Colour filter ---
-        if (colourName && colourName !== "all" && (brand === "Weldon Paints" || !brand)) {
+       // Pehle yahan (brand === "Weldon Paints") laga tha, maine wo hata diya hai
+        if (colourName && colourName !== "all") {
             const escapedColourName = escapeRegExp(colourName);
             query.colourName = new RegExp(`^${escapedColourName}$`, "i");
         }
