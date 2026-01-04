@@ -139,7 +139,7 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
 
         const nowPKT = moment().tz(PKT_TIMEZONE);
         
-        // 🟢 1. EXACT OLD DATE LOGIC (For 100% Accuracy)
+        // 🟢 1. EXACT OLD DATE LOGIC (Bilkul wahi jo aapne pehle bheji thi)
         if (filter === "today" || filter === "yesterday" || filter === "month" || filter === "lastMonth") {
             if (filter === "today") {
                 start = nowPKT.clone().startOf('day').toDate();
@@ -157,7 +157,7 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
                 end = lastMonthPKT.endOf('month').toDate();
             }
         } else if (filter === "custom" && from && to) {
-            dateOperator = '$lt'; // Custom uses LESS THAN next day
+            dateOperator = '$lt'; // Custom uses LESS THAN next day logic
             const f = moment.tz(from, 'YYYY-MM-DD', PKT_TIMEZONE);
             let t = moment.tz(to, 'YYYY-MM-DD', PKT_TIMEZONE);
             t.add(1, 'days').startOf('day'); 
@@ -168,12 +168,12 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             }
         }
         
-        // Final Query with dynamic operator
+        // Final MongoDB Query Construction
         if (start && end) {
             query.createdAt = { $gte: start, [dateOperator]: end };
         }
 
-        // 🟢 2. FILTERS
+        // 🟢 2. FILTERS (Brand, Item, Colour, etc.)
         if (brand && brand !== "all") {
             if (brand === "Weldon Paints") query.brandName = /weldon/i;
             else if (brand === "Sparco Paints") query.brandName = /sparco/i;
@@ -195,7 +195,7 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
         if (unit && unit !== "all") query.qty = new RegExp(unit, "i");
         if (refund && refund !== "all") query.refundStatus = refund;
 
-        // 🟢 3. SPEED OPTIMIZATION (No loop queries)
+        // 🟢 3. SPEED OPTIMIZATION (Product Mapping)
         const filteredSales = await Sale.find(query).sort({ createdAt: -1 }).lean();
         const allProducts = await Product.find({}, 'stockID rate').lean();
         
@@ -222,15 +222,15 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             enrichedSales.push({ ...s, purchaseRate });
         }
 
-        // 🟢 4. RESPONSE (toFixed hataya backend se takay crash na ho)
+        // 🟢 4. RESPONSE FORMATTING (Decimal Fix + No Crash)
         const responseData = {
             sales: enrichedSales,
             stats: { 
-                totalSold, 
-                totalRevenue, 
-                totalProfit, 
-                totalLoss, 
-                totalRefunded 
+                totalSold: totalSold, 
+                totalRevenue: parseFloat(totalRevenue.toFixed(2)), 
+                totalProfit: parseFloat(totalProfit.toFixed(2)), 
+                totalLoss: parseFloat(totalLoss.toFixed(2)), 
+                totalRefunded: parseFloat(totalRefunded.toFixed(2)) 
             },
             role, filter, from, to,
             selectedBrand: brand || "all",
@@ -240,6 +240,7 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             selectedRefund: refund || "all"
         };
 
+        // AJAX / SPA Support
         if (req.xhr || req.headers.accept.indexOf('json') > -1) {
             return res.json({ success: true, ...responseData });
         }
@@ -247,7 +248,7 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
         res.render("allSales", responseData);
 
     } catch (err) {
-        console.error("❌ Error:", err);
+        console.error("❌ Error loading All Sales:", err);
         res.status(500).send("Error loading sales page");
     }
 });
