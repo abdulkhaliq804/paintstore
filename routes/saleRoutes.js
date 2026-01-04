@@ -168,12 +168,12 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             }
         }
         
-        // Final Query with dynamic operator (Just like your old code)
+        // Final Query with dynamic operator
         if (start && end) {
             query.createdAt = { $gte: start, [dateOperator]: end };
         }
 
-        // 🟢 2. FILTERS (Brand, Item, Colour, etc.)
+        // 🟢 2. FILTERS
         if (brand && brand !== "all") {
             if (brand === "Weldon Paints") query.brandName = /weldon/i;
             else if (brand === "Sparco Paints") query.brandName = /sparco/i;
@@ -195,7 +195,7 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
         if (unit && unit !== "all") query.qty = new RegExp(unit, "i");
         if (refund && refund !== "all") query.refundStatus = refund;
 
-        // 🟢 3. SPEED OPTIMIZATION (No loop queries + SPA Ready)
+        // 🟢 3. SPEED OPTIMIZATION (No loop queries)
         const filteredSales = await Sale.find(query).sort({ createdAt: -1 }).lean();
         const allProducts = await Product.find({}, 'stockID rate').lean();
         
@@ -212,24 +212,25 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             let netSoldQty = Math.max(0, s.quantitySold - (s.refundQuantity || 0));
 
             totalSold += netSoldQty;
-            totalRevenue += netSoldQty * s.rate;
-            totalRefunded += (s.refundQuantity || 0) * (s.rate || 0);
+            totalRevenue += (netSoldQty * (s.rate || 0));
+            totalRefunded += ((s.refundQuantity || 0) * (s.rate || 0));
 
-            const saleProfit = (s.rate - purchaseRate) * netSoldQty;
+            const saleProfit = ((s.rate || 0) - purchaseRate) * netSoldQty;
             if (saleProfit > 0) totalProfit += saleProfit;
             else totalLoss += Math.abs(saleProfit);
 
             enrichedSales.push({ ...s, purchaseRate });
         }
 
+        // 🟢 4. RESPONSE (toFixed hataya backend se takay crash na ho)
         const responseData = {
             sales: enrichedSales,
             stats: { 
                 totalSold, 
-                totalRevenue: totalRevenue.toFixed(2), 
-                totalProfit: totalProfit.toFixed(2), 
-                totalLoss: totalLoss.toFixed(2), 
-                totalRefunded: totalRefunded.toFixed(2) 
+                totalRevenue, 
+                totalProfit, 
+                totalLoss, 
+                totalRefunded 
             },
             role, filter, from, to,
             selectedBrand: brand || "all",
@@ -239,7 +240,6 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             selectedRefund: refund || "all"
         };
 
-        // 🟢 4. AJAX / SPA Check
         if (req.xhr || req.headers.accept.indexOf('json') > -1) {
             return res.json({ success: true, ...responseData });
         }
