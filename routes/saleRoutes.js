@@ -135,11 +135,11 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
         let { filter, from, to, brand, itemName, colourName, unit, refund } = req.query;
         let query = {};
         let start, end;
-        let dateOperator = '$lte';
+        let dateOperator = '$lte'; // Default operator
 
         const nowPKT = moment().tz(PKT_TIMEZONE);
         
-        // --- Date Filter Logic ---
+        // 🟢 1. EXACT DATE LOGIC (From your old code)
         if (filter === "today" || filter === "yesterday" || filter === "month" || filter === "lastMonth") {
             if (filter === "today") {
                 start = nowPKT.clone().startOf('day').toDate();
@@ -157,10 +157,11 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
                 end = lastMonthPKT.endOf('month').toDate();
             }
         } else if (filter === "custom" && from && to) {
-            dateOperator = '$lt';
+            dateOperator = '$lt'; // Custom range uses LESS THAN next day logic
             const f = moment.tz(from, 'YYYY-MM-DD', PKT_TIMEZONE);
             let t = moment.tz(to, 'YYYY-MM-DD', PKT_TIMEZONE);
             t.add(1, 'days').startOf('day'); 
+            
             if (f.isValid() && t.isValid()) {
                 start = f.startOf('day').toDate();
                 end = t.toDate();
@@ -171,7 +172,7 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             query.createdAt = { $gte: start, [dateOperator]: end };
         }
 
-        // --- Brand & Item Filters ---
+        // 🟢 2. FILTERS (Brand, Item, Colour, etc.)
         if (brand && brand !== "all") {
             if (brand === "Weldon Paints") query.brandName = /weldon/i;
             else if (brand === "Sparco Paints") query.brandName = /sparco/i;
@@ -193,13 +194,10 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
         if (unit && unit !== "all") query.qty = new RegExp(unit, "i");
         if (refund && refund !== "all") query.refundStatus = refund;
 
-        // --- OPTIMIZATION STARTS HERE ---
-        
-        // 1. Fetch Sales with .lean() for speed
+        // 🟢 3. SPEED OPTIMIZATION (No loop queries)
         const filteredSales = await Sale.find(query).sort({ createdAt: -1 }).lean();
-
-        // 2. Fetch all products in ONE go and create a Map (No more loop queries!)
         const allProducts = await Product.find({}, 'stockID rate').lean();
+        
         const productMap = {};
         allProducts.forEach(p => {
             productMap[p.stockID] = parseFloat(p.rate || 0);
@@ -208,7 +206,6 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
         let totalSold = 0, totalRevenue = 0, totalProfit = 0, totalLoss = 0, totalRefunded = 0;
         const enrichedSales = [];
 
-        // 3. Fast processing using the Map
         for (const s of filteredSales) {
             const purchaseRate = productMap[s.stockID] || 0;
             let netSoldQty = Math.max(0, s.quantitySold - (s.refundQuantity || 0));
@@ -221,23 +218,14 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             if (saleProfit > 0) totalProfit += saleProfit;
             else totalLoss += Math.abs(saleProfit);
 
-            // Adding purchaseRate to sale object for frontend
+            // Purchase rate attach kar rahe hain frontend ke liye
             enrichedSales.push({ ...s, purchaseRate });
         }
 
         const responseData = {
             sales: enrichedSales,
-            stats: { 
-                totalSold, 
-                totalRevenue, 
-                totalProfit, 
-                totalLoss, 
-                totalRefunded 
-            },
-            role, 
-            filter, 
-            from, 
-            to,
+            stats: { totalSold, totalRevenue, totalProfit, totalLoss, totalRefunded },
+            role, filter, from, to,
             selectedBrand: brand || "all",
             selectedItem: itemName || "all",
             selectedColour: colourName || "all",
@@ -245,10 +233,10 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             selectedRefund: refund || "all"
         };
 
-        // --- AJAX Response ---
+        // 🟢 4. AJAX & RENDER logic
         if (req.xhr || req.headers.accept.indexOf('json') > -1) {
             const ajaxStats = {
-                totalSold: totalSold,
+                totalSold,
                 totalRevenue: totalRevenue.toFixed(2),
                 totalProfit: totalProfit.toFixed(2),
                 totalLoss: totalLoss.toFixed(2),
@@ -257,11 +245,10 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
             return res.json({ success: true, ...responseData, stats: ajaxStats });
         }
 
-        // --- Regular Page Render ---
         res.render("allSales", responseData);
 
     } catch (err) {
-        console.error("❌ Error loading All Sales:", err);
+        console.error("❌ Error:", err);
         res.status(500).send("Error loading sales page");
     }
 });
