@@ -4,8 +4,8 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "cross-env TZ=Asia/Karachi node app.js",
-    "dev": "nodemon app.js"
+    "start": "node app.js",
+    "dev": "browser-sync start --proxy 'localhost:3000' --files 'views/**/*.ejs, public/**/*.css, app.js' --no-notify"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -13,7 +13,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.2",
     "helmet": "^8.1.0",
@@ -25,7 +25,7 @@
     "path": "^0.12.7"
   },
   "devDependencies": {
-    "cross-env": "^10.1.0",
-    "nodemon": "^3.0.3"
+    "browser-sync": "^3.0.4",
+    "nodemon": "^3.1.11"
   }
 }

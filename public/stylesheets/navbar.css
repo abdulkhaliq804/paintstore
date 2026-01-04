@@ -1,81 +1,196 @@
- * { margin: 0; padding: 0; box-sizing: border-box; }
+/* --- Global Reset & PC Setup --- */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
 
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background-color: #06A56C; }
-    ::-webkit-scrollbar-track { background-color: #f1f1f1; }
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: #f6f7fb; 
+    overflow-x: hidden; 
+    -webkit-font-smoothing: antialiased;
+}
 
-    body { font-family: 'Segoe UI', sans-serif; background: #f6f7fb; }
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { 
+    background-color: #06A56C; 
+    border-radius: 10px;
+}
+::-webkit-scrollbar-track { background-color: #f1f1f1; }
 
-    /* Sidebar */
-    .sidebar {
-      width: 200px;
-      height: 100vh;
-      background: #ffffff;
-      position: fixed;
-      padding: 25px 22px;
-      border-right: 1px solid #e9ecef;
-      box-shadow: 0 0 25px rgba(0,0,0,0.05);
-      overflow-y: auto;
+/* ---------------- HAMBURGER ---------------- */
+.hamburger {
+    display: none; 
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 9999;
+    background: #048b59;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    font-size: 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    /* transition: transform 0.2s ease; */
+}
+/* .hamburger:active {
+    transform: scale(0.95);
+} */
+
+/* ---------------- SIDEBAR ---------------- */
+.sidebar {
+    width: 230px;
+    height: 100vh;
+    background: #f6fbf8;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 25px 20px;
+    border-right: 1px solid #e9ecef;
+    box-shadow: 2px 0 20px rgba(0,0,0,0.05);
+    overflow-y: auto;
+    transition: all 0.35s ease;
+    z-index: 5000;
+}
+
+/* Logo */
+.logo { 
+    text-align: center; 
+    margin-bottom: 30px; 
+}
+.logo img { 
+    width: 70px; 
+    border-radius: 12px; 
+}
+.logo h3 { 
+    margin-top: 10px; 
+    font-size: 20px; 
+    color: #007a4d; 
+    font-weight: 700; 
+}
+
+ul { list-style: none; }
+
+/* Menu item */
+.dropdown {
+    padding: 14px 16px;
+    font-size: 17px;
+    font-weight: 600;
+    border-radius: 10px;
+    color: #101317;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.25s ease;
+    text-decoration: none;
+    margin-bottom: 6px;
+    border-bottom: #0000001e 3px solid;
+}
+.dropdown:hover { 
+    background: #4ab391; 
+}
+
+/* Submenu */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: #f9fafb;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.submenu.open { 
+    max-height: 320px; 
+    padding: 6px 0 10px 15px; 
+}
+
+.submenu li a {
+    padding: 10px;
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #00462c;
+    text-decoration: none;
+    border-radius: 6px;
+    /* transition: background 0.2s ease; */
+    border: #11101030 2px solid;
+    margin-bottom: 2px;
+}
+.submenu li a:hover {
+    background: #65b491;
+}
+
+/* Logout */
+.logout { 
+    margin-top: 30px; 
+    padding: 14px 16px;
+    color: #d32f2f;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ---------------- MAIN CONTENT (DESKTOP FIX) ---------------- */
+main { 
+    margin-left: 250px; 
+    padding: 30px; 
+    /* transition: margin-left 0.35s ease; */
+    /* width: calc(100% - 250px); */
+}
+
+/* Table container */
+.table-wrapper {
+    width: 100%;
+    /* overflow-x: auto; */
+    background: #ffffff;
+    border-radius: 12px;
+}
+
+/* ---------------- MOBILE RESPONSIVE ---------------- */
+@media screen and (max-width: 768px) {
+
+    .hamburger { 
+        display: block;
     }
 
-    .logo { text-align: center; margin-bottom: 30px; }
-    .logo img { width: 60px; border-radius: 12px; }
-    .logo h3 { margin-top: 10px; font-size: 19px; color: #06A56C; font-weight: 600; }
-
-    ul { list-style: none; padding-left: 0; }
-
-    .dropdown {
-      padding: 14px 16px;
-      font-size: 15px;
-      border-radius: 10px;
-      background: #fff;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: 0.25s;
-      border: 1px solid transparent;
+    .sidebar { 
+        left: -260px;
+        width: 210px;
     }
 
-    .dropdown:hover { background: #f3f4f6; border-color: #e5e7eb; }
-    .menu-left { display: flex; align-items: center; gap: 10px; flex: 1; }
-
-    .arrow { transition: 0.25s ease; opacity: 0.6; }
-
-    .submenu {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease, padding 0.3s;
-      background: #f9fafb;
-      border-radius: 10px;
-      margin: 4px 0 14px 0;
-      padding-left: 12px;
-      border-left: 3px solid #06A56C;
+    .sidebar.mobile-open { 
+        left: 0; 
+        background: #57fdc8;
+        box-shadow: 10px 0 30px rgba(113, 230, 171, 0.25);
     }
 
-    .submenu.open { max-height: 260px; padding: 10px 0 14px 12px; }
-    .submenu li { padding: 10px 12px; font-size: 13px; border-radius: 8px; margin-bottom: 6px; color: #09A66E; }
-    .submenu li:hover { background: #ffffff; color: #106beb; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
-
-    a { color: inherit; text-decoration: none; display: block; width: 100%; }
-
-    .logout {
-      margin-top: 40px;
-      padding: 14px 16px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      color: #374151;
-      transition: 0.3s;
-      border: 1px solid transparent;
-      font-size: 17px;
+    .submenu li a { 
+        margin-bottom: 6px; 
+        border-radius: 6px;
+        border: 1px solid #0000001e;
+        background-color: #afedd5;
     }
 
-    .logout:hover { background: #f3f4f6; border-color: #e5e7eb; }
-    main { margin-left: 200px; padding: 10px; }
+    .submenu li a:hover { 
+        background: #03985f; 
+        color: #fff;
+    }
 
+    main { 
+        margin-left: 0 !important; 
+        width: 100%;
+        padding: 15px; 
+        padding-top: 80px;
+    }
 
-    
+    table { 
+        min-width: 800px; 
+    }
+}

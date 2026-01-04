@@ -23,22 +23,22 @@ const brandItems = {
     "Emulsion", "Primer", "Wall Putty", "Exterior Primer", "Enamel"
   ],
   "Other Paints": [
-    "Oil Tupe","Paints SPRAY","WALL PUTTY","GODKA WALLPUTTY","EMULSION","GODKA EMULSION","ENAMEL","PEARL PASTE 1000G", "PEARL PASTE 500G","PEARL PASTE 100G","MASKAN TAPE 2",
-    "MASKAN TAPE 1","MASKAN TAPE 1/2","MASKAN TAPE 2 SOTTER","MASKAN TAPE 1 SOTTER",
-    "BRUSH EMULSION 6","BRUSH EMULSION 5","BRUSH EMULSION 4","BRUSH TIGER PAINT 4",
-    "BRUSH TIGER PAINT 3","BRUSH TIGER PAINT 2 Double","BRUSH TIGER PAINT 2 Single",
-    "BRUSH TIGER PAINT 1 Double","BRUSH TIGER PAINT 1 Single","MARSHAL BRUSH 3",
-    "COMMANDER BURSH 2","CAPTAN BRUSH 4","CAPTAN BRUSH 3 Double","CAPTAN BRUSH 2 Double",
-    "CAPTAN BRUSH 2 Single","ROBINA QALAM","WHITE QALAM","STENSEL","STENSEL BOADER","CHAPA","BOADE CHAPA","CAPTAN BRUSH 3 SINGLE",
-    "MATTI OIL 1500G","MATTI OIL 1000G","MATTI OIL 900G","MATTI OIL DAMIND",
-    "MATTI OIL 500G","MATTI OIL 250G","MATTI OIL 300G","RAGMAL ADDID","RAGMAL ROLLE","RAGMAL FUFF","RAGMAL KERMALA","COMMANDER ROLLER",
-    "SADA ROLLER","ROLA STAKE","ROLLER 4","ROLLA PUFF 4","ROLLA PUFF ADDID","BALCAK ROLLER","BLACAK ROLLA PUFF 8","NEEL PKT 100G",
-    "NEEL PKT 40G","NEEL","CHAK MATTI KG","PARIS","GLUE 1KG","GLUE 1/2 KG","GLUE DABBI","NOBLE GLUE","ACRYLIC 1 KG",
-    "ACRYLIC 1/2 KG","DIKOO SET","MITTI OIL SMALL","SAMAD BOND DABBI","OIL TUBE ADDID","CAHILLANGER ADDID",
-    "SPRAY MUBAH","SPRAY STEEL","SPRAY GOLDEN","SPRAY ZANG","MAGIC","SCRAPER 8","SCRAPER 4","SCRAPER SAFAYE",
-    "PATRA","TURKEY UMBER","YELLOW UMBER","R/O UMBER","BLACK UMBER","CHOONA","FARMKEA GANKE","MALMAL",
-    "Tinter Tube","Challanger Tube","Samad Bond Tube","Sycle Pump","Sycle","Hickory","20KG H.D Putty",
-    "5KG H.D Putty","5KG Wallcoat","White Cement","Lakdana","Chamky",
+    "Oil Tupe", "Paints SPRAY", "WALL PUTTY", "GODKA WALLPUTTY", "EMULSION", "GODKA EMULSION", "ENAMEL", "PEARL PASTE 1000G", "PEARL PASTE 500G", "PEARL PASTE 100G", "MASKAN TAPE 2",
+    "MASKAN TAPE 1", "MASKAN TAPE 1/2", "MASKAN TAPE 2 SOTTER", "MASKAN TAPE 1 SOTTER",
+    "BRUSH EMULSION 6", "BRUSH EMULSION 5", "BRUSH EMULSION 4", "BRUSH TIGER PAINT 4",
+    "BRUSH TIGER PAINT 3", "BRUSH TIGER PAINT 2 Double", "BRUSH TIGER PAINT 2 Single",
+    "BRUSH TIGER PAINT 1 Double", "BRUSH TIGER PAINT 1 Single", "MARSHAL BRUSH 3",
+    "COMMANDER BURSH 2", "CAPTAN BRUSH 4", "CAPTAN BRUSH 3 Double", "CAPTAN BRUSH 2 Double",
+    "CAPTAN BRUSH 2 Single", "ROBINA QALAM", "WHITE QALAM", "STENSEL", "STENSEL BOADER", "CHAPA", "BOADE CHAPA", "CAPTAN BRUSH 3 SINGLE",
+    "MATTI OIL 1500G", "MATTI OIL 1000G", "MATTI OIL 900G", "MATTI OIL DAMIND",
+    "MATTI OIL 500G", "MATTI OIL 250G", "MATTI OIL 300G", "RAGMAL ADDID", "RAGMAL ROLLE", "RAGMAL FUFF", "RAGMAL KERMALA", "COMMANDER ROLLER",
+    "SADA ROLLER", "ROLA STAKE", "ROLLER 4", "ROLLA PUFF 4", "ROLLA PUFF ADDID", "BALCAK ROLLER", "BLACAK ROLLA PUFF 8", "NEEL PKT 100G",
+    "NEEL PKT 40G", "NEEL", "CHAK MATTI KG", "PARIS", "GLUE 1KG", "GLUE 1/2 KG", "GLUE DABBI", "NOBLE GLUE", "ACRYLIC 1 KG",
+    "ACRYLIC 1/2 KG", "DIKOO SET", "MITTI OIL SMALL", "SAMAD BOND DABBI", "OIL TUBE ADDID", "CAHILLANGER ADDID",
+    "SPRAY MUBAH", "SPRAY STEEL", "SPRAY GOLDEN", "SPRAY ZANG", "MAGIC", "SCRAPER 8", "SCRAPER 4", "SCRAPER SAFAYE",
+    "PATRA", "TURKEY UMBER", "YELLOW UMBER", "R/O UMBER", "BLACK UMBER", "CHOONA", "FARMKEA GANKE", "MALMAL",
+    "Tinter Tube", "Challanger Tube", "Samad Bond Tube", "Sycle Pump", "Sycle", "Hickory", "20KG H.D Putty",
+    "5KG H.D Putty", "5KG Wallcoat", "White Cement", "Lakdana", "Chamky",
   ]
 };
 
@@ -47,9 +47,9 @@ const brandItems = {
 const brandUnits = {
   "Weldon Paints": ["Gallons", "Quarters", "Drumi", "Dabbi"],
   "Sparco Paints": ["Gallons", "Quarters", "Drumi", "Dabbi"],
-  "Value Paints":  ["Gallons", "Quarters", "Drumi", "Dabbi"],
+  "Value Paints": ["Gallons", "Quarters", "Drumi", "Dabbi"],
   "Corona Paints": ["Gallons", "Quarters", "Drumi", "Dabbi", "Ponts"],
-  "Other Paints":  ["Gallons", "Quarters", "Drumi", "Dabbi"]
+  "Other Paints": ["Gallons", "Quarters", "Drumi", "Dabbi"]
 };
 
 // ===================== COLOURS FOR SELECT ITEMS + BRAND ONLY ==============
@@ -119,7 +119,7 @@ const productOptions = {
     { code: "6853", colour: "Green Yellow" },
   ],
   "Weldon Paints-Emulsion": [
-     { code: "0", colour: "White" },
+    { code: "0", colour: "White" },
     { code: "10", colour: "Off White" },
     { code: "43", colour: "Kitten White" },
     { code: "97", colour: "Rose White" },
@@ -182,14 +182,14 @@ const productOptions = {
     { code: "45", colour: "Toasted Almond" },
 
 
-  
+
     { code: "102", colour: "Golf Green (New)" },
     { code: "36", colour: "Spring Leaf" },
     { code: "72", colour: "Jonquil" },
     { code: "90", colour: "Jade" },
   ],
   "Weldon Paints-Enamel": [
-     { code: "241", colour: "Black" },
+    { code: "241", colour: "Black" },
     { code: "0", colour: "White" },
     { code: "222", colour: "Bone White" },
     { code: "272", colour: "Apricot (New)" },
@@ -265,40 +265,39 @@ const productOptions = {
   ],
   "Other Paints-Oil Tupe": [
     { code: "106", colour: "White" },
-    { code: "443", colour: "Blue" }, 
-    { code: "560", colour: "Viridian" },  
-    { code: "227", colour: "Yellow" },  
-    { code: "794", colour: "Lamp Black" },  
-    { code: "313", colour: "Orange Red" },  
-    { code: "453", colour: "Cobalt Blue" }, 
-    { code: "559", colour: "Emerald Green" },   
+    { code: "443", colour: "Blue" },
+    { code: "560", colour: "Viridian" },
+    { code: "227", colour: "Yellow" },
+    { code: "794", colour: "Lamp Black" },
+    { code: "313", colour: "Orange Red" },
+    { code: "453", colour: "Cobalt Blue" },
+    { code: "559", colour: "Emerald Green" },
     { code: "676", colour: "Yellow Ochre" },
-    { code: "302", colour: "Scarlet" },  
-    { code: "688", colour: "Raw Umber" },  
+    { code: "302", colour: "Scarlet" },
+    { code: "688", colour: "Raw Umber" },
     { code: "601", colour: "Raw Siena" },
     { code: "687", colour: "Burnt Umber" },
     { code: "215", colour: "Lemon Yellow" },
     { code: "684", colour: "Burnt Siena" },
-    { code: "336", colour: "Rose" },  
+    { code: "336", colour: "Rose" },
     { code: "402", colour: "Mauve" },
   ],
   "Other Paints-Paints SPRAY": [
     { code: "37", colour: "Onion Green" },
-    { code: "23", colour: "Red" }, 
-    { code: "39", colour: "Black" },  
-    { code: "30", colour: "Pink" },  
-    { code: "21", colour: "Vivdid Blue" },  
-    { code: "22", colour: "Medium Grey" },  
-    { code: "36", colour: "Silver" }, 
-    { code: "35", colour: "Gold" },   
+    { code: "23", colour: "Red" },
+    { code: "39", colour: "Black" },
+    { code: "30", colour: "Pink" },
+    { code: "21", colour: "Vivdid Blue" },
+    { code: "22", colour: "Medium Grey" },
+    { code: "36", colour: "Silver" },
+    { code: "35", colour: "Gold" },
     { code: "318", colour: "Chrome" },
-    { code: "25", colour: "Yellow" },  
-    { code: "15", colour: "Sky Blue" },  
+    { code: "25", colour: "Yellow" },
+    { code: "15", colour: "Sky Blue" },
     { code: "40", colour: "white" },
-    { code: "29", colour: "Brown" },  
+    { code: "29", colour: "Brown" },
   ]
 };
-
 
 // --- DOM Elements ---
 const brandFilter = document.getElementById('brandFilter');
@@ -310,125 +309,205 @@ const dateFilter = document.getElementById('filter');
 const fromInput = document.getElementById("from");
 const toInput = document.getElementById("to");
 const applyBtn = document.getElementById('apply');
+const filterForm = document.getElementById('filterForm') || document.querySelector('form');
 
-// --- Functions ---
-function populateItemFilter(brand) {
-    itemFilter.innerHTML = '<option value="all">All Items</option>';
-    if (!brand || brand === 'all') { itemFilter.disabled = true; return; }
-    itemFilter.disabled = false;
-    (brandItems[brand] || []).forEach(it => {
-        const o = document.createElement('option'); o.value = it; o.textContent = it;
-        if (itemFilter.dataset.value === it) o.selected = true;
-        itemFilter.appendChild(o);
-    });
-    // Apka "Other" option
-    const oOther = document.createElement('option'); oOther.value = 'Other'; oOther.textContent = 'Other';
-    if (itemFilter.dataset.value === 'Other') oOther.selected = true;
-    itemFilter.appendChild(oOther);
-}
+// ===================== AJAX UPDATE FUNCTION =========================
 
-function populateUnitFilter(brand) {
-    unitFilter.innerHTML = '<option value="all">All Units</option>';
-    if (!brand || brand === 'all') { unitFilter.disabled = true; return; }
-    (brandUnits[brand] || []).forEach(u => {
-        const o = document.createElement('option'); o.value = u; o.textContent = u;
-        if (unitFilter.dataset.value === u) o.selected = true;
-        unitFilter.appendChild(o);
-    });
-    unitFilter.disabled = false;
-}
-
-function populateColourFilter(brand, item) {
-    colourFilter.innerHTML = '<option value="all">All Colours</option>';
-    const selectedColourValue = colourFilter.dataset.value;
+async function updateTable() {
+    const formData = new URLSearchParams(new FormData(filterForm)).toString();
+    const tbody = document.querySelector('tbody');
     
-    // Sirf yahan tabdeeli ki hai taake Weldon ke ilawa Other Paints ke rang bhi dikhein
-    const lookupKey = `${brand}-${item}`;
+    // Loading State
+    tbody.style.opacity = '0.5';
 
-    if (productOptions[lookupKey]) {
-        productOptions[lookupKey].forEach(c => {
-            const actualValue = c.code ? `${c.colour} (Code: ${c.code})` : c.colour;
-            const o = document.createElement('option');
-            o.value = actualValue; o.textContent = actualValue;
-            if (selectedColourValue === actualValue) o.selected = true;
-            colourFilter.appendChild(o);
+    try {
+        const res = await fetch(`/sales/all?${formData}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
-        colourFilter.disabled = false;
-    } else {
-        colourFilter.disabled = true;
-        if (selectedColourValue && selectedColourValue !== 'all') {
-            const o = document.createElement('option'); o.value = selectedColourValue; o.textContent = selectedColourValue; o.selected = true;
-            colourFilter.appendChild(o);
+        const data = await res.json();
+
+        if (data.success) {
+            // 1. Update Stats Boxes (Revenue, Profit, Loss, etc.)
+            const statsPs = document.querySelectorAll('.stat-box p');
+            if (statsPs.length >= 5) {
+                statsPs[0].innerText = data.stats.totalSold;
+                statsPs[1].innerText = `Rs ${data.stats.totalRevenue}`;
+                statsPs[2].innerText = `Rs ${data.stats.totalProfit}`;
+                statsPs[3].innerText = `Rs ${data.stats.totalLoss}`;
+                statsPs[4].innerText = `Rs ${data.stats.totalRefunded}`;
+            }
+
+            // 2. Build Table Content
+            let html = '';
+            if (data.sales.length === 0) {
+                html = `<tr><td colspan="15" class="no-data">No sales records found.</td></tr>`;
+            } else {
+                data.sales.forEach(s => {
+    const dateObj = new Date(s.createdAt);
+    const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const timeStr = dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
+    
+    // 🟢 Fix: Profit calculation aur decimal handling
+    const netQty = s.quantitySold - (s.refundQuantity || 0);
+    const purchaseRate = s.purchaseRate || 0;
+    const profitVal = ((s.rate - purchaseRate) * netQty).toFixed(2);
+    
+    // 🟢 Fix: Refund Status (backend check karein agar ye 'refundStatus' hai)
+    const status = s.refundStatus || 'none'; 
+    const refundQty = s.refundQuantity || 0;
+
+    html += `
+    <tr>
+        <td>${s.brandName}</td>
+        <td>${s.itemName}</td>
+        <td>${s.colourName}</td>
+        <td>${s.qty}</td>
+        <td>${s.quantitySold}</td>
+        <td>Rs ${s.rate}</td>
+        <td>Rs ${(s.quantitySold * s.rate).toFixed(2)}</td>
+        <td class="${profitVal < 0 ? 'loss' : 'profit'}">Rs ${Math.abs(profitVal)}</td>
+        <td class="refund-status">${status}</td>
+        <td class="refund-quantity">${refundQty}</td>
+        <td>${dateStr}<br><small style="color: #007bff; font-weight: bold;">${timeStr}</small></td>
+        ${data.role === "admin" ? `<td><button type="button" class="delete-sale delete-btn" id="delete" data-id="${s._id}">Delete</button></td>` : ''}
+    </tr>`;
+});
+            }
+            tbody.innerHTML = html;
+            
+            // 3. Update Browser URL
+            window.history.pushState({}, '', `/sales/all?${formData}`);
+            
+            // Re-attach delete listeners
+            attachDeleteListeners();
         }
+    } catch (err) {
+        console.error("AJAX Error:", err);
+    } finally {
+        tbody.style.opacity = '1';
     }
 }
 
-function toggleDateInputs(value) {
-    if (value === "custom") {
-        fromInput.style.display = "inline-block";
-        toInput.style.display = "inline-block";
-        if(applyBtn) applyBtn.style.display = "inline-block";
-    } else {
-        fromInput.style.display = "none";
-        toInput.style.display = "none";
-        if(applyBtn) applyBtn.style.display = "none";
-    }
-}
+// ===================== DELETE LOGIC =========================
 
-// Aapka Delete Logic (Wapis add kar diya)
 async function deleteSale(saleId) {
     if (!confirm("Are you sure you want to delete this sale?")) return;
     try {
         const res = await fetch(`/sales/delete-sale/${saleId}`, { method: "DELETE" });
         const data = await res.json();
-        if (data.success) { alert("Sale deleted successfully!"); location.reload(); }
+        if (data.success) { 
+            alert(data.message); 
+            updateTable(); // Refresh without reload
+        }
         else alert(data.message || "Failed to delete sale");
     } catch (err) { alert("Error deleting sale"); }
 }
 
-// --- Init ---
+function attachDeleteListeners() {
+    document.querySelectorAll('.delete-sale').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            deleteSale(e.currentTarget.dataset.id);
+        }
+    });
+}
+
+// ===================== FILTER POPULATION =========================
+
+function populateItemFilter(brand) {
+    const currentVal = itemFilter.dataset.value;
+    itemFilter.innerHTML = '<option value="all">All Items</option>';
+    if (!brand || brand === 'all') { itemFilter.disabled = true; return; }
+    itemFilter.disabled = false;
+    
+    (brandItems[brand] || []).forEach(it => {
+        const o = document.createElement('option');
+        o.value = it; o.textContent = it;
+        if (currentVal === it) o.selected = true;
+        itemFilter.appendChild(o);
+    });
+    
+    const oOther = document.createElement('option');
+    oOther.value = 'Other'; oOther.textContent = 'Other';
+    if (currentVal === 'Other') oOther.selected = true;
+    itemFilter.appendChild(oOther);
+}
+
+function populateUnitFilter(brand) {
+    const currentVal = unitFilter.dataset.value;
+    unitFilter.innerHTML = '<option value="all">All Units</option>';
+    if (!brand || brand === 'all') { unitFilter.disabled = true; return; }
+    unitFilter.disabled = false;
+    
+    (brandUnits[brand] || []).forEach(u => {
+        const o = document.createElement('option');
+        o.value = u; o.textContent = u;
+        if (currentVal === u) o.selected = true;
+        unitFilter.appendChild(o);
+    });
+}
+
+function populateColourFilter(brand, item) {
+    const currentVal = colourFilter.dataset.value;
+    colourFilter.innerHTML = '<option value="all">All Colours</option>';
+    const lookupKey = `${brand}-${item}`;
+
+    if (productOptions[lookupKey]) {
+        productOptions[lookupKey].forEach(c => {
+            const val = c.code ? `${c.colour} (Code: ${c.code})` : c.colour;
+            const o = document.createElement('option');
+            o.value = val; o.textContent = val;
+            if (currentVal === val) o.selected = true;
+            colourFilter.appendChild(o);
+        });
+        colourFilter.disabled = false;
+    } else {
+        colourFilter.disabled = true;
+    }
+}
+
+function toggleDateInputs(value) {
+    const isCustom = (value === "custom");
+    fromInput.style.display = isCustom ? "inline-block" : "none";
+    toInput.style.display = isCustom ? "inline-block" : "none";
+    if (applyBtn) applyBtn.style.display = isCustom ? "inline-block" : "none";
+}
+
+// ===================== INITIALIZATION =========================
+
 window.addEventListener('DOMContentLoaded', () => {
-    populateItemFilter(brandFilter.dataset.value === 'all' ? 'all' : brandFilter.dataset.value);
-    populateUnitFilter(brandFilter.dataset.value === 'all' ? null : brandFilter.dataset.value);
-    populateColourFilter(brandFilter.dataset.value, itemFilter.dataset.value === 'all' ? '' : itemFilter.dataset.value);
-
-    if (brandFilter.dataset.value) brandFilter.value = brandFilter.dataset.value;
-    if (itemFilter.dataset.value) itemFilter.value = itemFilter.dataset.value;
-    if (unitFilter.dataset.value) unitFilter.value = unitFilter.dataset.value;
-    if (colourFilter.dataset.value) colourFilter.value = colourFilter.dataset.value;
-    if (refundFilter.dataset.value) refundFilter.value = refundFilter.dataset.value;
-    if (dateFilter.dataset.value) dateFilter.value = dateFilter.dataset.value;
-
+    // Initial UI Setup
+    populateItemFilter(brandFilter.value);
+    populateUnitFilter(brandFilter.value);
+    populateColourFilter(brandFilter.value, itemFilter.value);
     toggleDateInputs(dateFilter.value);
+    attachDeleteListeners();
 
-    // Event Listeners
+    // Event Listeners for AJAX
     brandFilter.addEventListener('change', () => {
         populateItemFilter(brandFilter.value);
         populateUnitFilter(brandFilter.value);
-        brandFilter.form.submit();
+        updateTable();
     });
 
     itemFilter.addEventListener('change', () => {
         populateColourFilter(brandFilter.value, itemFilter.value);
-        itemFilter.form.submit();
+        updateTable();
     });
 
     [unitFilter, colourFilter, refundFilter].forEach(f => {
-        if(f) f.addEventListener('change', () => f.form.submit());
+        if (f) f.addEventListener('change', updateTable);
     });
 
     dateFilter.addEventListener('change', () => {
         toggleDateInputs(dateFilter.value);
-        if (dateFilter.value !== 'custom') {
-            dateFilter.form.submit();
-        }
+        if (dateFilter.value !== 'custom') updateTable();
     });
 
-    // Aapka Delete Button listener (Wapis add kar diya)
-    document.querySelectorAll('.delete-sale').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const saleId = e.currentTarget.dataset.id;
-            deleteSale(saleId);
+    if (applyBtn) {
+        applyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            updateTable();
         });
-    });
+    }
 });
