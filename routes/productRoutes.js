@@ -85,86 +85,90 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
         let query = {};
         let start, end;
 
-        // --- Moment Timezone Logic ---
-        if (filter === "today") {
-            start = moment.tz(PKT_TIMEZONE).startOf('day').toDate();
-            end = moment.tz(PKT_TIMEZONE).endOf('day').toDate();
-        } else if (filter === "yesterday") {
-            start = moment.tz(PKT_TIMEZONE).subtract(1, 'days').startOf('day').toDate();
-            end = moment.tz(PKT_TIMEZONE).subtract(1, 'days').endOf('day').toDate();
-        } else if (filter === "month") {
-            start = moment.tz(PKT_TIMEZONE).startOf('month').toDate();
-            end = moment.tz(PKT_TIMEZONE).endOf('day').toDate();
-        } else if (filter === "lastMonth") {
-            start = moment.tz(PKT_TIMEZONE).subtract(1, 'months').startOf('month').toDate();
-            end = moment.tz(PKT_TIMEZONE).subtract(1, 'months').endOf('month').toDate();
-        } else if (filter === "custom" && (from || to)) {
-            const fromDate = from ? moment.tz(from, PKT_TIMEZONE).startOf('day') : null;
-            const toDate = to ? moment.tz(to, PKT_TIMEZONE).endOf('day') : (fromDate ? fromDate.clone().endOf('day') : null);
-            if (fromDate) start = fromDate.toDate();
-            if (toDate) end = toDate.toDate();
-        }
+        // 🟢 1. Date Filter Fix (Moment Timezone)
+        if (filter && filter !== "all") {
+            const nowPKT = moment().tz(PKT_TIMEZONE);
+            if (filter === "today") {
+                start = nowPKT.clone().startOf('day').toDate();
+                end = nowPKT.clone().endOf('day').toDate();
+            } else if (filter === "yesterday") {
+                const yesterday = nowPKT.clone().subtract(1, 'days');
+                start = yesterday.startOf('day').toDate();
+                end = yesterday.endOf('day').toDate();
+            } else if (filter === "month") {
+                start = nowPKT.clone().startOf('month').toDate();
+                end = nowPKT.clone().endOf('day').toDate();
+            } else if (filter === "lastMonth") {
+                const lastMonth = nowPKT.clone().subtract(1, 'months');
+                start = lastMonth.startOf('month').toDate();
+                end = lastMonth.endOf('month').toDate();
+            } else if (filter === "custom" && (from || to)) {
+                if (from) start = moment.tz(from, PKT_TIMEZONE).startOf('day').toDate();
+                if (to) end = moment.tz(to, PKT_TIMEZONE).endOf('day').toDate();
+            }
 
-        if (start && end) {
-            query.createdAt = { $gte: start, $lte: end };
-        }
-
-        // --- Brand filter mapping ---
-        if (brand && brand !== "all") {
-            if (brand === "Weldon Paints") query.brandName = /^Weldon Paints$/i;
-            else if (brand === "Sparco Paints") query.brandName = /^Sparco Paints$/i;
-            else if (brand === "Value Paints") query.brandName = /^Value Paints$/i;
-            else if (brand === "Corona Paints") query.brandName = /^Corona Paints$/i;
-            else if (brand === "Other Paints") query.brandName = /Other Paints|Other/i;
-        }
-
-        // --- Item filter ---
-        if (itemName && itemName !== "all") {
-            const knownNames = ["Weather Shield", "Emulsion", "Enamel"];
-            if (itemName === "Other") {
-                query.itemName = { $nin: knownNames };
-            } else {
-                query.itemName = new RegExp(`^${itemName}$`, "i");
+            if (start && end) {
+                query.createdAt = { $gte: start, $lte: end };
             }
         }
 
-      // --- Colour filter ---
-   if (colourName && colourName !== "all") {
-    // Apne global function ko call karein
-    const escaped = escapeRegExp(colourName); 
-    query.colourName = new RegExp(`^${escaped}$`, "i");
-  }
-     
-
-        // --- Unit filter ---
-        if (unit && unit !== "all") {
-            query.qty = new RegExp(unit, "i");
+        // 🟢 2. Brand Filter Fix (Simplified Regex)
+        if (brand && brand !== "all") {
+            if (brand === "Weldon Paints") query.brandName = /Weldon/i;
+            else if (brand === "Sparco Paints") query.brandName = /Sparco/i;
+            else if (brand === "Value Paints") query.brandName = /Value/i;
+            else if (brand === "Corona Paints") query.brandName = /Corona/i;
+            else if (brand === "Other Paints") query.brandName = /Other/i;
         }
 
-        // --- Stock status ---
+        // 🟢 3. Item & Colour Filter
+        if (itemName && itemName !== "all") {
+            const knownNames = ["Weather Shield", "Emulsion", "Enamel"];
+            if (itemName === "Other") query.itemName = { $nin: knownNames };
+            else query.itemName = new RegExp(`^${itemName}$`, "i");
+        }
+
+        if (colourName && colourName !== "all") {
+            query.colourName = new RegExp(`^${escapeRegExp(colourName)}$`, "i");
+        }
+
+        // 🟢 4. Unit & Stock Status
+        if (unit && unit !== "all") query.qty = new RegExp(unit, "i");
+
         if (stockStatus && stockStatus !== "all") {
             query.remaining = stockStatus === "in" ? { $gt: 0 } : { $eq: 0 };
         }
 
-        // --- Refund status ---
         if (refund && refund !== "all") query.refundStatus = refund;
 
-        // --- Fetch & Sort ---
-        const filteredProducts = await Product.find(query).sort({ createdAt: -1 });
+        // 🟢 5. Fetch Data (Optimized with .lean())
+        const filteredProducts = await Product.find(query).sort({ createdAt: -1 }).lean();
 
-        // --- Stats Calculation ---
+        // 🟢 6. Stats Calculation
         let totalStock = 0, totalRemaining = 0, totalValue = 0, remainingValue = 0, totalRefundedValue = 0;
+        
         filteredProducts.forEach(p => {
-            totalStock += p.totalProduct || 0;
-            totalValue += (p.totalProduct || 0) * (p.rate || 0);
-            totalRemaining += Math.min(p.remaining || 0, p.totalProduct || 0);
-            totalRefundedValue += Math.min(p.refundQuantity || 0, p.totalProduct || 0) * (p.rate || 0);
-            remainingValue += (p.remaining || 0) * (p.rate || 0);
+            const rate = parseFloat(p.rate || 0);
+            const totalProd = parseFloat(p.totalProduct || 0);
+            const rem = parseFloat(p.remaining || 0);
+            const refQty = parseFloat(p.refundQuantity || 0);
+
+            totalStock += totalProd;
+            totalValue += totalProd * rate;
+            totalRemaining += rem;
+            totalRefundedValue += refQty * rate;
+            remainingValue += rem * rate;
         });
 
         const responseData = {
             products: filteredProducts,
-            stats: { totalStock, totalRemaining, totalValue, remaining: remainingValue, totalRefundedValue },
+            stats: { 
+                totalStock, 
+                totalRemaining, 
+                totalValue: totalValue.toFixed(2), 
+                remaining: remainingValue.toFixed(2), 
+                totalRefundedValue: totalRefundedValue.toFixed(2) 
+            },
             filter, from, to,
             selectedBrand: brand || "all",
             selectedItem: itemName || "all",
@@ -175,7 +179,6 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
             role
         };
 
-        // --- AJAX Check (For Single Page Update) ---
         if (req.xhr || req.headers.accept.indexOf('json') > -1) {
             return res.json({ success: true, ...responseData });
         }
