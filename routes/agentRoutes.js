@@ -62,49 +62,80 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
     try {
         let { filter, from, to } = req.query;
         let query = {};
-        
-        // PKT ke mutabiq 'Today' ka start aur end nikalna
-        const nowPKT = moment.tz(PKT_TIMEZONE);
         let start, end;
+        let dateOperator = '$lte'; 
+
+        const nowPKT = moment.tz(PKT_TIMEZONE);
 
         if (filter === "today") {
             start = nowPKT.clone().startOf('day').toDate();
             end = nowPKT.clone().endOf('day').toDate();
         } else if (filter === "yesterday") {
-            start = nowPKT.clone().subtract(1, 'days').startOf('day').toDate();
-            end = nowPKT.clone().subtract(1, 'days').endOf('day').toDate();
+            const yesterday = nowPKT.clone().subtract(1, 'days');
+            start = yesterday.startOf('day').toDate();
+            end = yesterday.endOf('day').toDate();
         } else if (filter === "month") {
             start = nowPKT.clone().startOf('month').toDate();
             end = nowPKT.clone().endOf('day').toDate();
         } else if (filter === "lastMonth") {
-            start = nowPKT.clone().subtract(1, 'months').startOf('month').toDate();
-            end = nowPKT.clone().subtract(1, 'months').endOf('month').toDate();
-        } else if (filter === "custom" && from) {
-            start = moment.tz(from, PKT_TIMEZONE).startOf('day').toDate();
-            end = to ? moment.tz(to, PKT_TIMEZONE).endOf('day').toDate() : moment.tz(from, PKT_TIMEZONE).endOf('day').toDate();
+            const lastMonth = nowPKT.clone().subtract(1, 'months');
+            start = lastMonth.startOf('month').toDate();
+            end = lastMonth.endOf('month').toDate();
+        } else if (filter === "custom" && from && to) {
+            dateOperator = '$lt';
+            const f = moment.tz(from, 'YYYY-MM-DD', PKT_TIMEZONE);
+            let t = moment.tz(to, 'YYYY-MM-DD', PKT_TIMEZONE);
+            t.add(1, 'days').startOf('day');
+
+            if (f.isValid() && t.isValid()) {
+                start = f.startOf('day').toDate();
+                end = t.toDate();
+            }
         }
 
         if (start && end) {
-            query.createdAt = { $gte: start, $lte: end };
-            console.log(`Agent Query (UTC): ${start.toISOString()} to ${end.toISOString()}`);
+            query.createdAt = { $gte: start, [dateOperator]: end };
         }
 
-        const agents = await Agent.find(query).populate("items").sort({ createdAt: -1 });
+        // Fetch agents with items
+        const agents = await Agent.find(query).populate("items").sort({ createdAt: -1 }).lean();
 
-        // Stats Calculation
-        let totalPercentageAmount = 0, totalPercentageAmountGiven = 0, totalPercentageAmountLeft = 0;
+        // Stats Calculation (Ab Numbers hi rahenge, String nahi banenge)
+        let totalPercentageAmount = 0, totalPercentageAmountGiven = 0;
+        
         agents.forEach(agent => {
-            agent.items.forEach(item => {
+            (agent.items || []).forEach(item => {
                 totalPercentageAmount += Number(item.percentageAmount || 0);
                 totalPercentageAmountGiven += Number(item.paidAmount || 0);
-                totalPercentageAmountLeft += (Number(item.percentageAmount || 0) - Number(item.paidAmount || 0));
             });
         });
 
-        res.render("allAgents", {
+        let totalPercentageAmountLeft = totalPercentageAmount - totalPercentageAmountGiven;
+
+        const responseData = {
             role, agents, filter, from, to,
-            stats: { totalAgents: agents.length, totalPercentageAmount, totalPercentageAmountGiven, totalPercentageAmountLeft }
-        });
+            stats: { 
+                totalAgents: agents.length, 
+                // 🟢 FIX: Backend se raw numbers bhej rahe hain
+                totalPercentageAmount: totalPercentageAmount, 
+                totalPercentageAmountGiven: totalPercentageAmountGiven, 
+                totalPercentageAmountLeft: totalPercentageAmountLeft 
+            }
+        };
+
+        // AJAX Support
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+            // 🟢 AJAX ke liye hum format yahan kar sakte hain kyunke isme EJS nahi hota
+            const ajaxData = JSON.parse(JSON.stringify(responseData));
+            ajaxData.stats.totalPercentageAmount = totalPercentageAmount.toFixed(2);
+            ajaxData.stats.totalPercentageAmountGiven = totalPercentageAmountGiven.toFixed(2);
+            ajaxData.stats.totalPercentageAmountLeft = totalPercentageAmountLeft.toFixed(2);
+            return res.json({ success: true, ...ajaxData });
+        }
+
+        // EJS render (Ab EJS ko Numbers milenge aur .toFixed error nahi dega)
+        res.render("allAgents", responseData);
+
     } catch (err) {
         console.error("❌ Error:", err);
         res.status(500).send("Server Error");
