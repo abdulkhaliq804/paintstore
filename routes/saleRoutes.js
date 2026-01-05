@@ -124,8 +124,11 @@ router.post("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) =>
 ================================ */
 // PKT Time Zone Identifier
 // PKT Time Zone Identifier
+// PKT Time Zone Identifier
+// PKT Time Zone Identifier
 const PKT_TIMEZONE = 'Asia/Karachi';
 
+// Special Characters escape karne ke liye function
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -136,57 +139,98 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
         let { filter, from, to, brand, itemName, colourName, unit, refund } = req.query;
         let query = {};
         let start, end;
+        let dateOperator = '$lte'; 
 
-        // 🟢 EXACT UTC-AWARE LOGIC
-        if (filter === "today") {
-            // Pakistan ka 00:00:00 (Jo UTC mein 1 din peeche ke 7:00 PM banega)
-            start = moment.tz(PKT_TIMEZONE).startOf('day').toDate();
-            end = moment.tz(PKT_TIMEZONE).endOf('day').toDate();
-        } else if (filter === "yesterday") {
-            const yesterday = moment.tz(PKT_TIMEZONE).subtract(1, 'days');
-            start = yesterday.startOf('day').toDate();
-            end = yesterday.endOf('day').toDate();
-        } else if (filter === "month") {
-            start = moment.tz(PKT_TIMEZONE).startOf('month').toDate();
-            end = moment.tz(PKT_TIMEZONE).endOf('day').toDate();
-        } else if (filter === "lastMonth") {
-            const lastMonth = moment.tz(PKT_TIMEZONE).subtract(1, 'months');
-            start = lastMonth.startOf('month').toDate();
-            end = lastMonth.endOf('month').toDate();
+        const nowPKT = moment().tz(PKT_TIMEZONE);
+        
+        // 🟢 1. RE-FIXED DATE LOGIC (Strict PKT Boundaries to block UTC overlap)
+        if (filter === "today" || filter === "yesterday" || filter === "month" || filter === "lastMonth") {
+            if (filter === "today") {
+                start = nowPKT.clone().startOf('day').toDate();
+                end = nowPKT.clone().endOf('day').toDate();
+            } else if (filter === "yesterday") {
+                const yesterdayPKT = nowPKT.clone().subtract(1, 'days');
+                start = yesterdayPKT.startOf('day').toDate();
+                end = yesterdayPKT.endOf('day').toDate();
+            } else if (filter === "month") {
+                start = nowPKT.clone().startOf('month').toDate();
+                end = nowPKT.clone().endOf('day').toDate(); 
+            } else if (filter === "lastMonth") {
+                const lastMonthPKT = nowPKT.clone().subtract(1, 'months');
+                start = lastMonthPKT.startOf('month').toDate();
+                end = lastMonthPKT.endOf('month').toDate();
+            }
         } else if (filter === "custom" && from && to) {
             
-            // 🛑 CUSTOM FIX FOR 5-HOUR DIFFERENCE
-            // Pakistan ki "from" date ki subah 00:00:00
-            start = moment.tz(from, "YYYY-MM-DD", PKT_TIMEZONE).startOf('day').toDate();
+            // 🛑 STRICT CUSTOM FIX: UTC 5-hour difference adjust karne ke liye
+            dateOperator = '$lt'; 
             
-            // Pakistan ki "to" date ki raat 23:59:59
-            // .toDate() karne se ye khud hi UTC mein convert ho jayega (5 ghante nikal kar)
-            end = moment.tz(to, "YYYY-MM-DD", PKT_TIMEZONE).endOf('day').toDate();
+            // Pakistan Time ke mutabiq 00:00:00 (Yani agar 17 select hai to 17 ki subah)
+            start = moment.tz(from, 'YYYY-MM-DD', PKT_TIMEZONE).startOf('day').toDate();
+            
+            // Pakistan Time ke mutabiq agle din ki subah 00:00:00 (Yani 18 ki subah)
+            // $lt lagane se ye sirf 17 ke aakhri second tak ka data lega
+            end = moment.tz(to, 'YYYY-MM-DD', PKT_TIMEZONE).add(1, 'days').startOf('day').toDate();
         }
         
         if (start && end) {
-            query.createdAt = { $gte: start, $lte: end };
+            query.createdAt = { $gte: start, [dateOperator]: end };
         }
 
-        // --- Baqi Filters (Speed optimized) ---
+        // 🟢 2. FILTERS (Brand, Item, Colour with escapeRegExp)
+        if (brand && brand !== "all") {
+            if (brand === "Weldon Paints") query.brandName = /weldon/i;
+            else if (brand === "Sparco Paints") query.brandName = /sparco/i;
+            else if (brand === "Value Paints") query.brandName = /value/i;
+            else if (brand === "Corona Paints") query.brandName = /Corona/i;
+            else if (brand === "Other Paints") query.brandName = /Other Paints|Other/i;
+        }
+
+        if (itemName && itemName !== "all") {
+            const knownNames = ["Weather Shield", "Emulsion", "Enamel"];
+            if (itemName === "Other") {
+                query.itemName = { $nin: knownNames };
+            } else {
+                // Item name mein regex use kiya
+                query.itemName = new RegExp(`^${escapeRegExp(itemName)}$`, "i");
+            }
+        }
+
+        if (colourName && colourName !== "all") {
+            // Colour name mein escapeRegExp zaroori hai (Paints ke names mein characters ho sakte hain)
+            query.colourName = new RegExp(`^${escapeRegExp(colourName)}$`, "i");
+        }
+
+        if (unit && unit !== "all") {
+            query.qty = new RegExp(escapeRegExp(unit), "i");
+        }
+
+        if (refund && refund !== "all") query.refundStatus = refund;
+
+        // 🟢 3. SPEED OPTIMIZATION (Product Mapping)
         const filteredSales = await Sale.find(query).sort({ createdAt: -1 }).lean();
         const allProducts = await Product.find({}, 'stockID rate').lean();
         
         const productMap = {};
-        allProducts.forEach(p => { productMap[p.stockID] = parseFloat(p.rate || 0); });
+        allProducts.forEach(p => {
+            productMap[p.stockID] = parseFloat(p.rate || 0);
+        });
 
         let totalSold = 0, totalRevenue = 0, totalProfit = 0, totalLoss = 0, totalRefunded = 0;
         const enrichedSales = [];
 
         for (const s of filteredSales) {
             const purchaseRate = productMap[s.stockID] || 0;
-            let netSoldQty = Math.max(0, s.quantitySold - (s.refundQuantity || 0));
+            let netSoldQty = Math.max(0, (s.quantitySold || 0) - (s.refundQuantity || 0));
+
             totalSold += netSoldQty;
             totalRevenue += (netSoldQty * (s.rate || 0));
             totalRefunded += ((s.refundQuantity || 0) * (s.rate || 0));
+
             const saleProfit = ((s.rate || 0) - purchaseRate) * netSoldQty;
             if (saleProfit > 0) totalProfit += saleProfit;
             else totalLoss += Math.abs(saleProfit);
+
             enrichedSales.push({ ...s, purchaseRate });
         }
 
@@ -214,7 +258,7 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
 
     } catch (err) {
         console.error("❌ Error:", err);
-        res.status(500).send("Error");
+        res.status(500).send("Internal Server Error");
     }
 });
 
