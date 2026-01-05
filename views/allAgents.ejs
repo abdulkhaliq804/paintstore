@@ -39,15 +39,15 @@
     </div>
     <div class="stat-box">
       <h3>Total % Commission 💵</h3>
-      <p>Rs <%= Number(stats.totalPercentageAmount).toFixed(2) %></p>
+      <p>Rs <%= Number(stats.totalPercentageAmount || 0).toFixed(2) %></p>
     </div>
     <div class="stat-box">
       <h3>Paid % Commission ✅</h3>
-      <p>Rs <%= Number(stats.totalPercentageAmountGiven).toFixed(2) %></p>
+      <p>Rs <%= Number(stats.totalPercentageAmountGiven || 0).toFixed(2) %></p>
     </div>
     <div class="stat-box" id="negative">
       <h3>Left % Commission ⏳</h3>
-      <p>Rs <%= Number(stats.totalPercentageAmountLeft).toFixed(2) %></p>
+      <p>Rs <%= Number(stats.totalPercentageAmountLeft || 0).toFixed(2) %></p>
     </div>
   </div>
 
@@ -72,8 +72,15 @@
               <td><%= a.phone %></td>
               <td><%= a.cnic %></td>
               <td>
-                <%= new Date(a.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) %>
-                <br><small style="color: #007bff;"><%= new Date(a.createdAt).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:true }) %></small>
+                <%= new Date(a.createdAt).toLocaleDateString('en-GB', { 
+                    day:'2-digit', month:'short', year:'numeric', timeZone: 'Asia/Karachi' 
+                }) %>
+                <br>
+                <small style="color: #007bff; font-weight: bold;">
+                  <%= new Date(a.createdAt).toLocaleTimeString('en-GB', { 
+                      hour:'2-digit', minute:'2-digit', hour12:true, timeZone: 'Asia/Karachi' 
+                  }) %>
+                </small>
               </td>
               <td class="action-buttons">
                 <button id="view"><a href="/agents/view-agent/<%= a._id %>" style="text-decoration:none; color:inherit;">View</a></button>

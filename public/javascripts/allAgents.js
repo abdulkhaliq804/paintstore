@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * 2. TOGGLE DATE INPUTS
-     * Sirf inputs dikhayega, data fetch NAHI karega.
+     * Sirf inputs dikhayega jab 'custom' select ho.
      */
     function toggleDateInputs(value) {
         if (value === "custom") {
@@ -23,14 +23,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /**
      * 3. CORE FILTER FUNCTION (SPA STYLE)
-     * Ye function backend se data layega aur table ko update karega bina reload ke.
+     * Backend se data layega aur table/stats ko update karega.
      */
     const runFilter = async () => {
-        // Form data ko query string mein badalna
+        // Form data pick karna
         const formData = new URLSearchParams(new FormData(filterForm)).toString();
         
-        // UX: Table ko halka sa dhundla karna loading feel dene ke liye
-        tbody.style.opacity = '0.4';
+        // Table loading state
+        tbody.style.opacity = '0.5';
 
         try {
             const res = await fetch(`/agents/all?${formData}`, {
@@ -42,27 +42,31 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
 
             if (data.success) {
-                // --- A. Stats Boxes Update ---
+                // --- A. Stats Update (With Number Formatting) ---
                 const statsPs = document.querySelectorAll('.stat-box p');
                 if (statsPs.length >= 4) {
                     statsPs[0].innerText = data.stats.totalAgents;
-                    statsPs[1].innerText = `Rs ${Number(data.stats.totalPercentageAmount).toFixed(2)}`;
-                    statsPs[2].innerText = `Rs ${Number(data.stats.totalPercentageAmountGiven).toFixed(2)}`;
-                    statsPs[3].innerText = `Rs ${Number(data.stats.totalPercentageAmountLeft).toFixed(2)}`;
+                    statsPs[1].innerText = `Rs ${Number(data.stats.totalPercentageAmount || 0).toFixed(2)}`;
+                    statsPs[2].innerText = `Rs ${Number(data.stats.totalPercentageAmountGiven || 0).toFixed(2)}`;
+                    statsPs[3].innerText = `Rs ${Number(data.stats.totalPercentageAmountLeft || 0).toFixed(2)}`;
                 }
 
-                // --- B. Table Content Rebuild ---
+                // --- B. Table Rebuild (With Strict PKT Timezone) ---
                 let html = '';
-                if (data.agents.length === 0) {
-                    html = `<tr><td colspan="5" class="no-data" style="text-align:center; padding:20px;">No agents found for the selected filter.</td></tr>`;
+                if (!data.agents || data.agents.length === 0) {
+                    html = `<tr><td colspan="5" class="no-data" style="text-align:center; padding:20px;">No records found.</td></tr>`;
                 } else {
                     data.agents.forEach(a => {
                         const dateObj = new Date(a.createdAt);
+                        
+                        // 🟢 PKT Timezone Fix: Taake date shift na ho
                         const dateStr = dateObj.toLocaleDateString('en-GB', { 
-                            day: '2-digit', month: 'short', year: 'numeric' 
+                            day: '2-digit', month: 'short', year: 'numeric', 
+                            timeZone: 'Asia/Karachi' 
                         });
                         const timeStr = dateObj.toLocaleTimeString('en-GB', { 
-                            hour: '2-digit', minute: '2-digit', hour12: true 
+                            hour: '2-digit', minute: '2-digit', hour12: true, 
+                            timeZone: 'Asia/Karachi' 
                         });
 
                         html += `
@@ -86,60 +90,47 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 }
 
-                // Table update karna
                 tbody.innerHTML = html;
 
-                // URL update karna (bina refresh ke) taake refresh pe wohi filter rahe
+                // Browser URL update (bina reload ke)
                 window.history.pushState({}, '', `/agents/all?${formData}`);
 
-                // Delete buttons pe listeners dobara lagana
+                // Re-attach delete listeners to new buttons
                 attachDeleteListeners();
             }
         } catch (err) {
-            console.error("SPA Filter Error:", err);
-            alert("Error loading data. Please check console.");
+            console.error("Fetch Error:", err);
         } finally {
             tbody.style.opacity = '1';
         }
     };
 
     /**
-     * 4. DELETE AGENT LOGIC
-     */
-    async function deleteAgent(agentId) {
-        if (!confirm("Are you sure you want to delete this agent?")) return;
-
-        try {
-            const res = await fetch(`/agents/delete-agent/${agentId}`, { method: "DELETE" });
-            const data = await res.json();
-
-            if (data.success) {
-                // Delete ke baad table ko refresh karna (SPA style)
-                runFilter();
-            } else {
-                alert(data.message || "Failed to delete");
-            }
-        } catch (err) {
-            console.error("Delete Error:", err);
-        }
-    }
-
-    /**
-     * 5. ATTACH LISTENERS
+     * 4. DELETE LOGIC
      */
     function attachDeleteListeners() {
-        document.querySelectorAll(".delete-btn").forEach((btn) => {
-            btn.onclick = (e) => {
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+            btn.onclick = async (e) => {
                 e.preventDefault();
                 const id = btn.getAttribute("data-id");
-                deleteAgent(id);
+                if (confirm("Are you sure you want to delete this agent?")) {
+                    try {
+                        const res = await fetch(`/agents/delete-agent/${id}`, { method: 'DELETE' });
+                        const data = await res.json();
+                        if (data.success) {
+                            runFilter(); // Table refresh bina reload ke
+                        }
+                    } catch (err) {
+                        console.error("Delete failed:", err);
+                    }
+                }
             };
         });
     }
 
-    // --- Events Bindings ---
+    // --- 5. Event Listeners ---
 
-    // Apply Button: Strictly click pe filter chalaye
+    // Apply Button click
     if (applyBtn) {
         applyBtn.addEventListener("click", (e) => {
             e.preventDefault();
@@ -147,24 +138,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Dropdown: Sirf custom dates toggle kare
+    // Dropdown change
     if (filterSelect) {
         filterSelect.addEventListener("change", () => {
             toggleDateInputs(filterSelect.value);
         });
-        // Initial visibility check
+        // Run initial check
         toggleDateInputs(filterSelect.value);
     }
 
-    // Form: Enter dabane se reload rokna
+    // Enter key support in form
     if (filterForm) {
         filterForm.onsubmit = (e) => {
             e.preventDefault();
-            runFilter(); // Enter dabane par bhi filter chale reload na ho
+            runFilter();
             return false;
         };
     }
 
-    // Pehli dafa listeners lagana
+    // Initial attachment
     attachDeleteListeners();
 });
