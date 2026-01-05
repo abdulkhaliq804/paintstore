@@ -373,7 +373,7 @@ async function updateTable() {
                         <td class="refund-status">${status}</td>
                         <td class="refund-quantity">${refundQty}</td>
                         <td>${dateStr}<br><small style="color: #007bff; font-weight: bold;">${timeStr}</small></td>
-                        ${data.role === "admin" ? `<td><button type="button" class="delete-sale delete-btn" data-id="${s._id}">Delete</button></td>` : ''}
+                        ${data.role === "admin" ? `<td><button type="button" id="delete" class="delete-sale delete-btn" data-id="${s._id}">Delete</button></td>` : ''}
                     </tr>`;
                 });
             }
