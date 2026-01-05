@@ -123,6 +123,7 @@ router.post("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) =>
    ✅ Includes Total Stats
 ================================ */
 // PKT Time Zone Identifier
+// PKT Time Zone Identifier
 const PKT_TIMEZONE = 'Asia/Karachi';
 
 function escapeRegExp(string) {
@@ -135,74 +136,44 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
         let { filter, from, to, brand, itemName, colourName, unit, refund } = req.query;
         let query = {};
         let start, end;
-        let dateOperator = '$lte'; // Default operator
 
-        const nowPKT = moment().tz(PKT_TIMEZONE);
-        
-        // 🟢 1. RE-FIXED DATE LOGIC (Strict PKT Boundaries)
-        if (filter === "today" || filter === "yesterday" || filter === "month" || filter === "lastMonth") {
-            if (filter === "today") {
-                start = nowPKT.clone().startOf('day').toDate();
-                end = nowPKT.clone().endOf('day').toDate();
-            } else if (filter === "yesterday") {
-                const yesterdayPKT = nowPKT.clone().subtract(1, 'days');
-                start = yesterdayPKT.startOf('day').toDate();
-                end = yesterdayPKT.endOf('day').toDate();
-            } else if (filter === "month") {
-                start = nowPKT.clone().startOf('month').toDate();
-                end = nowPKT.clone().endOf('day').toDate(); 
-            } else if (filter === "lastMonth") {
-                const lastMonthPKT = nowPKT.clone().subtract(1, 'months');
-                start = lastMonthPKT.startOf('month').toDate();
-                end = lastMonthPKT.endOf('month').toDate();
-            }
+        // 🟢 EXACT UTC-AWARE LOGIC
+        if (filter === "today") {
+            // Pakistan ka 00:00:00 (Jo UTC mein 1 din peeche ke 7:00 PM banega)
+            start = moment.tz(PKT_TIMEZONE).startOf('day').toDate();
+            end = moment.tz(PKT_TIMEZONE).endOf('day').toDate();
+        } else if (filter === "yesterday") {
+            const yesterday = moment.tz(PKT_TIMEZONE).subtract(1, 'days');
+            start = yesterday.startOf('day').toDate();
+            end = yesterday.endOf('day').toDate();
+        } else if (filter === "month") {
+            start = moment.tz(PKT_TIMEZONE).startOf('month').toDate();
+            end = moment.tz(PKT_TIMEZONE).endOf('day').toDate();
+        } else if (filter === "lastMonth") {
+            const lastMonth = moment.tz(PKT_TIMEZONE).subtract(1, 'months');
+            start = lastMonth.startOf('month').toDate();
+            end = lastMonth.endOf('month').toDate();
         } else if (filter === "custom" && from && to) {
             
-            // 🛑 STRICT CUSTOM FIX: Explicitly setting hours to avoid overflow to previous day
-            dateOperator = '$lte'; // Back to $lte for consistent end-of-day logic
+            // 🛑 CUSTOM FIX FOR 5-HOUR DIFFERENCE
+            // Pakistan ki "from" date ki subah 00:00:00
+            start = moment.tz(from, "YYYY-MM-DD", PKT_TIMEZONE).startOf('day').toDate();
             
-            // Start of the 'from' day (00:00:00)
-            start = moment.tz(from, PKT_TIMEZONE).startOf('day').toDate();
-            
-            // End of the 'to' day (23:59:59)
-            // Is se 17 tarikh ka aakhri second tak ka data aayega, 16 ka nahi aayega
-            end = moment.tz(to, PKT_TIMEZONE).endOf('day').toDate();
+            // Pakistan ki "to" date ki raat 23:59:59
+            // .toDate() karne se ye khud hi UTC mein convert ho jayega (5 ghante nikal kar)
+            end = moment.tz(to, "YYYY-MM-DD", PKT_TIMEZONE).endOf('day').toDate();
         }
         
         if (start && end) {
-            query.createdAt = { $gte: start, [dateOperator]: end };
+            query.createdAt = { $gte: start, $lte: end };
         }
 
-        // --- Filters (Same as before) ---
-        if (brand && brand !== "all") {
-            if (brand === "Weldon Paints") query.brandName = /weldon/i;
-            else if (brand === "Sparco Paints") query.brandName = /sparco/i;
-            else if (brand === "Value Paints") query.brandName = /value/i;
-            else if (brand === "Corona Paints") query.brandName = /Corona/i;
-            else query.brandName = /Other Paints|Other/i;
-        }
-
-        if (itemName && itemName !== "all") {
-            const knownNames = ["Weather Shield", "Emulsion", "Enamel"];
-            if (itemName === "Other") query.itemName = { $nin: knownNames };
-            else query.itemName = new RegExp(`^${itemName}$`, "i");
-        }
-
-        if (colourName && colourName !== "all") {
-            query.colourName = new RegExp(`^${escapeRegExp(colourName)}$`, "i");
-        }
-
-        if (unit && unit !== "all") query.qty = new RegExp(unit, "i");
-        if (refund && refund !== "all") query.refundStatus = refund;
-
-        // --- Speed Optimization ---
+        // --- Baqi Filters (Speed optimized) ---
         const filteredSales = await Sale.find(query).sort({ createdAt: -1 }).lean();
         const allProducts = await Product.find({}, 'stockID rate').lean();
         
         const productMap = {};
-        allProducts.forEach(p => {
-            productMap[p.stockID] = parseFloat(p.rate || 0);
-        });
+        allProducts.forEach(p => { productMap[p.stockID] = parseFloat(p.rate || 0); });
 
         let totalSold = 0, totalRevenue = 0, totalProfit = 0, totalLoss = 0, totalRefunded = 0;
         const enrichedSales = [];
@@ -210,22 +181,19 @@ router.get("/all", isLoggedIn, allowRoles("admin"), async (req, res) => {
         for (const s of filteredSales) {
             const purchaseRate = productMap[s.stockID] || 0;
             let netSoldQty = Math.max(0, s.quantitySold - (s.refundQuantity || 0));
-
             totalSold += netSoldQty;
             totalRevenue += (netSoldQty * (s.rate || 0));
             totalRefunded += ((s.refundQuantity || 0) * (s.rate || 0));
-
             const saleProfit = ((s.rate || 0) - purchaseRate) * netSoldQty;
             if (saleProfit > 0) totalProfit += saleProfit;
             else totalLoss += Math.abs(saleProfit);
-
             enrichedSales.push({ ...s, purchaseRate });
         }
 
         const responseData = {
             sales: enrichedSales,
             stats: { 
-                totalSold: totalSold, 
+                totalSold, 
                 totalRevenue: parseFloat(totalRevenue.toFixed(2)), 
                 totalProfit: parseFloat(totalProfit.toFixed(2)), 
                 totalLoss: parseFloat(totalLoss.toFixed(2)), 
