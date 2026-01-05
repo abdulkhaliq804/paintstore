@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const filterSelect = document.getElementById("filter");
     const fromInput = document.getElementById("from");
     const toInput = document.getElementById("to");
-    const applyBtn = document.getElementById("applyBtn");
+    const applyBtn = document.getElementById("apply");
     const tbody = document.querySelector('tbody');
 
     /**
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     <a href="/agents/view-agent/${a._id}" style="text-decoration: none; color: inherit;">View</a>
                                 </button>
                                 ${data.role === "admin" ? `
-                                <button type="button" class="delete-btn" data-id="${a._id}">Delete</button>
+                                <button type="button" id="delete" class="delete-btn" data-id="${a._id}">Delete</button>
                                 ` : ''}
                             </td>
                         </tr>`;

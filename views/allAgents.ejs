@@ -29,7 +29,7 @@
     <input type="date" name="from" id="from" value="<%= from || '' %>" style="display:none;">
     <input type="date" name="to" id="to" value="<%= to || '' %>" style="display:none;">
     
-    <button type="button" id="applyBtn">Apply</button>
+    <button type="button" id="apply">Apply</button>
   </form>
 
   <div class="stats">
@@ -85,7 +85,7 @@
               <td class="action-buttons">
                 <button id="view"><a href="/agents/view-agent/<%= a._id %>" style="text-decoration:none; color:inherit;">View</a></button>
                 <% if(role == "admin") { %>
-                  <button class="delete-btn" data-id="<%= a._id %>">Delete</button>
+                  <button class="delete-btn" id="delete"  data-id="<%= a._id %>  ">Delete</button>
                 <% } %>
               </td>
             </tr>
