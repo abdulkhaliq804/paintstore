@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         });
 
-        // Submit Payment (No Reload + Success Message)
+        // Submit Payment (With Loader)
         document.querySelectorAll(".submit-btn").forEach(btn => {
             btn.onclick = async () => {
                 const id = btn.dataset.id;
@@ -125,6 +125,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
+                // --- 🟢 LOADER START ---
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner"></span>`; 
+                // ----------------------
+
                 try {
                     const res = await fetch(`/agents/pay-item/${id}`, {
                         method: "POST",
@@ -133,7 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                     const data = await res.json();
                     if (data.success) {
-                        // 🟢 Success Message with Amount
                         alert(`✅ Payment Added Successfully!\nAmount Cut: Rs ${addAmount.toFixed(2)}`);
                         refreshData(); 
                     } else {
@@ -142,19 +147,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 } catch (err) { 
                     console.error(err);
                     alert("Error processing payment.");
+                } finally {
+                    // --- 🔴 LOADER RESET ---
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
                 }
             };
         });
 
-        // Delete Item (No Reload + Success Message)
+        // Delete Item (With Loader)
         document.querySelectorAll(".delete-btn").forEach(btn => {
             btn.onclick = async () => {
                 if (!confirm("Are you sure you want to delete this item?")) return;
+
+                // --- 🟢 LOADER START ---
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner"></span>`;
+                // ----------------------
+
                 try {
                     const res = await fetch(`/agents/delete-item/${btn.dataset.id}`, { method: "DELETE" });
                     const data = await res.json();
                     if (data.success) {
-                        // 🟢 Delete success message
                         alert("🗑️ Item deleted successfully!");
                         refreshData();
                     } else {
@@ -163,6 +178,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 } catch (err) { 
                     console.error(err);
                     alert("Error deleting item.");
+                } finally {
+                    // --- 🔴 LOADER RESET ---
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
                 }
             };
         });

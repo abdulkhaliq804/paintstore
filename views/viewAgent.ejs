@@ -96,7 +96,7 @@
                   <button class="delete-btn" data-id="<%= i._id %>">Delete</button>
                 <% } %>
                 <div class="pay-box" id="paybox-<%= i._id %>" style="display:none; margin-top:5px;">
-                  <input class="payinput" type="number" id="payInput-<%= i._id %>" placeholder="Enter Amount" min="1">
+                  <input class="payinput" type="number" id="payInput-<%= i._id %>" placeholder="Pay Amount" min="1" required>
                   <button id="submit" class="submit-btn" data-id="<%= i._id %>" data-total="<%= i.percentageAmount %>" data-paid="<%= i.paidAmount %>">Submit</button>
                 </div>
               </td>
