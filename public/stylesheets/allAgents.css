@@ -48,7 +48,7 @@ h1 {
   margin: 0 auto 18px;
 }
 
-select,
+
 input[type="date"],
 button {
   padding: 9px 12px;
@@ -60,6 +60,24 @@ button {
   text-align: start;
   cursor: pointer;
 }
+
+select{  
+        padding: 9px 12px;
+  border-radius: 5px;
+  border: 1px solid #363636bb;
+  font-size: 13px;
+  width:100%;
+  background: #fff;
+  text-align: start;
+  cursor: pointer;
+    }
+
+select:focus{
+      border-color: #06a56c;
+      outline: none;
+      box-shadow: 0 0 5px rgba(6, 165, 108, 0.5);
+    }
+
 
 button#apply {
   background-color: #a6e7d8;
