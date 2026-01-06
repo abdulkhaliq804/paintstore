@@ -219,21 +219,46 @@ function renderTable() {
     });
 }
 
+// Isay dhoondhein aur replace kar dein
 document.getElementById("submitBtn").addEventListener("click", async function () {
     if (tempSales.length === 0) return alert("⚠️ Add sales first.");
-    const payload = { sales: tempSales, agentID: agentSelect.value || null, percentage: agentPercentage.value || 0 };
+
+    const submitBtn = document.getElementById("submitBtn");
+    const originalText = submitBtn.innerHTML;
+
+    // 1. Loader Start (Button disable hoga aur spinner dikhay ga)
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner"></span> Saving Sales...`;
+
+    const payload = { 
+        sales: tempSales, 
+        agentID: agentSelect.value || null, 
+        percentage: agentPercentage.value || 0 
+    };
+
     try {
         const res = await fetch("/sales/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
+
         if (res.ok) {
             alert("✅ Sales Saved Successfully!");
             window.open(`/sales/print?data=${encodeURIComponent(JSON.stringify(tempSales))}`, "_blank");
             location.reload();
+        } else {
+            const errorData = await res.json();
+            alert("❌ Failed: " + (errorData.message || "Unknown error"));
         }
-    } catch (err) { alert("❌ Server Error!"); }
+    } catch (err) { 
+        alert("❌ Server Error!"); 
+        console.error(err);
+    } finally {
+        // 2. Loader Reset (Agar kisi wajah se page reload na ho to button wapas normal ho jaye)
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
 });
 
 // ===============================================
