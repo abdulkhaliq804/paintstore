@@ -84,6 +84,12 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
 
     try {
         let { filter, from, to, brand, itemName, colourName, unit, stockStatus, refund } = req.query;
+
+        // 🟢 UPDATE: Agar pehli baar page khulay to default "month" set ho
+        if (!filter) {
+            filter = "month";
+        }
+
         let query = {};
         let start, end;
         let dateOperator = '$lte'; // Default operator
@@ -99,6 +105,7 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
             start = yesterday.startOf('day').toDate();
             end = yesterday.endOf('day').toDate();
         } else if (filter === "month") {
+            // 🟢 Default logic for "This Month"
             start = nowPKT.clone().startOf('month').toDate();
             end = nowPKT.clone().endOf('day').toDate();
         } else if (filter === "lastMonth") {
@@ -106,12 +113,9 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
             start = lastMonth.startOf('month').toDate();
             end = lastMonth.endOf('month').toDate();
         } else if (filter === "custom" && from && to) {
-            // 🛑 CUSTOM DATE FIX: Less Than ($lt) logic for accuracy
             dateOperator = '$lt';
             const f = moment.tz(from, 'YYYY-MM-DD', PKT_TIMEZONE);
             let t = moment.tz(to, 'YYYY-MM-DD', PKT_TIMEZONE);
-
-            // Agle din ka start (00:00:00)
             t.add(1, 'days').startOf('day');
 
             if (f.isValid() && t.isValid()) {
@@ -120,6 +124,7 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
             }
         }
 
+        // Date filter application
         if (start && end) {
             query.createdAt = { $gte: start, [dateOperator]: end };
         }
@@ -143,7 +148,7 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
             }
         }
 
-        // --- Colour filter (Escaped for accuracy) ---
+        // --- Colour filter ---
         if (colourName && colourName !== "all") {
             query.colourName = new RegExp(`^${escapeRegExp(colourName)}$`, "i");
         }
@@ -199,12 +204,13 @@ router.get("/all", isLoggedIn, allowRoles("admin", "worker"), async (req, res) =
             role
         };
 
-        // AJAX Support
-        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        // AJAX Support (XMLHttpRequest)
+        if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
             return res.json({ success: true, ...responseData });
         }
 
         res.render("allProducts", responseData);
+
     } catch (err) {
         console.error("❌ Error loading All Products:", err);
         res.status(500).send("Error loading products page");
