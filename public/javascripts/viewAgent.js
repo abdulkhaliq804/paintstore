@@ -74,11 +74,11 @@ document.addEventListener("DOMContentLoaded", () => {
                             <td>${i.totalProductAmount}</td>
                             <td>${i.percentage}%</td>
                             <td>${i.percentageAmount}</td>
-                            <td><span class="status-tag">${status}</span></td>
+                            <td class="paid-status"><span  class="status-tag">${status}</span></td>
                             <td>Rs ${i.paidAmount}</td>
                             <td>Rs ${leftAmt}</td>
                             <td>${dateObj.toLocaleDateString('en-GB')}<br>
-                            <small>${dateObj.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', hour12:true})}</small></td>
+                            <small style="color: #007bff; font-weight: bold;">${dateObj.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', hour12:true})}</small></td>
                             <td class="actions">
                                 <button class="pay-btn" data-id="${i._id}" id="pay" >Pay</button>
                                 ${data.role === "admin" ? `<button class="delete-btn" data-id="${i._id}" id="delete" >Delete</button>` : ''}
