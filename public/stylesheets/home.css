@@ -351,6 +351,7 @@ RESPONSIVE
 
 /* ===== RIGHT RESULTS ===== */
 .results-box{
+  width: 100%;
   background:#1675033a;
   border-radius:18px;
   padding:30px;
