@@ -137,10 +137,10 @@ button#apply {
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background: white;
-  position: relative; /* Loader ko center karne ke liye */
+  position: relative;
 }
 
-/* ----- LOADER FIX (Fixed Center & No Extra Space) ----- */
+/* ----- LOADER FIX (Absolute Center) ----- */
 #table-loader {
   position: absolute;
   top: 0;
@@ -169,9 +169,8 @@ button#apply {
 
 table {
   width: 100%;
-  min-width: 900px;
+  /* table-layout: fixed; ko hata diya taake columns content ke hisaab se tight ho jayein */
   border-collapse: collapse;
-  /* table-layout: fixed ko hata diya taake spacing kam ho sake */
 }
 
 thead {
@@ -181,13 +180,14 @@ thead {
 
 th {
   color: #ffffff;
-  padding: 12px 10px; /* Thora horizontal padding diya taake text chipke na */
+  padding: 14px 10px;
   font-size: 13px;
   text-align: center;
+  white-space: nowrap; /* Header text ek line mein rahega */
 }
 
 td {
-  padding: 8px 10px; /* Cells ke beech ki vertical aur horizontal space ko balance kiya */
+  padding: 10px 10px; /* Spacing kam karne ke liye padding adjust ki */
   font-size: 14px;
   font-weight: 400;
   text-align: center;
@@ -198,24 +198,33 @@ tbody tr:hover td {
   background: #baded0;
 }
 
-.no-data {
-  padding: 12px;
-  color: #888;
-  text-align: center;
+/* Scrollable Tbody Fix without breaking column width */
+tbody {
+  display: block;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-/* Desktop par scroll ke liye tbody ka behaviour */
-tbody {
-  display: table-row-group; /* Fixed table ki jagah standard behaviour rakha taake spacing theek ho */
+thead, tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: auto; /* Content ke hisaab se width lega */
 }
+
+/* Specific columns ki width adjust karein taake gap kam ho */
+th:nth-child(1), td:nth-child(1) { width: 25%; } /* Name */
+th:nth-child(2), td:nth-child(2) { width: 20%; } /* Phone */
+th:nth-child(3), td:nth-child(3) { width: 20%; } /* CNIC */
+th:nth-child(4), td:nth-child(4) { width: 20%; } /* Date */
+th:nth-child(5), td:nth-child(5) { width: 15%; } /* Action */
 
 /* ================= BUTTONS ================= */
 #view {
   background-color: #a6e7d8;
   border: 2px solid #00B087;
-  padding: 5px 14px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
   color: #008767;
   cursor: pointer;
 }
@@ -224,9 +233,9 @@ tbody {
   background: #FFC5C5;
   color: #DF0404;
   border: 2px solid #DF0404;
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
   cursor: pointer;
 }
 
@@ -235,20 +244,14 @@ tbody {
   .filter-container { grid-template-columns: repeat(5, 1fr); }
 }
 
-@media(max-width:1024px) {
-  .filter-container { grid-template-columns: repeat(3, 1fr); }
-  .stats { grid-template-columns: repeat(3, 1fr); }
-}
-
 @media(max-width:768px) {
-  main { margin-left: 0 !important; padding: 15px; padding-top: 80px; }
+  main { padding: 15px; padding-top: 80px; }
   .filter-container { grid-template-columns: repeat(2, 1fr); }
   .stats { grid-template-columns: repeat(2, 1fr); }
   
-  /* Mobile Spacing Fix: Text ko left align kar diya taake center wali khali jagah khatam ho jaye */
+  /* Mobile par spacing mazeed kam karne ke liye */
   th, td { 
-    padding: 10px 5px; 
-    font-size: 12px; 
-    text-align: left; /* Mobile par gap khatam karne ke liye left behtar hai */
+    padding: 8px 4px; 
+    font-size: 11px; 
   }
 }
