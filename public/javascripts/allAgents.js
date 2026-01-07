@@ -55,9 +55,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         html += `
                         <tr>
-                            <td>${a.name || 'N/A'}</td>
-                            <td>${a.phone || 'N/A'}</td>
-                            <td>${a.cnic || 'N/A'}</td>
+                            <td>${a.name }</td>
+                            <td>${a.phone }</td>
+                            <td>${a.cnic }</td>
                             <td>${dateStr}<br><small style="color: #007bff; font-weight: bold;">${timeStr}</small></td>
                             <td class="action-buttons">
                                 <button id="view"><a href="/agents/view-agent/${a._id}" style="text-decoration: none; color: inherit;">View</a></button>

@@ -14,7 +14,7 @@
   <main>
     <h1>All Agents</h1>
 
-    <form class="filter-container" id="filterForm">
+  <form class="filter-container" id="filterForm">
   <select name="filter" id="filter">
     <option value="all" <%= filter === 'all' || !filter ? 'selected' : '' %>>All Times</option>
     <option value="today" <%= filter === 'today' ? 'selected' : '' %>>Today</option>
@@ -71,9 +71,9 @@
           <% } else { %>
             <% agents.forEach(a => { %>
               <tr>
-               <td><%= a.name ? a.name : 'N/A' %></td>
-               <td><%= a.phone ? a.phone : 'N/A' %></td>
-               <td><%= a.cnic ? a.cnic : 'N/A' %></td>
+               <td><%= a.name  %></td>
+               <td><%= a.phone %></td>
+               <td><%= a.cnic %></td>
                 <td>
                   <%= new Date(a.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric', timeZone: 'Asia/Karachi' }) %>
                   <br>

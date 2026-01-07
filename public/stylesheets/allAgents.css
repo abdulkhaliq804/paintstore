@@ -6,10 +6,45 @@ body { font-family: 'Segoe UI', sans-serif; background: #f4f7fa; overflow-x: hid
 main { padding: 20px; transition: .3s ease; }
 h1 { color: #06a56c; text-align: center; margin-bottom: 15px; font-size: 22px; }
 
+/* ================= FILTERS (MOBILE OVERLAP FIX) ================= */
+.filter-container {
+  display: flex; /* Grid ke bajaye Flexbox mobile ke liye behtar hai */
+  flex-wrap: wrap; 
+  gap: 10px;
+  max-width: 1200px;
+  margin: 0 auto 18px;
+  align-items: center;
+  justify-content: center;
+}
+
+input[type="date"], select {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1px solid #363636bb;
+  font-size: 13px;
+  background: #fff;
+  min-width: 140px;
+  flex: 1; /* Mobile par width khud adjust karega */
+}
+
+button#apply {
+  background-color: #a6e7d8;
+  color: #008767;
+  border: 2px solid #00b087;
+  font-weight: 600;
+  padding: 8px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.3s;
+  min-width: 120px;
+}
+
+#apply:hover { background-color: #00b087; color: white; }
+
 /* ================= STATS BOXES ================= */
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Standard 4 boxes */
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   max-width: 1200px;
   margin: 0 auto 20px;
@@ -32,72 +67,83 @@ h1 { color: #06a56c; text-align: center; margin-bottom: 15px; font-size: 22px; }
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   background: white;
+  position: relative; /* Loader ki alignment ke liye zaroori */
+  min-height: 150px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  /* Fixed ke bajaye Auto taake columns content ke hisab se slim ho jayein */
   table-layout: auto; 
-  min-width: 600px; /* Mobile par itna scroll kafi hai */
+  min-width: 600px; 
 }
 
 thead { background: #06a56c; color: white; }
 
-th {
-  padding: 10px 4px; /* Desktop par kam spacing */
-  font-size: 15px; /* Laptop par text bara */
-  font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-}
+th { padding: 10px 4px; font-size: 15px; font-weight: 600; text-align: center; white-space: nowrap; }
 
 td {
-  padding: 6px 4px; /* Top-Bottom spacing kam kar di */
-  font-size: 14px; /* Laptop par readable text */
+  padding: 6px 4px;
+  font-size: 14px;
   font-weight: 500;
   text-align: center;
   border-bottom: 1px solid #eee;
   color: #333;
 }
 
-tbody tr:hover td { background: #f9f9f9; }
+/* ================= LOADER (POSITIONING FIX) ================= */
+#tableLoader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.85); /* Background thora thick kiya */
+  display: none; /* JS control karegi */
+  flex-direction: column;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  z-index: 100;
+  border-radius: 10px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #06A56C;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* ================= MOBILE RESPONSIVE ================= */
+@media(max-width:768px) {
+  main { padding-top: 80px; padding-left: 10px; padding-right: 10px; }
+  
+  .filter-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Do columns mobile par */
+  }
+  
+  #apply {
+    grid-column: span 2; /* Apply Filter button poori line le lega taake overlap na ho */
+  }
+
+  th, td { font-size: 12px; padding: 5px 2px; }
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
 
 /* ================= BUTTONS ================= */
-#view, #delete {
+.pay-btn, .delete-btn {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   border: 1px solid;
+  margin: 2px;
 }
-#view { background: #e0f2f1; color: #00796b; border-color: #b2dfdb; }
-#delete { background: #ffebee; color: #c62828; border-color: #ffcdd2; }
-
-/* ================= MOBILE RESPONSIVE (MAX 768px) ================= */
-@media(max-width:768px) {
-  main { padding-top: 80px; padding-left: 10px; padding-right: 10px; }
-  
-  /* Mobile par spacing mazeed tight */
-  th { font-size: 12px; padding: 8px 2px; }
-  td { font-size: 12px; padding: 5px 2px; }
-
-  .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .stat-box p { font-size: 14px; }
-  
-  /* Column width control for mobile */
-  td:nth-child(2) { max-width: 100px; overflow: hidden; text-overflow: ellipsis; }
-}
-
-/* ================= LOADER ================= */
-#table-loader {
-  display: none; justify-content: center; align-items: center;
-  padding: 20px;
-}
-.spinner {
-  width: 30px; height: 30px; border: 3px solid #f3f3f3;
-  border-top: 3px solid #06A56C; border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.pay-btn { background: #e0f2f1; color: #00796b; border-color: #b2dfdb; }
+.delete-btn { background: #ffebee; color: #c62828; border-color: #ffcdd2; }
