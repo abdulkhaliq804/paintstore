@@ -300,7 +300,7 @@ const productOptions = {
 };
 
 
-// DOM Variables
+
 // DOM Variables
 const brandFilter = document.getElementById('brandFilter');
 const itemFilter = document.getElementById('itemNameFilter');
@@ -324,9 +324,13 @@ const selectedUnit = window.selectedUnit || 'all';
 async function updateTable() {
     const formData = new URLSearchParams(new FormData(filterForm)).toString();
     const tbody = document.querySelector('tbody');
+    const tableContainer = document.getElementById('tableContainer');
+    const loader = document.getElementById('table-loader');
     
-    // Loading State
-    tbody.style.opacity = '0.5';
+    // 🟢 1. Loading Start: Loader dikhao aur blur apply karo
+    if (loader) loader.style.display = 'flex';
+    if (tableContainer) tableContainer.classList.add('loading-active');
+    tbody.style.opacity = '0.3'; // Table ko halka fade kar dein
 
     try {
         const res = await fetch(`/products/all?${formData}`, {
@@ -335,7 +339,7 @@ async function updateTable() {
         const data = await res.json();
 
         if (data.success) {
-            // 1. Update Stats Boxes (Safe decimal handling)
+            // 🟢 2. Update Stats Boxes
             const statsPs = document.querySelectorAll('.stat-box p');
             if (statsPs.length >= 5) {
                 statsPs[0].innerText = data.stats.totalStock || 0;
@@ -345,13 +349,12 @@ async function updateTable() {
                 statsPs[4].innerText = `Rs ${Number(data.stats.totalRefundedValue || 0).toFixed(2)}`;
             }
 
-            // 2. Build Table Content
+            // 🟢 3. Build Table Content
             let html = '';
             if (data.products.length === 0) {
-                html = `<tr><td colspan="13" class="no-data">No products found for the selected filter.</td></tr>`;
+                html = `<tr><td colspan="13" class="no-data">No products found.</td></tr>`;
             } else {
                 data.products.forEach(p => {
-                    // 🟢 FIX: strictly Pakistan timezone mein date dikhayein
                     const dateObj = new Date(p.createdAt);
                     const dateStr = dateObj.toLocaleDateString('en-GB', { 
                         day: '2-digit', month: 'short', year: 'numeric',
@@ -374,34 +377,24 @@ async function updateTable() {
                         <td>Rs ${(Number(p.totalProduct || 0) * Number(p.rate || 0)).toFixed(2)}</td>
                         <td class="refund-status">${p.refundStatus || 'none'}</td>
                         <td class="refund-quantity">${p.refundQuantity || 0}</td>
-                        <td>
-                            ${dateStr}<br>
-                            <small style="color: #007bff; font-weight: bold;">${timeStr}</small>
-                        </td>
-                        ${data.role === "admin" ? `
-                        <td>
-                            <button type="button" id="delete" class="delete-btn delete-sale" data-id="${p._id}">
-                                Delete
-                            </button>
-                        </td>` : ''}
+                        <td>${dateStr}<br><small style="color: #007bff; font-weight: bold;">${timeStr}</small></td>
+                        ${data.role === "admin" ? `<td><button type="button" class="delete-btn" data-id="${p._id}" id="delete" >Delete</button></td>` : ''}
                     </tr>`;
                 });
             }
             tbody.innerHTML = html;
             
-            // 3. Update URL browser history
-            window.history.pushState({}, '', `/products/all?${formData}`);
+            // 🟢 URL update line removed for clean URL
             
-            // Re-attach delete events
-            if (typeof attachDeleteEvents === "function") {
-                attachDeleteEvents();
-            } else if (typeof attachDeleteListeners === "function") {
-                attachDeleteListeners();
-            }
+            if (typeof attachDeleteEvents === "function") attachDeleteEvents();
+            else if (typeof attachDeleteListeners === "function") attachDeleteListeners();
         }
     } catch (err) {
-        console.error("AJAX Error:", err);
+        console.error("❌ AJAX Error:", err);
     } finally {
+        // 🟢 4. Loading End: Loader chhupao aur blur khatam karo
+        if (loader) loader.style.display = 'none';
+        if (tableContainer) tableContainer.classList.remove('loading-active');
         tbody.style.opacity = '1';
     }
 }
@@ -519,11 +512,20 @@ filterForm.addEventListener('submit', (e) => {
     updateTable();
 });
 
+
+
 // Initialize
 window.addEventListener('DOMContentLoaded', () => {
     populateItemFilter(selectedBrand);
     populateUnitFilter(selectedBrand);
     populateColourFilter(selectedBrand, selectedItem);
     toggleDateInputs(filterSelect.value);
+
+    // 🟢 ISKO AISE UPDATE KAREIN:
+    // Sirf table ka data fetch karein, URL change na karein pehli baar
+    const isFirstLoad = true; 
+    updateTable(isFirstLoad); 
+
     attachDeleteEvents();
 });
+

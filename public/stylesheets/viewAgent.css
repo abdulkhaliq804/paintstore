@@ -94,7 +94,7 @@ h1 {
 
 }
 
-select,
+
 input[type="date"],
 button {
   padding: 9px 12px;
@@ -106,6 +106,24 @@ button {
   text-align: start;
     cursor: pointer;
 }
+
+select{  
+        padding: 9px 12px;
+  border-radius: 5px;
+  border: 1px solid #363636bb;
+  font-size: 13px;
+  width:100%;
+  background: #fff;
+  text-align: start;
+  cursor: pointer;
+    }
+
+select:focus{
+      border-color: #06a56c;
+      outline: none;
+      box-shadow: 0 0 5px rgba(6, 165, 108, 0.5);
+    }
+
 
 button#apply {
   background-color: #a6e7d8;
@@ -363,6 +381,18 @@ thead {
    font-weight: bold;
    color: #ff4d4d;
  }
+
+ 
+     
+
+
+
+    input:focus {
+      border-color: #06a56c;
+      outline: none;
+      box-shadow: 0 0 5px rgba(6, 165, 108, 0.5);
+    }
+
  /* ================= END TABLE ================= */
 /* ================= LARGE LAPTOP ================= */
 @media(max-width:1200px) {
@@ -438,4 +468,31 @@ thead {
   .stat-box p {
     font-size: 14.5px;
   }
+}
+
+
+
+ /* Spinner Animation */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #000;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: rotation 1s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Button loading state */
+.submit-btn:disabled {
+  background-color: #047a50; /* Thora dark rang jab loading ho */
+  cursor: not-allowed;
+  opacity: 0.8;
 }
