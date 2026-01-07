@@ -6,15 +6,9 @@
 }
 
 /* ================= SCROLLBAR ================= */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-thumb {
-  background: #06A56C;
-}
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #06A56C; border-radius: 10px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
 
 body {
   font-family: 'Segoe UI', sans-serif;
@@ -28,15 +22,14 @@ main {
   transition: .3s ease;
 }
 
-/* ================= TITLE ================= */
 h1 {
   color: #06a56c;
   text-align: center;
   margin-bottom: 10px;
-  font-size: 21px;
+  font-size: 22px;
 }
 
-/* ================= FILTERS ================= */
+/* ================= FILTERS & STATS ================= */
 .filter-container {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -45,45 +38,18 @@ h1 {
   margin: 0 auto 18px;
 }
 
-input[type="date"],
-select,
-button {
-  padding: 9px 12px;
+input[type="date"], select, button {
+  padding: 8px 10px;
   border-radius: 5px;
   border: 1px solid #363636bb;
   font-size: 13px;
   background: #fff;
-  text-align: start;
-  cursor: pointer;
 }
 
-select { width: 100%; }
-
-select:focus {
-  border-color: #06a56c;
-  outline: none;
-  box-shadow: 0 0 5px rgba(6, 165, 108, 0.5);
-}
-
-button#apply {
-  background-color: #a6e7d8;
-  color: #008767;
-  border: 2px solid #00b087;
-  font-weight: 600;
-  transition: 0.3s ease;
-}
-
-#apply:hover {
-  background-color: #00b087;
-  color: white;
-  transform: scale(1.05);
-}
-
-/* ================= STATS ================= */
 .stats {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  gap: 8px;
   max-width: 1200px;
   margin: 0 auto 18px;
 }
@@ -92,24 +58,14 @@ button#apply {
   background: #fff;
   border-radius: 10px;
   border: #06A56C 2px solid;
-  padding: 8px 4px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, .1);
+  padding: 6px 4px;
   text-align: center;
 }
 
-.stat-box h3 {
-  color: #06a56c;
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
+.stat-box h3 { font-size: 14px; color: #06a56c; }
+.stat-box p { font-size: 17px; font-weight: 800; }
 
-.stat-box p {
-  font-size: 16px;
-  font-weight: 800;
-}
-
-/* ================= TABLE (PURANA STYLE + COMPACT SPACE) ================= */
+/* ================= TABLE (COMPACT & UPDATED) ================= */
 .table-container {
   max-width: 1200px;
   margin: 0 auto 40px auto;
@@ -122,40 +78,32 @@ button#apply {
 
 table {
   width: 100%;
-  min-width: 900px; 
+  min-width: 850px; 
   border-collapse: collapse;
   table-layout: fixed;
 }
 
-thead {
-  background: #06a56c;
-  color: white;
-}
+thead { background: #06a56c; color: white; }
 
 th {
   color: #ffffff;
-  /* Left aur Right space (padding) bilkul kam kar di */
-  padding: 12px 2px; 
-  font-size: 13px;
+  padding: 8px 2px; /* Top-Bottom aur Left-Right dono kam */
+  font-size: 14px; /* Laptop par text halka bara */
   text-align: center;
-  word-wrap: break-word;
 }
 
 td {
-  /* Left aur Right space (padding) bilkul kam kar di */
-  padding: 8px 2px;
-  font-size: 13px;
-  font-weight: 400;
+  padding: 6px 2px; /* Rows mazeed compact ho jayengi */
+  font-size: 14px; /* Laptop par text readable */
+  font-weight: 500;
   text-align: center;
-  border-bottom: 1px solid #13a354;
+  border-bottom: 1px solid #eee;
   word-wrap: break-word;
 }
 
-tbody tr:hover td {
-  background: #baded0;
-}
+tbody tr:hover td { background: #f0fdf9; }
 
-/* Fixed Header Logic */
+/* Table Scroll Logic */
 tbody {
   display: block;
   max-height: 400px;
@@ -163,8 +111,7 @@ tbody {
   width: 100%;
 }
 
-thead,
-tbody tr {
+thead, tbody tr {
   display: table;
   width: 100%;
   table-layout: fixed;
@@ -172,39 +119,33 @@ tbody tr {
 
 /* ================= BUTTONS ================= */
 #view, #delete {
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 3px 8px;
+  border-radius: 5px;
   font-size: 11px;
-  cursor: pointer;
   font-weight: 600;
-  border: 2px solid;
+  border: 1px solid;
+  cursor: pointer;
 }
 
 #view { background: #a6e7d8; color: #008767; border-color: #00B087; }
-#view:hover { background: #00B087; color: #fff; }
-
 #delete { background: #FFC5C5; color: #DF0404; border-color: #DF0404; }
-#delete:hover { background: #DF0404; color: #fff; }
 
-/* ================= MEDIA QUERIES ================= */
-
-@media(max-width:1200px) {
-  .filter-container { grid-template-columns: repeat(5, 1fr); }
-  table { min-width: 1000px; }
-}
-
-@media(max-width:1024px) {
-  main { margin-left: 250px; padding: 20px; }
-  .filter-container { grid-template-columns: repeat(3, 1fr); }
-  .stats { grid-template-columns: repeat(3, 1fr); }
-}
-
+/* ================= MOBILE FIXES ================= */
 @media(max-width:768px) {
-  main { margin-left: 0 !important; padding-top: 80px; }
+  main { padding: 80px 10px 15px 10px; }
+
+  /* Mobile par font balance aur spacing mazeed tight */
+  th, td {
+    font-size: 12px; 
+    padding: 5px 1px; 
+  }
+
   .filter-container { grid-template-columns: repeat(2, 1fr); }
-  .stats { grid-template-columns: repeat(2, 1fr); }
-  table { min-width: 900px; }
-  tbody { max-height: 400px; }
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 5px; }
+
+  table { min-width: 800px; } /* Mobile scroll area tight rakha */
+  
+  .stat-box p { font-size: 15px; }
 }
 
 /* ================= LOADER ================= */
@@ -214,8 +155,8 @@ tbody tr {
   justify-content: center; align-items: center; z-index: 100;
 }
 .spinner {
-  width: 35px; height: 35px; border: 4px solid #f3f3f3;
-  border-top: 4px solid #06A56C; border-radius: 50%;
+  width: 30px; height: 30px; border: 3px solid #f3f3f3;
+  border-top: 3px solid #06A56C; border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }

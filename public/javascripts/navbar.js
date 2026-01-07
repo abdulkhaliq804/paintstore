@@ -58,3 +58,5 @@ document.querySelectorAll('a').forEach(link => {
 window.addEventListener('pageshow', (event) => {
     if (globalLoader) globalLoader.style.display = 'none';
 });
+
+
