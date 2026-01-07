@@ -111,16 +111,16 @@
                 <td><%= i.totalProductAmount %></td>
                 <td><%= i.percentage %>%</td>
                 <td><%= i.percentageAmount %></td>
-                <td>
+                <td class="paid-status">
                   <span class="status-tag">
                     <%= i.paidAmount >= i.percentageAmount ? 'Paid' : (i.paidAmount > 0 ? 'Partially' : 'Unpaid') %>
                   </span>
                 </td>
                 <td>Rs <%= i.paidAmount %></td>
                 <td>Rs <%= (Number(i.percentageAmount) - Number(i.paidAmount)).toFixed(2) %></td>
-                <td>
+                <td >
                   <%= new Date(i.createdAt).toLocaleDateString('en-GB') %>
-                  <br><small><%= new Date(i.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true }) %></small>
+                  <br><small style="color: #007bff; font-weight: bold;"><%= new Date(i.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true }) %></small>
                 </td>
                 <td class="actions">
                   <button class="pay-btn" data-id="<%= i._id %>" id="pay" >Pay %</button>
