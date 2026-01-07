@@ -18,22 +18,22 @@
   background-color: #f1f1f1;
 }
 
-/* ================= BODY & WRAPPER ================= */
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: #f4f7fa;
+  background-color: #f4f7fa;
 }
 
+/* ================= MAIN WRAPPER ================= */
 .content-wrapper {
-  /* Sidebar width desktop par handle karne ke liye */
   margin-left: 0; 
   width: 100%;
   min-height: 100vh;
   display: flex;
-  flex-direction: column; /* Title aur Form ko upar niche rakhne ke liye */
-  justify-content: center; /* Vertical Center */
-  align-items: center;     /* Horizontal Center */
+  flex-direction: column;   /* Title upar aur form niche lane ke liye */
+  justify-content: center;  /* Vertical center alignment */
+  align-items: center;      /* Horizontal center alignment */
   padding: 20px;
+  transition: 0.3s ease;
 }
 
 /* ================= TITLE ================= */
@@ -46,13 +46,13 @@ h1 {
 
 /* ================= FORM CONTAINER ================= */
 .form-container {
-  background: white; /* Background color add kiya taake dabba nazar aaye */
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 25px 30px;
+  padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Shadow soft ki hai */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 420px;
 }
@@ -65,16 +65,17 @@ input {
   width: 100%;
   font-size: 15px;
   margin-bottom: 12px;
-  transition: border-color 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  background-color: #fff;
 }
 
 input:focus {
   border-color: #06a56c;
   outline: none;
-  box-shadow: 0 0 5px rgba(6, 165, 108, 0.3);
+  box-shadow: 0 0 8px rgba(6, 165, 108, 0.2);
 }
 
-/* ================= BUTTON ================= */
+/* ================= BUTTONS ================= */
 button#add {
   background-color: #a6e7d8;
   color: #008767;
@@ -91,11 +92,18 @@ button#add {
 
 button#add:hover {
   background-color: #00B087;
+  border-color: #006f5f;
   color: white;
   transform: translateY(-2px);
 }
 
-/* ================= LOADER / SPINNER ================= */
+button#add:disabled {
+  background-color: #047a50;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* ================= SPINNER ================= */
 .spinner {
   width: 18px;
   height: 18px;
@@ -113,30 +121,51 @@ button#add:hover {
   100% { transform: rotate(360deg); }
 }
 
-/* ================= RESPONSIVE ================= */
+/* ================= RESPONSIVE DESIGN ================= */
 
-/* TABLET & DESKTOP (Sidebar adjustment) */
+/* DESKTOP (If Sidebar is 250px) */
 @media (min-width: 1025px) {
   .content-wrapper {
-    margin-left: 250px; /* Sirf tab jab sidebar open ho */
+    margin-left: 250px; 
     width: calc(100% - 250px);
   }
 }
 
-/* MOBILE VIEW (For Hamburger Menu) */
-@media (max-width: 768px) {
+/* TABLET */
+@media (max-width: 1024px) {
   .content-wrapper {
-    padding-top: 80px; /* Hamburger menu se neche karne ke liye padding */
+    margin-left: 0;
+    width: 100%;
+    padding: 40px 20px;
+  }
+}
+
+/* MOBILE (Hamburger Fix) */
+@media (max-width: 600px) {
+  .content-wrapper {
+    padding-top: 80px; /* Hamburger menu ki wajah se jo space chahiye */
     justify-content: flex-start; /* Mobile par upar se start ho taake keyboard masla na kare */
   }
 
   h1 {
     font-size: 22px;
+    margin-bottom: 15px;
   }
 
   .form-container {
-    max-width: 95%;
     padding: 20px;
+    max-width: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  input {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  button#add {
+    font-size: 14px;
+    padding: 10px;
   }
 }
 
@@ -144,5 +173,8 @@ button#add:hover {
 @media (max-width: 360px) {
   h1 {
     font-size: 20px;
+  }
+  .form-container {
+    padding: 15px;
   }
 }
