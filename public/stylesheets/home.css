@@ -160,6 +160,7 @@ ACTIONS
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
+  width: 100%;
 }
 
 .action-btn {
@@ -234,11 +235,7 @@ ACTIONS
 RESPONSIVE
 ================================ */
 
-@media (max-width: 1024px) {
-  .dashboard {
-    margin-left: 0;
-  }
-}
+
 
 @media (max-width: 768px) {
   .dashboard {
