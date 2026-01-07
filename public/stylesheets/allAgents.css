@@ -252,6 +252,6 @@ th:nth-child(5), td:nth-child(5) { width: 15%; } /* Action */
   /* Mobile par spacing mazeed kam karne ke liye */
   th, td { 
     padding: 5px 26px; 
-    font-size: 11px; 
+    font-size: 13px; 
   }
 }
