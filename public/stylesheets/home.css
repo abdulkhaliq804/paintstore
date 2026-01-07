@@ -38,16 +38,13 @@ GLOBAL RESET
 }
 
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f4f7fa;
-  overflow-x: hidden;
+  background-color: var(--bg-body);
+  color: var(--text-body);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-main {
-  /* margin-left:250px;              sidebar width */
-  padding: 25px;
-  transition: .3s ease;
-}
 /* ===============================
 DASHBOARD LAYOUT
 ================================ */
@@ -277,7 +274,15 @@ RESPONSIVE
 
 
 /* ===== GLOBAL STYLES ===== */
+*{
+  box-sizing:border-box;
+}
 
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:#ffffff;
+}
 
 /* ===== MAIN CONTAINER ===== */
 .calculator-container{
@@ -320,18 +325,12 @@ RESPONSIVE
 }
 
 .paint-form input{
-  margin-top: 6px;
-  padding: 10px 12px;
-  font-size: 15px;
-  border-radius: 10px;
-  border: 1.5px solid gray;
-  outline: none;   /* 🔥 IMPORTANT */
+  margin-top:6px;
+  padding:10px 12px;
+  font-size:15px;
+  border-radius:10px;
+  border:1.5px solid #16e193;
 }
-
-.paint-form input:focus{
-  border: 1.5px solid #16e193;
-}
-
 
 .full{
   grid-column:1 / -1;
@@ -401,7 +400,7 @@ RESPONSIVE
 ========================= */
 @media (max-width: 600px){
   .calculator-container{
-    margin:20px 0px;
+    margin:20px 10px;
     padding:22px 18px;
     border-radius:18px;
   }

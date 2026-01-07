@@ -309,21 +309,17 @@ const dateFilter = document.getElementById('filter');
 const fromInput = document.getElementById("from");
 const toInput = document.getElementById("to");
 const applyBtn = document.getElementById('apply');
-const filterForm = document.getElementById('filterForm');
+const filterForm = document.getElementById('filterForm') || document.querySelector('form');
 
 // ===================== AJAX UPDATE FUNCTION =========================
 
+// ===================== UPDATED AJAX UPDATE FUNCTION =========================
 
 async function updateTable() {
     const formData = new URLSearchParams(new FormData(filterForm)).toString();
     const tbody = document.querySelector('tbody');
-    const tableContainer = document.getElementById('tableContainer');
-    const loader = document.getElementById('table-loader');
     
-    // 🟢 1. Loading Start: Show Loader & Blur
-    if (loader) loader.style.display = 'flex';
-    if (tableContainer) tableContainer.classList.add('loading-active');
-    tbody.style.opacity = '0.3';
+    tbody.style.opacity = '0.5';
 
     try {
         const res = await fetch(`/sales/all?${formData}`, {
@@ -332,22 +328,21 @@ async function updateTable() {
         const data = await res.json();
 
         if (data.success) {
-            // 🟢 2. Update Stats Boxes
             const statsPs = document.querySelectorAll('.stat-box p');
             if (statsPs.length >= 5) {
                 statsPs[0].innerText = data.stats.totalSold;
-                statsPs[1].innerText = `Rs ${data.stats.totalRevenue.toFixed(2)}`;
-                statsPs[2].innerText = `Rs ${data.stats.totalProfit.toFixed(2)}`;
-                statsPs[3].innerText = `Rs ${data.stats.totalLoss.toFixed(2)}`;
-                statsPs[4].innerText = `Rs ${data.stats.totalRefunded.toFixed(2)}`;
+                statsPs[1].innerText = `Rs ${data.stats.totalRevenue}`;
+                statsPs[2].innerText = `Rs ${data.stats.totalProfit}`;
+                statsPs[3].innerText = `Rs ${data.stats.totalLoss}`;
+                statsPs[4].innerText = `Rs ${data.stats.totalRefunded}`;
             }
 
-            // 🟢 3. Build Table Content
             let html = '';
             if (data.sales.length === 0) {
-                html = `<tr><td colspan="12" class="no-data">No sales records found.</td></tr>`;
+                html = `<tr><td colspan="15" class="no-data">No sales records found.</td></tr>`;
             } else {
                 data.sales.forEach(s => {
+                    // 🔴 FIX: Browser ki local conversion rokhne ke liye 'Asia/Karachi' specify karein
                     const dateObj = new Date(s.createdAt);
                     const dateStr = dateObj.toLocaleDateString('en-GB', { 
                         day: '2-digit', month: 'short', year: 'numeric', 
@@ -358,8 +353,12 @@ async function updateTable() {
                         timeZone: 'Asia/Karachi' 
                     });
                     
-                    // Backend se aayi hui profit value use karein
-                    const profitVal = s.profit || 0;
+                    const netQty = (s.quantitySold || 0) - (s.refundQuantity || 0);
+                    const purchaseRate = s.purchaseRate || 0;
+                    const profitVal = ((s.rate - purchaseRate) * netQty).toFixed(2);
+                    
+                    const status = s.refundStatus || 'none'; 
+                    const refundQty = s.refundQuantity || 0;
 
                     html += `
                     <tr>
@@ -368,28 +367,23 @@ async function updateTable() {
                         <td>${s.colourName}</td>
                         <td>${s.qty}</td>
                         <td>${s.quantitySold}</td>
-                        <td>Rs ${s.rate.toFixed(2)}</td>
+                        <td>Rs ${s.rate}</td>
                         <td>Rs ${(s.quantitySold * s.rate).toFixed(2)}</td>
-                        <td class="${profitVal < 0 ? 'loss' : 'profit'}">Rs ${Math.abs(profitVal).toFixed(2)}</td>
-                        <td class="refund-status">${s.refundStatus || 'none'}</td>
-                        <td class="refund-quantity">${s.refundQuantity || 0}</td>
+                        <td class="${profitVal < 0 ? 'loss' : 'profit'}">Rs ${Math.abs(profitVal)}</td>
+                        <td class="refund-status">${status}</td>
+                        <td class="refund-quantity">${refundQty}</td>
                         <td>${dateStr}<br><small style="color: #007bff; font-weight: bold;">${timeStr}</small></td>
-                        ${data.role === "admin" ? `<td><button type="button" class="delete-sale delete-btn" data-id="${s._id}" id="delete" >Delete</button></td>` : ''}
+                        ${data.role === "admin" ? `<td><button type="button" id="delete" class="delete-sale delete-btn" data-id="${s._id}">Delete</button></td>` : ''}
                     </tr>`;
                 });
             }
             tbody.innerHTML = html;
-            
-            // 🟢 4. Clean URL: window.history.pushState removed
-            
+            window.history.pushState({}, '', `/sales/all?${formData}`);
             attachDeleteListeners();
         }
     } catch (err) {
-        console.error("❌ AJAX Error:", err);
+        console.error("AJAX Error:", err);
     } finally {
-        // 🟢 5. Loading End: Hide Loader
-        if (loader) loader.style.display = 'none';
-        if (tableContainer) tableContainer.classList.remove('loading-active');
         tbody.style.opacity = '1';
     }
 }
@@ -402,13 +396,11 @@ async function deleteSale(saleId) {
         const res = await fetch(`/sales/delete-sale/${saleId}`, { method: "DELETE" });
         const data = await res.json();
         if (data.success) { 
-            updateTable(); // Refresh table without page reload
-        } else {
-            alert(data.message || "Failed to delete sale");
+            alert(data.message); 
+            updateTable(); // Refresh without reload
         }
-    } catch (err) { 
-        alert("Error deleting sale"); 
-    }
+        else alert(data.message || "Failed to delete sale");
+    } catch (err) { alert("Error deleting sale"); }
 }
 
 function attachDeleteListeners() {
@@ -420,7 +412,59 @@ function attachDeleteListeners() {
     });
 }
 
-// ===================== FILTER HELPERS =========================
+// ===================== FILTER POPULATION =========================
+
+function populateItemFilter(brand) {
+    const currentVal = itemFilter.dataset.value;
+    itemFilter.innerHTML = '<option value="all">All Items</option>';
+    if (!brand || brand === 'all') { itemFilter.disabled = true; return; }
+    itemFilter.disabled = false;
+    
+    (brandItems[brand] || []).forEach(it => {
+        const o = document.createElement('option');
+        o.value = it; o.textContent = it;
+        if (currentVal === it) o.selected = true;
+        itemFilter.appendChild(o);
+    });
+    
+    const oOther = document.createElement('option');
+    oOther.value = 'Other'; oOther.textContent = 'Other';
+    if (currentVal === 'Other') oOther.selected = true;
+    itemFilter.appendChild(oOther);
+}
+
+function populateUnitFilter(brand) {
+    const currentVal = unitFilter.dataset.value;
+    unitFilter.innerHTML = '<option value="all">All Units</option>';
+    if (!brand || brand === 'all') { unitFilter.disabled = true; return; }
+    unitFilter.disabled = false;
+    
+    (brandUnits[brand] || []).forEach(u => {
+        const o = document.createElement('option');
+        o.value = u; o.textContent = u;
+        if (currentVal === u) o.selected = true;
+        unitFilter.appendChild(o);
+    });
+}
+
+function populateColourFilter(brand, item) {
+    const currentVal = colourFilter.dataset.value;
+    colourFilter.innerHTML = '<option value="all">All Colours</option>';
+    const lookupKey = `${brand}-${item}`;
+
+    if (productOptions[lookupKey]) {
+        productOptions[lookupKey].forEach(c => {
+            const val = c.code ? `${c.colour} (Code: ${c.code})` : c.colour;
+            const o = document.createElement('option');
+            o.value = val; o.textContent = val;
+            if (currentVal === val) o.selected = true;
+            colourFilter.appendChild(o);
+        });
+        colourFilter.disabled = false;
+    } else {
+        colourFilter.disabled = true;
+    }
+}
 
 function toggleDateInputs(value) {
     const isCustom = (value === "custom");
@@ -429,37 +473,29 @@ function toggleDateInputs(value) {
     if (applyBtn) applyBtn.style.display = isCustom ? "inline-block" : "none";
 }
 
-// Filter population functions (keep your original logic)
-function populateItemFilter(brand) {
-    const currentVal = itemFilter.dataset.value;
-    itemFilter.innerHTML = '<option value="all">All Items</option>';
-    if (!brand || brand === 'all') { itemFilter.disabled = true; return; }
-    itemFilter.disabled = false;
-    if (typeof brandItems !== 'undefined' && brandItems[brand]) {
-        brandItems[brand].forEach(it => {
-            const o = document.createElement('option');
-            o.value = it; o.textContent = it;
-            if (currentVal === it) o.selected = true;
-            itemFilter.appendChild(o);
-        });
-    }
-}
-
 // ===================== INITIALIZATION =========================
 
 window.addEventListener('DOMContentLoaded', () => {
-    // Initial Setup
-    if (brandFilter) populateItemFilter(brandFilter.value);
+    // Initial UI Setup
+    populateItemFilter(brandFilter.value);
+    populateUnitFilter(brandFilter.value);
+    populateColourFilter(brandFilter.value, itemFilter.value);
     toggleDateInputs(dateFilter.value);
     attachDeleteListeners();
 
-    // AJAX Event Listeners
+    // Event Listeners for AJAX
     brandFilter.addEventListener('change', () => {
         populateItemFilter(brandFilter.value);
+        populateUnitFilter(brandFilter.value);
         updateTable();
     });
 
-    [itemFilter, colourFilter, unitFilter, refundFilter].forEach(f => {
+    itemFilter.addEventListener('change', () => {
+        populateColourFilter(brandFilter.value, itemFilter.value);
+        updateTable();
+    });
+
+    [unitFilter, colourFilter, refundFilter].forEach(f => {
         if (f) f.addEventListener('change', updateTable);
     });
 
