@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <button class="pay-btn" data-id="${i._id}" id="pay" >Pay</button>
                                 ${data.role === "admin" ? `<button class="delete-btn" data-id="${i._id}" id="delete" >Delete</button>` : ''}
                                 <div class="pay-box" id="paybox-${i._id}" style="display:none;">
-                                    <input class="payinput" type="number" id="payInput-${i._id}" placeholder="Pay" style="width:70px">
+                                    <input class="payinput" type="number" id="payInput-${i._id}" placeholder="Pay" style="width:70px" min="1" max="1000000">
                                     <button class="submit-pay-btn" data-id="${i._id}" id="submit" >Submit</button>
                                 </div>
                             </td>
