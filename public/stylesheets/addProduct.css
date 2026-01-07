@@ -148,8 +148,20 @@ td button#delete {
   min-width: 60px;
 }
 
+.no-data {
+  color: #888;
+}
+
 /* --- MOBILE RESPONSIVE (Advanced Fixes for Text & Alignment) --- */
 @media screen and (max-width: 768px) {
+
+  .no-data {
+  padding: 12px;
+  color: #888;
+  text-align: start;
+  padding-left: 50px; /* Is value ko aap apni pasand ke mutabiq kam ya zyada kar sakte hain */
+}
+
   main {
     padding: 5px;
     padding-top: 10px;
@@ -269,7 +281,3 @@ td button#delete {
 }
 
 
-.no-data{
-  text-align: left;
-
-}
