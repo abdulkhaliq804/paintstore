@@ -485,47 +485,67 @@ function attachDeleteEvents() {
 
 // =================== EVENT LISTENERS ========================
 
+// ... (brandItems, brandUnits, productOptions definitions ko waise hi rehne dein)
+
+// =================== EVENT LISTENERS (REPLACED & SYNCED) ========================
+
+// Jab Brand badle
 brandFilter.addEventListener('change', function () {
     populateItemFilter(this.value);
     populateUnitFilter(this.value);
     itemFilter.value = 'all';
-    populateColourFilter(this.value, 'all');
-    updateTable();
+    colourFilter.innerHTML = '<option value="all">All Colours</option>';
+    colourFilter.disabled = true;
+    updateTable(); // Brand badalne par foran update
 });
 
+// Jab Item badle
 itemFilter.addEventListener('change', function () {
     populateColourFilter(brandFilter.value, this.value);
-    updateTable();
+    updateTable(); // Item badalne par foran update
 });
 
-[unitFilter, colourFilter, filterSelect, stockStatusFilter, refundFilter].forEach(f => {
+// Baqi filters (Unit, Colour, Stock, Refund)
+[unitFilter, colourFilter, stockStatusFilter, refundFilter].forEach(f => {
     if (f) {
-        f.addEventListener('change', () => {
-            if (f === filterSelect) toggleDateInputs(f.value);
-            updateTable();
-        });
+        f.addEventListener('change', updateTable);
     }
 });
 
-filterForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    updateTable();
+// Date Filter Logic (Sahi tareeka)
+filterSelect.addEventListener('change', function() {
+    toggleDateInputs(this.value);
+    // Agar "Custom" hai to update nahi karna, user Apply dabaye ga
+    // Agar Custom ke ilawa kuch hai (Today, All Time) to foran update
+    if (this.value !== 'custom') {
+        updateTable();
+    }
 });
 
+// Apply Button Logic (Sirf Custom ke liye)
+const applyBtn = document.getElementById('apply');
+if (applyBtn) {
+    applyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        updateTable(); // Ab loader chalega Custom select karne ke baad button dabane par
+    });
+}
 
+// =================== INITIALIZE (UPDATED) ========================
 
-// Initialize
 window.addEventListener('DOMContentLoaded', () => {
+    // Dropdowns populate karein
     populateItemFilter(selectedBrand);
     populateUnitFilter(selectedBrand);
     populateColourFilter(selectedBrand, selectedItem);
+    
+    // Date inputs show/hide karein
     toggleDateInputs(filterSelect.value);
 
-    // 🟢 ISKO AISE UPDATE KAREIN:
-    // Sirf table ka data fetch karein, URL change na karein pehli baar
-    const isFirstLoad = true; 
-    updateTable(isFirstLoad); 
-
+    // 🟢 LOADER FIX: Pehli baar updateTable() ko call NA KAREIN 
+    // Taake page load par loader na aaye, sirf filter badalne par aaye.
+    // updateTable(); <--- Isay comment rehne dein
+    
     attachDeleteEvents();
 });
 
