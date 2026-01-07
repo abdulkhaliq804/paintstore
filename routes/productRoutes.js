@@ -32,31 +32,34 @@ router.get("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => 
    -> Adds multiple products at once
 ================================ */
 // 🔹 Add multiple products at once
-router.post("/add-multiple",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
+router.post("/add-multiple", isLoggedIn, allowRoles("admin", "worker"), async (req, res) => {
   try {
     const { products } = req.body;
 
-    if (!products || products.length === 0) {
+    if (!products || !Array.isArray(products) || products.length === 0) {
       return res.status(400).json({ success: false, message: "No products provided." });
     }
 
-    // Validate and prepare data
+    // 1. Data Prepare (Wahi logic jo aapne di thi)
     const formatted = products.map((p) => ({
-      brandName:p.brandName,
+      brandName: p.brandName,
       itemName: p.itemName,
       colourName: p.colourName,
       qty: p.qty,
       totalProduct: p.totalProduct,
-      remaining: p.totalProduct, // starting remaining = total
+      remaining: p.totalProduct, 
       rate: p.rate,
-      stockID: p.stockID  // Pass the stockID here
+      stockID: p.stockID
     }));
 
-    // Save all to database
-    await Product.insertMany(formatted);
+    // 2. High Speed Insert
+    // ordered: false ka matlab hai agar ek product mein error aaye 
+    // to baaqi rukenge nahi, wo save hote jayenge. Ye insertMany ko mazeed fast kar deta hai.
+    await Product.insertMany(formatted, { ordered: false });
 
-    res.json({ success: true, message: "Products added successfully!" });
+    res.json({ success: true, message: `${products.length} Products added successfully!` });
   } catch (err) {
+    // Agar duplicate stockID ka error aaye tab bhi ye catch mein jayega
     console.error("❌ Failed to save products:", err);
     res.status(500).json({ success: false, message: "Server error: " + err.message });
   }
