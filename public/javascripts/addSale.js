@@ -116,7 +116,7 @@ function updateOptionDropdown(brand, item, unit, colourName, preFiltered = null)
         p.remaining > 0
     );
 
-    colourSelect.innerHTML = `<option value="">Select Stock Option</option>` +
+    colourSelect.innerHTML = `<option value="">Select Stock</option>` +
         filtered.map(p => {
             let detail = p.itemName;
             if (p.qty && p.qty.toUpperCase() !== "N/A") detail += ` | ${p.qty}`;
