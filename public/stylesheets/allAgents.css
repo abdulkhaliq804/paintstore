@@ -1,158 +1,99 @@
-/* ================= RESET ================= */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* ================= RESET & GLOBAL ================= */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #f4f7fa; overflow-x: hidden; }
 
-/* ================= SCROLLBAR ================= */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background: #06A56C; border-radius: 10px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
+/* ================= MAIN CONTENT ================= */
+main { padding: 20px; transition: .3s ease; }
+h1 { color: #06a56c; text-align: center; margin-bottom: 15px; font-size: 22px; }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f4f7fa;
-  overflow-x: hidden;
-}
-
-/* ================= MAIN ================= */
-main {
-  padding: 25px;
-  transition: .3s ease;
-}
-
-h1 {
-  color: #06a56c;
-  text-align: center;
-  margin-bottom: 10px;
-  font-size: 22px;
-}
-
-/* ================= FILTERS & STATS ================= */
-.filter-container {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-  max-width: 1200px;
-  margin: 0 auto 18px;
-}
-
-input[type="date"], select, button {
-  padding: 8px 10px;
-  border-radius: 5px;
-  border: 1px solid #363636bb;
-  font-size: 13px;
-  background: #fff;
-}
-
+/* ================= STATS BOXES ================= */
 .stats {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(4, 1fr); /* Standard 4 boxes */
+  gap: 10px;
   max-width: 1200px;
-  margin: 0 auto 18px;
+  margin: 0 auto 20px;
 }
-
 .stat-box {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
   border: #06A56C 2px solid;
-  padding: 6px 4px;
+  padding: 8px 5px;
   text-align: center;
 }
+.stat-box h3 { font-size: 13px; color: #06a56c; margin-bottom: 2px; }
+.stat-box p { font-size: 16px; font-weight: 800; }
 
-.stat-box h3 { font-size: 14px; color: #06a56c; }
-.stat-box p { font-size: 17px; font-weight: 800; }
-
-/* ================= TABLE (COMPACT & UPDATED) ================= */
+/* ================= TABLE CONTAINER ================= */
 .table-container {
   max-width: 1200px;
-  margin: 0 auto 40px auto;
+  margin: 0 auto 40px;
   overflow-x: auto;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   background: white;
-  position: relative;
 }
 
 table {
   width: 100%;
-  min-width: 850px; 
   border-collapse: collapse;
-  table-layout: fixed;
+  /* Fixed ke bajaye Auto taake columns content ke hisab se slim ho jayein */
+  table-layout: auto; 
+  min-width: 600px; /* Mobile par itna scroll kafi hai */
 }
 
 thead { background: #06a56c; color: white; }
 
 th {
-  color: #ffffff;
-  padding: 8px 2px; /* Top-Bottom aur Left-Right dono kam */
-  font-size: 14px; /* Laptop par text halka bara */
+  padding: 10px 4px; /* Desktop par kam spacing */
+  font-size: 15px; /* Laptop par text bara */
+  font-weight: 600;
   text-align: center;
+  white-space: nowrap;
 }
 
 td {
-  padding: 6px 2px; /* Rows mazeed compact ho jayengi */
-  font-size: 14px; /* Laptop par text readable */
+  padding: 6px 4px; /* Top-Bottom spacing kam kar di */
+  font-size: 14px; /* Laptop par readable text */
   font-weight: 500;
   text-align: center;
   border-bottom: 1px solid #eee;
-  word-wrap: break-word;
+  color: #333;
 }
 
-tbody tr:hover td { background: #f0fdf9; }
-
-/* Table Scroll Logic */
-tbody {
-  display: block;
-  max-height: 400px;
-  overflow-y: auto;
-  width: 100%;
-}
-
-thead, tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
-}
+tbody tr:hover td { background: #f9f9f9; }
 
 /* ================= BUTTONS ================= */
 #view, #delete {
-  padding: 3px 8px;
-  border-radius: 5px;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
-  border: 1px solid;
   cursor: pointer;
+  border: 1px solid;
 }
+#view { background: #e0f2f1; color: #00796b; border-color: #b2dfdb; }
+#delete { background: #ffebee; color: #c62828; border-color: #ffcdd2; }
 
-#view { background: #a6e7d8; color: #008767; border-color: #00B087; }
-#delete { background: #FFC5C5; color: #DF0404; border-color: #DF0404; }
-
-/* ================= MOBILE FIXES ================= */
+/* ================= MOBILE RESPONSIVE (MAX 768px) ================= */
 @media(max-width:768px) {
-  main { padding: 80px 10px 15px 10px; }
-
-  /* Mobile par font balance aur spacing mazeed tight */
-  th, td {
-    font-size: 12px; 
-    padding: 5px 1px; 
-  }
-
-  .filter-container { grid-template-columns: repeat(2, 1fr); }
-  .stats { grid-template-columns: repeat(2, 1fr); gap: 5px; }
-
-  table { min-width: 800px; } /* Mobile scroll area tight rakha */
+  main { padding-top: 80px; padding-left: 10px; padding-right: 10px; }
   
-  .stat-box p { font-size: 15px; }
+  /* Mobile par spacing mazeed tight */
+  th { font-size: 12px; padding: 8px 2px; }
+  td { font-size: 12px; padding: 5px 2px; }
+
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stat-box p { font-size: 14px; }
+  
+  /* Column width control for mobile */
+  td:nth-child(2) { max-width: 100px; overflow: hidden; text-overflow: ellipsis; }
 }
 
 /* ================= LOADER ================= */
 #table-loader {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(255, 255, 255, 0.7); display: none;
-  justify-content: center; align-items: center; z-index: 100;
+  display: none; justify-content: center; align-items: center;
+  padding: 20px;
 }
 .spinner {
   width: 30px; height: 30px; border: 3px solid #f3f3f3;
