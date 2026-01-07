@@ -39,43 +39,49 @@ router.get("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => 
    ✅ No FIFO logic, directly decrease stock
 ================================ */
 // Add Sale (POST) - with FIFO logic removed but ensuring proper profit/loss calculation
-router.post("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) => {
+router.post("/add", isLoggedIn, allowRoles("admin", "worker"), async (req, res) => {
   try {
-    const { sales, agentID, percentage } = req.body; // frontend se pura tempSales array bhejna
+    const { sales, agentID, percentage } = req.body;
 
     if (!sales || !Array.isArray(sales) || sales.length === 0) {
       return res.status(400).json({ success: false, message: "No sales provided." });
     }
 
+    // 1. Ek hi baar mein saaray products fetch kar lein jo sales mein hain
+    const stockIDs = sales.map(s => s.stockID);
+    const products = await Product.find({ stockID: { $in: stockIDs } });
+    
+    // Map banayein taake loop mein foran product mil jaye (Database hit kiye baghair)
+    const productMap = new Map(products.map(p => [p.stockID, p]));
+
     let totalQuantityForAgent = 0;
     let totalAmountForAgent = 0;
+    const salesToCreate = [];
+    const productUpdates = [];
 
-    // loop through all sales and create Sale documents
+    // 2. Loop sirf calculation ke liye (No Awaits here)
     for (const s of sales) {
       const { brandName, itemName, colourName, qty, quantitySold, rate, stockID, saleID } = s;
+      const product = productMap.get(stockID);
 
-      const product = await Product.findOne({ stockID });
-      if (!product) return res.status(404).json({ success: false, message: `Product not found: ${itemName}` });
+      if (!product) throw new Error(`Product not found: ${itemName}`);
+      if (quantitySold > product.remaining) throw new Error(`Only ${product.remaining} left for ${itemName}!`);
 
-      if (quantitySold > product.remaining)
-        return res.status(400).json({ success: false, message: `Only ${product.remaining} left for ${itemName}!` });
+      // Calculations
+      const profit = Math.round(((rate - (product.rate || 0)) * quantitySold + Number.EPSILON) * 100) / 100;
+      
+      // Data tayyar karein
+      salesToCreate.push({
+        brandName, itemName, colourName, qty, quantitySold, rate, stockID, saleID,
+        profit, refundQuantity: 0, refundStatus: "none"
+      });
 
-      const profit = Math.round(((rate - (product.rate || 0)) * quantitySold + Number.EPSILON) * 100)/100;
-      product.remaining -= quantitySold;
-      await product.save();
-
-      await Sale.create({
-        brandName,
-        itemName,
-        colourName,
-        qty,
-        quantitySold,
-        rate,
-        stockID,
-        saleID,
-        profit,
-        refundQuantity: 0,
-        refundStatus: "none"
+      // Product update ki query tayyar karein
+      productUpdates.push({
+        updateOne: {
+          filter: { _id: product._id },
+          update: { $inc: { remaining: -quantitySold } } // $inc fast hota hai
+        }
       });
 
       if (agentID && percentage > 0) {
@@ -84,7 +90,14 @@ router.post("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) =>
       }
     }
 
-    // ✅ Agent Item creation once
+    // 3. Sab kuch ek saath execute karein (Bulk Operations)
+    // Ek hi time par: Sales create hongi aur Products update honge
+    await Promise.all([
+      Sale.insertMany(salesToCreate), // Saari sales ek saath
+      Product.bulkWrite(productUpdates) // Saaray products ka stock ek saath update
+    ]);
+
+    // 4. Agent logic (agar hai)
     if (agentID && percentage > 0) {
       const agent = await Agent.findOne({ agentID });
       if (agent) {
@@ -104,11 +117,11 @@ router.post("/add",isLoggedIn,allowRoles("admin", "worker"), async (req, res) =>
       }
     }
 
-    res.json({ success: true, message: `All sales completed successfully.` });
+    res.json({ success: true, message: `All ${sales.length} sales completed instantly!` });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Server error: " + err.message });
+    console.error("❌ Add Sale Error:", err);
+    res.status(400).json({ success: false, message: err.message });
   }
 });
 
