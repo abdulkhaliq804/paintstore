@@ -6,7 +6,7 @@
   <title>All Sales | Hamza Paints</title>
   <link rel="icon" href="/images/weldon-paints-logo.png" type="image/png">
   <link rel="stylesheet" href="/stylesheets/allSales.css">
-  
+
 </head>
 
 <body>
@@ -69,15 +69,15 @@
       </div>
       <div class="stat-box">
         <h3>💰 Total Profit</h3>
-        <p>Rs <%= stats.totalProfit ? stats.totalProfit.toFixed(2) : '0.00' %></p>
+        <p id="total-profit">Rs <%= stats.totalProfit ? stats.totalProfit.toFixed(2) : '0.00' %></p>
       </div>
       <div class="stat-box">
         <h3>📉 Total Loss</h3>
-        <p>Rs <%= stats.totalLoss ? stats.totalLoss.toFixed(2) : '0.00' %></p>
+        <p id="total-loss">Rs <%= stats.totalLoss ? stats.totalLoss.toFixed(2) : '0.00' %></p>
       </div>
       <div class="stat-box">
         <h3>↩️ Refund Sales</h3>
-        <p>Rs <%= stats.totalRefunded ? stats.totalRefunded.toFixed(2) : '0.00' %></p>
+        <p id="refund-sales">Rs <%= stats.totalRefunded ? stats.totalRefunded.toFixed(2) : '0.00' %></p>
       </div>
     </div>
 

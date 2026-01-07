@@ -231,9 +231,17 @@ td.loss,
   color: #ff4d4d;
 }
 
+
+
+
+#total-profit{
+     font-weight: bold;
+     color: #8B5CF6;
+    }
+
  td.profit{
      font-weight: bold;
-     color: #06a56c;
+    color: #8B5CF6;
     }
 
 /* ================= LARGE LAPTOP ================= */
