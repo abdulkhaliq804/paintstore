@@ -451,7 +451,7 @@ async function submitData() {
   
   // 2. Button ko disable karein aur loader dikhayein
   submitBtn.disabled = true;
-  submitBtn.innerHTML = `<span class="spinner"></span> Saving...`;
+  submitBtn.innerHTML = `<span class="spinner"></span> Saving Products...`;
 
   try {
     const res = await fetch("/products/add-multiple", {
