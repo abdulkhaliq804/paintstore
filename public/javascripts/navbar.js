@@ -60,3 +60,23 @@ window.addEventListener('pageshow', (event) => {
 });
 
 
+
+
+/* LOGOUT CONFIRMATION */
+const logoutBtn = document.querySelector(".logout");
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+        // Confirmation box dikhayein
+        const confirmLogout = confirm("Are you sure you want to logout?");
+        
+        if (!confirmLogout) {
+            // Agar user 'Cancel' karde to click ko rok dein
+            e.preventDefault();
+            
+            // Agar aapka loader chal gaya ho to usay wapis band kar dein
+            if (globalLoader) globalLoader.style.display = 'none';
+        }
+    });
+}
+

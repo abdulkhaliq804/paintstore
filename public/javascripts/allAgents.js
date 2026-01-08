@@ -88,7 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     try {
                         const res = await fetch(`/agents/delete-agent/${id}`, { method: 'DELETE' });
                         const data = await res.json();
-                        if (data.success) runFilter(); // Delete ke baad refresh
+                        if (data.success){ 
+                            alert(data.message);
+                            runFilter();
+                        } // Delete ke baad refresh
                     } catch (err) { console.error("Delete failed:", err); }
                 }
             };

@@ -402,6 +402,7 @@ async function deleteSale(saleId) {
         const res = await fetch(`/sales/delete-sale/${saleId}`, { method: "DELETE" });
         const data = await res.json();
         if (data.success) { 
+            alert(data.message);
             updateTable(); // Refresh table without page reload
         } else {
             alert(data.message || "Failed to delete sale");
