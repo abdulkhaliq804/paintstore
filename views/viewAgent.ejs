@@ -73,15 +73,15 @@
             <% agent.items.forEach(i => { %>
               <tr id="row-<%= i._id %>">
                 <td><%= i.totalProductSold %></td>
-                <td><%= i.totalProductAmount %></td>
+                <td>Rs <%= Number(i.totalProductAmount || 0).toFixed(2) %></td>
                 <td><%= i.percentage %>%</td>
-                <td><%= i.percentageAmount %></td>
+               <td>Rs <%= Number(i.percentageAmount || 0).toFixed(2) %></td>
                 <td class="paid-status">
                   <span class="status-tag">
                     <%= i.paidAmount >= i.percentageAmount ? 'Paid' : (i.paidAmount > 0 ? 'Partially' : 'Unpaid') %>
                   </span>
                 </td>
-                <td>Rs <%= i.paidAmount %></td>
+                <td>Rs <%= Number(i.paidAmount || 0).toFixed(2) %></td>
                 <td>Rs <%= (Number(i.percentageAmount) - Number(i.paidAmount)).toFixed(2) %></td>
              <td>
   <div>
