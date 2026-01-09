@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 2. Fetch Data Function (AJAX)
-   async function fetchFilteredData() {
+  async function fetchFilteredData() {
     loader.style.display = 'flex';
     tableWrapper.classList.add('loading-active');
 
@@ -35,38 +35,43 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (data.success) {
+            // Browser URL clean rakho
             window.history.replaceState(null, '', '/sales/history');
 
             // Stats Update
             document.getElementById('totalBillsCount').innerText = data.history.length;
             document.getElementById('totalRevenueText').innerText = `Rs ${data.totalRevenue.toFixed(2)}`;
 
+            // Table Rows Build karo
             let rows = '';
-            if (data.history.length === 0) {
-                rows = '<tr><td colspan="6" class="no-data">No history found.</td></tr>';
+            if (!data.history || data.history.length === 0) {
+                rows = '<tr><td colspan="6" class="no-data" style="text-align:center; padding:20px;">No history found.</td></tr>';
             } else {
                 data.history.forEach(bill => {
+                    // 1. Total Amount Calculation
                     const billTotal = bill.salesItems.reduce((acc, item) => acc + (item.quantitySold * item.rate), 0);
                     
-                    // --- DATE & TIME TIMEZONE FIX ---
+                    // 2. Pakistan Timezone Fix (Deployment ke liye zaroori hai)
                     const dateObj = new Date(bill.createdAt);
                     const pkrDate = dateObj.toLocaleDateString('en-GB', { 
-                        day: '2-digit', month: '2-digit', year: 'numeric', 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric', 
                         timeZone: 'Asia/Karachi' 
                     });
                     const pkrTime = dateObj.toLocaleTimeString('en-US', { 
-                        hour: '2-digit', minute: '2-digit', hour12: true, 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        hour12: true, 
                         timeZone: 'Asia/Karachi' 
                     }).toUpperCase();
-                    // --------------------------------
 
-                    const agent = bill.agentId ? `<span class="agent-tag">${bill.agentId.name}</span>` : '<small>Direct Sale</small>';
+                    // 3. Agent Tag Logic
+                    const agent = bill.agentId 
+                        ? `<span class="agent-tag">${bill.agentId.name}</span>` 
+                        : '<small>Direct Sale</small>';
 
-                    // Role check for delete button (data.userRole backend se aana chahiye)
-                    const deleteBtn = data.role === 'admin' 
-                        ? `<button type="button" class="delete-btn action-btn" data-id="${bill._id}">Delete</button>` 
-                        : '';
-
+                    // 4. Row HTML (Delete button wapas shamil hai)
                     rows += `
                         <tr>
                             <td>
@@ -78,8 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td style="font-weight: bold; color: #06A56C;">Rs ${billTotal.toFixed(2)}</td>
                             <td>${agent}</td>
                             <td>
-                                <button type="button" class="view-btn action-btn" data-id="${bill._id}">View</button>
-                                ${deleteBtn}
+                                <button type="button" class="view-btn action-btn" data-id="${bill._id}" id="view">View</button>
+                                <button type="button" class="delete-btn action-btn" data-id="${bill._id}" id="delete" >Delete</button>
                             </td>
                         </tr>`;
                 });
@@ -87,8 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tableBody.innerHTML = rows;
         }
     } catch (err) {
-        console.error(err);
-        alert("Error loading data.");
+        console.error("Fetch Error:", err);
+        alert("❌ Error loading data.");
     } finally {
         loader.style.display = 'none';
         tableWrapper.classList.remove('loading-active');

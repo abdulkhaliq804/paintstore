@@ -97,7 +97,7 @@
                     <button type="button" class="view-btn action-btn" data-id="<%= bill._id %>" id="view" >View</button>
                     
                     <% if(role === "admin") { %>
-                        <button type="button" class="delete-btn action-btn" data-id="<%= bill._id %>" style="background-color: #f44336; color: white;">Delete</button>
+                        <button type="button" class="delete-btn action-btn" id="delete" data-id="<%= bill._id %>" >Delete</button>
                     <% } %>
                 </td>
             </tr>
