@@ -20,63 +20,80 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 2. Fetch Data Function (AJAX)
-    async function fetchFilteredData() {
-        loader.style.display = 'flex';
-        tableWrapper.classList.add('loading-active');
+   async function fetchFilteredData() {
+    loader.style.display = 'flex';
+    tableWrapper.classList.add('loading-active');
 
-        const filter = filterSelect.value;
-        const agentId = agentFilter.value;
-        const from = fromInput.value;
-        const to = toInput.value;
+    const filter = filterSelect.value;
+    const agentId = agentFilter.value;
+    const from = fromInput.value;
+    const to = toInput.value;
 
-        try {
-            const url = `/sales/history?filter=${filter}&agentId=${agentId}&from=${from}&to=${to}&ajax=true`;
-            const response = await fetch(url);
-            const data = await response.json();
+    try {
+        const url = `/sales/history?filter=${filter}&agentId=${agentId}&from=${from}&to=${to}&ajax=true`;
+        const response = await fetch(url);
+        const data = await response.json();
 
-            if (data.success) {
-                // Browser URL clean rakho
-                window.history.replaceState(null, '', '/sales/history');
+        if (data.success) {
+            window.history.replaceState(null, '', '/sales/history');
 
-                // Stats Update
-                document.getElementById('totalBillsCount').innerText = data.history.length;
-                document.getElementById('totalRevenueText').innerText = `Rs ${data.totalRevenue.toFixed(2)}`;
+            // Stats Update
+            document.getElementById('totalBillsCount').innerText = data.history.length;
+            document.getElementById('totalRevenueText').innerText = `Rs ${data.totalRevenue.toFixed(2)}`;
 
-                // Table Rows Build karo (No partial needed)
-                let rows = '';
-                if (data.history.length === 0) {
-                    rows = '<tr><td colspan="6" class="no-data">No history found.</td></tr>';
-                } else {
-                    data.history.forEach(bill => {
-                        const billTotal = bill.salesItems.reduce((acc, item) => acc + (item.quantitySold * item.rate), 0);
-                        const date = new Date(bill.createdAt).toLocaleDateString('en-GB');
-                        const time = new Date(bill.createdAt).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', hour12:true});
-                        const agent = bill.agentId ? `<span class="agent-tag">${bill.agentId.name}</span>` : '<small>Direct Sale</small>';
-
-                        rows += `
-                            <tr>
-                                <td>${date} <br> <small style="color: #007bff; font-weight: bold;">${time}</small></td>
-                                <td class="customer-name">${bill.customerName}</td>
-                                <td>${bill.salesItems.length} Items</td>
-                                <td style="font-weight: bold; color: #06A56C;">Rs ${billTotal.toFixed(2)}</td>
-                                <td>${agent}</td>
-                                <td>
-                                    <button type="button" class="view-btn action-btn" data-id="${bill._id}" id="view">View</button>
-                                    <button type="button" class="delete-btn action-btn" data-id="${bill._id}" id="delete">Delete</button>
-                                </td>
-                            </tr>`;
+            let rows = '';
+            if (data.history.length === 0) {
+                rows = '<tr><td colspan="6" class="no-data">No history found.</td></tr>';
+            } else {
+                data.history.forEach(bill => {
+                    const billTotal = bill.salesItems.reduce((acc, item) => acc + (item.quantitySold * item.rate), 0);
+                    
+                    // --- DATE & TIME TIMEZONE FIX ---
+                    const dateObj = new Date(bill.createdAt);
+                    const pkrDate = dateObj.toLocaleDateString('en-GB', { 
+                        day: '2-digit', month: '2-digit', year: 'numeric', 
+                        timeZone: 'Asia/Karachi' 
                     });
-                }
-                tableBody.innerHTML = rows;
+                    const pkrTime = dateObj.toLocaleTimeString('en-US', { 
+                        hour: '2-digit', minute: '2-digit', hour12: true, 
+                        timeZone: 'Asia/Karachi' 
+                    }).toUpperCase();
+                    // --------------------------------
+
+                    const agent = bill.agentId ? `<span class="agent-tag">${bill.agentId.name}</span>` : '<small>Direct Sale</small>';
+
+                    // Role check for delete button (data.userRole backend se aana chahiye)
+                    const deleteBtn = data.role === 'admin' 
+                        ? `<button type="button" class="delete-btn action-btn" data-id="${bill._id}">Delete</button>` 
+                        : '';
+
+                    rows += `
+                        <tr>
+                            <td>
+                                ${pkrDate} <br> 
+                                <small style="color: #007bff; font-weight: bold;">${pkrTime}</small>
+                            </td>
+                            <td class="customer-name">${bill.customerName}</td>
+                            <td>${bill.salesItems.length} Items</td>
+                            <td style="font-weight: bold; color: #06A56C;">Rs ${billTotal.toFixed(2)}</td>
+                            <td>${agent}</td>
+                            <td>
+                                <button type="button" class="view-btn action-btn" data-id="${bill._id}">View</button>
+                                ${deleteBtn}
+                            </td>
+                        </tr>`;
+                });
             }
-        } catch (err) {
-            console.error(err);
-            alert("Error loading data.");
-        } finally {
-            loader.style.display = 'none';
-            tableWrapper.classList.remove('loading-active');
+            tableBody.innerHTML = rows;
         }
+    } catch (err) {
+        console.error(err);
+        alert("Error loading data.");
+    } finally {
+        loader.style.display = 'none';
+        tableWrapper.classList.remove('loading-active');
     }
+}
 
     // 3. Apply Button Click
     applyBtn.addEventListener('click', fetchFilteredData);

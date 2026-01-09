@@ -64,43 +64,52 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <% history.forEach(bill => { 
-                        let billTotal = bill.salesItems.reduce((acc, item) => acc + (item.quantitySold * item.rate), 0);
-                    %>
-                        <tr>
-                            <td>
-                                <%= new Date(bill.createdAt).toLocaleDateString('en-GB', { 
-            timeZone: 'Asia/Karachi' 
-        }) %> <br>
-                                <small style="color: #007bff; font-weight: bold;">
-                           <%= new Date(bill.createdAt).toLocaleTimeString('en-US', { 
-            timeZone: 'Asia/Karachi', 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            hour12: true 
-        }).toUpperCase() %>
-                                </small>
-                            </td>
-                            <td class="customer-name"><%= bill.customerName %></td>
-                            <td><%= bill.salesItems.length %> Items</td>
-                            <td style="font-weight: bold; color: #06A56C;">Rs <%= billTotal.toFixed(2) %></td>
-                            <td>
-                                <% if(bill.agentId) { %>
-                                    <span class="agent-tag"><%= bill.agentId.name %></span>
-                                <% } else { %>
-                                    <small>Direct Sale</small>
-                                <% } %>
-                            </td>
-                            <td>
-                                <button type="button" class="view-btn action-btn" data-id="<%= bill._id %>" id="view">View</button>
-                                
-                                 <% if(role=="admin" ){ %>
-                                <button type="button" class="delete-btn action-btn" data-id="<%= bill._id %>" id="delete">Delete</button>
-                                <% } %>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
+    <% if (history && history.length > 0) { %>
+        <% history.forEach(bill => { 
+            // Total Amount calculate karne ka sahi tareeqa
+            let billTotal = bill.salesItems.reduce((acc, item) => acc + (item.quantitySold * item.rate), 0);
+            
+            // Pakistan Timezone Settings
+            let dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Karachi' };
+            let timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Karachi' };
+            
+            let pkrDate = new Date(bill.createdAt).toLocaleDateString('en-GB', dateOptions);
+            let pkrTime = new Date(bill.createdAt).toLocaleTimeString('en-US', timeOptions).toUpperCase();
+        %>
+            <tr>
+                <td>
+                    <%= pkrDate %> <br>
+                    <small style="color: #007bff; font-weight: bold;">
+                        <%= pkrTime %>
+                    </small>
+                </td>
+                <td class="customer-name"><%= bill.customerName %></td>
+                <td><%= bill.salesItems.length %> Items</td>
+                <td style="font-weight: bold; color: #06A56C;">Rs <%= billTotal.toFixed(2) %></td>
+                <td>
+                    <% if(bill.agentId) { %>
+                        <span class="agent-tag"><%= bill.agentId.name %></span>
+                    <% } else { %>
+                        <small>Direct Sale</small>
+                    <% } %>
+                </td>
+                <td>
+                    <button type="button" class="view-btn action-btn" data-id="<%= bill._id %>" id="view" >View</button>
+                    
+                    <% if(role === "admin") { %>
+                        <button type="button" class="delete-btn action-btn" data-id="<%= bill._id %>" style="background-color: #f44336; color: white;">Delete</button>
+                    <% } %>
+                </td>
+            </tr>
+        <% }) %>
+    <% } else { %>
+        <tr>
+            <td colspan="6" class="no-data" style="text-align: center; padding: 20px; color: #666;">
+                No history found.
+            </td>
+        </tr>
+    <% } %>
+</tbody>
             </table>
         </div>
     </main>
