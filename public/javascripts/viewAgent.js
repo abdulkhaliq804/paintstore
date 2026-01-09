@@ -87,8 +87,8 @@ html += `
     <td class="paid-status"><span class="status-tag">${status}</span></td>
     <td>Rs ${i.paidAmount}</td>
     <td>Rs ${leftAmt}</td>
-    <td style="text-align: center; line-height: 1.2;">
-        <div style="font-weight: 700; font-size: 10px;">${pkrDate}</div>
+    <td>
+        <div>${pkrDate}</div>
         <small style="color: #007bff; font-weight: bold;">${pkrTime}</small>
     </td>
     <td class="actions">
