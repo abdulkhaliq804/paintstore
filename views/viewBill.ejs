@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - <%= bill.customerName %></title>
+    <link rel="stylesheet" href="/stylesheets/allSales.css">
+    <style>
+        /* General Styling */
+        .invoice-box { max-width: 800px; margin: 30px auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); font-size: 16px; line-height: 24px; background: #fff; font-family: 'Helvetica', 'Arial', sans-serif; }
+        .invoice-header { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+        .invoice-header h2 { margin: 0; color: #06A56C; }
+        .bill-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .bill-table th { background: #f8f9fa; border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .bill-table td { border: 1px solid #ddd; padding: 12px; }
+        .total-section { text-align: right; font-size: 20px; font-weight: bold; margin-top: 20px; border-top: 2px solid #eee; padding-top: 10px; }
+        
+        /* Buttons Styling */
+        .no-print { margin-top: 30px; display: flex; gap: 10px; }
+        .btn-print { background: #06A56C; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .btn-back { background: #666; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+
+        /* PRINT CSS - Image ke mutabiq thermal setup */
+        @media print {
+            .no-print, nav, .navbar { display: none !important; }
+            body { background: white; padding: 0; margin: 0; }
+            .invoice-box { 
+                max-width: 100%; width: 100%; margin: 0; padding: 10px; border: none; box-shadow: none; 
+            }
+            .invoice-header h2 { color: black; }
+            .bill-table th, .bill-table td { padding: 8px; font-size: 12px; }
+            .total-section { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <div class="invoice-box">
+        <div class="invoice-header">
+            <div>
+                <h2>HAMZA PAINTS</h2>
+                <p>Main Bazaar, City Road <br> <strong>Software:</strong> M.SHOUKAT (0335 8004900)</p>
+            </div>
+            <div style="text-align: right;">
+                <h3>INVOICE</h3>
+                <p><strong>Date:</strong> <%= new Date(bill.createdAt).toLocaleDateString('en-GB') %></p>
+                <p><strong>Time:</strong> <%= new Date(bill.createdAt).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', hour12: true}) %></p>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <div>
+                <p><strong>Bill To:</strong> <%= bill.customerName %></p>
+                <p><strong>Agent:</strong> <%= bill.agentId ? bill.agentId.name : 'Direct Sale' %></p>
+            </div>
+            <div style="text-align: right;">
+                <p><strong>Bill ID:</strong> <%= bill._id %></p>
+            </div>
+        </div>
+
+        <table class="bill-table">
+            <thead>
+                <tr>
+                    <th>Item Details</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% bill.salesItems.forEach(item => { %>
+                <tr>
+                    <td>
+                        <strong><%= item.itemName %></strong><br>
+                        <small><%= item.brandName %> | <%= item.colourName %> (<%= item.qty %>)</small>
+                    </td>
+                    <td><%= item.quantitySold %></td>
+                    <td>Rs <%= item.rate.toFixed(2) %></td>
+                    <td>Rs <%= (item.quantitySold * item.rate).toFixed(2) %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            Total Items: <%= bill.salesItems.length %> | Total Amount: Rs <%= totalAmount.toFixed(2) %>
+        </div>
+
+        <div class="no-print">
+            <button id="btnPrint" class="btn-print">🖨️ Print Invoice</button>
+            <button id="btnBack" class="btn-back">🔙 Back to History</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const printBtn = document.getElementById('btnPrint');
+            const backBtn = document.getElementById('btnBack');
+
+            if (printBtn) {
+                printBtn.addEventListener('click', () => {
+                    window.print();
+                });
+            }
+
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    window.location.href = '/sales/history';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
