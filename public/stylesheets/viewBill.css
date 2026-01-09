@@ -1,24 +1,22 @@
- /* ===== THERMAL SAFE RESET ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f7fa;
-      overflow-x: hidden;
-    }
+/* ===== THERMAL SAFE RESET ===== */
+/* * {
+  box-sizing: border-box;
+  color: #000 !important;
+  background: transparent !important;
+  font-weight: 550;
+} */
 
-    /* Screen view margin for sidebar */
-    main {
-      margin-left: 250px;
-      padding: 25px;
-      transition: .3s ease;
-    }
+body {
+  background: transparent !important;
+  font-family: Arial, Courier, monospace;
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+}
 
-    ::-webkit-scrollbar {
+
+::-webkit-scrollbar {
   width: 8px;
 }
 
@@ -30,139 +28,264 @@
   background-color: #f1f1f1;
 }
 
-    /* ===== SCREEN ONLY CONTROLLERS ===== */
-    .no-print-controls {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 15px;
-      background: #f8f9fa;
-    }
 
-    .btn {
-      padding: 8px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 14px;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    /* .btn-print { background-color: #06A56C; color: white !important; }
-    .btn-back { background-color: #6c757d; color: white !important; } */
-
-    .screen-wrapper {
-      display: flex;
-      justify-content: center;
-      /* background-color: #e9ecef; */
-      padding: 20px 0;
-    }
-
-    /* ===== THERMAL PRINT AREA ===== */
-    .print-area {
-      background: white !important;
-      padding: 10px;
-      width: 76mm; /* Exact Thermal Size */
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    .shop-header { text-align: center; margin-top: 5px; }
-    #logo { width: 70px; display: block; margin: 1px auto; }
-    .shop-name-en { font-size: 12px; font-weight: 800; }
-    .shop-name-ur { font-size: 13.9px; font-weight: 800; }
-    .shop-phones { font-size: 9px; font-weight: 700; white-space: nowrap; }
-
-    p { font-size: 10px; margin: 1px 0; }
-    #remarks { text-align: start; font-weight: 600; }
-
-    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-   td {
-  font-size: 10px;
-  padding: 1px;
-  text-align: center;
-  border-bottom: 1.2px dashed #000;
-  word-break: break-word;
-  font-weight: 700;
+.print-area {
+  width: 76mm;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Courier, monospace;
 }
 
-th{
+/* ===== SHOP HEADER ===== */
+.shop-header {
+  text-align: center;
+  margin-top: 5px;
+  font-family: Arial, Courier, monospace;
+}
+
+#logo {
+  width: 70px;
+  display: block;
+  margin: 1px auto;
+  font-family: Arial, Courier, monospace;
+}
+
+.shop-name-en {
+  font-size: 13px;
+  font-weight: 800;
+  font-family: Arial, Courier, monospace;
+}
+
+.shop-name-ur {
+  font-size: 13.9px;
+  font-weight: 800;
+  font-family: Arial, Courier, monospace;
+}
+
+.shop-phones {
+  font-size: 10px;
+  font-weight: 700;
+  /* margin-top: 1px; */
+  white-space: nowrap;
+  font-family: Arial, Courier, monospace;
+}
+
+.divider-line {
+  font-size: 10px;
+  margin: 1px 0;
+  font-family: Arial, Courier, monospace;
+}
+
+/* ===== TABLE ===== */
+p {
+  font-size: 10px;
+  margin: 1px 0;
+  font-family: Arial, Courier, monospace;
+}
+
+h {
+  text-align: start;
+  margin: 1px 0;
+  font-weight: 600;
+  font-family: Arial, Courier, monospace;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: Arial, Courier, monospace;
+}
+
+th, td {
   font-size: 9px;
   padding: 1px;
   text-align: center;
   border-bottom: 1.2px dashed #000;
   word-break: break-word;
   font-weight: 700;
+  font-family: Arial, Courier, monospace;
 }
 
-    .footer {
-      margin-top: 3px;
-      font-size: 12px;
-      font-weight: 800;
-      display: flex;
-      justify-content: space-between;
-    }
+th {
+  font-weight: 800;
+  font-family: Arial, Courier, monospace;
+}
 
-    .thank-you-section { margin-top: 10px; font-size: 11px; text-align: center; font-weight: 800; }
-    .urdu-footer { font-size: 13px; text-align: center; font-weight: 800; margin-top: 6px; }
-    .urdu-warning { font-size: 12px; text-align: center; font-weight: 900; margin-top: 4px; }
+/* ===== TOTAL ===== */
+.footer {
+   color: #000 !important;
+  background: transparent !important;
+  font-weight: 550;
+  margin-top: 3px;
+  font-size: 12px;
+  font-family: Arial, Courier, monospace;
+  display: flex;
+  justify-content: space-between;
+}
 
-    .dev-footer {
-      margin-top: 3px;
-      font-size: 10px;
-      text-align: center;
-      font-weight: 800;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #000;
-    }
+/* ===== THANK YOU ===== */
+.thank-you-section {
+  margin-top: 10px;
+  font-size: 11px;
+  text-align: center;
+  font-weight: 800;
+  font-family: Arial, Courier, monospace;
+}
 
-    /* ===========================================
-        ===== PRINT LOGIC (AB KONE MEIN AYAY GA) =====
-        =========================================== */
-    @media print {
-      /* 1. Navbar, Sidebar aur baaki faltu cheezein hide */
-      nav, .navbar, #sidebar, .sidebar, header, .no-print-controls, aside { 
-        display: none !important; 
-      }
+/* ===== URDU FOOTER ===== */
+.urdu-footer {
+  font-size: 13px;
+  text-align: center;
+  font-weight: 800;
+  margin-top: 6px;
+  font-family: Arial, Courier, monospace;
+}
 
-      /* 2. Main margin hatayein taake bill left side (kone) par chipak jaye */
-      main {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-      }
+.urdu-warning {
+  font-size: 13px;
+  text-align: center;
+  font-weight: 900;
+  margin-top: 4px;
+  font-family: Arial, Courier, monospace;
+}
 
-      /* 3. Screen wrapper ko left align karna */
-      .screen-wrapper {
-        display: block !important;
-        background: transparent !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
+/* ===== DEV FOOTER ===== */
+.dev-footer {
+  margin-top: 3px;
+  font-size: 10px;
+  text-align: center;
+  color: #000 !important;
+  background: transparent !important;
+  font-weight: 550;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #000;
+  font-family: Arial, Courier, monospace;
+}
 
-      /* 4. Bill ko kone (Left) mein lana */
-      .print-area {
-        width: 76mm !important;
-        margin: 0 !important; /* Yahan pe 0 karne se ye kone mein chala jayega */
-        box-shadow: none !important;
-        border: none !important;
-        padding-left: 2mm !important; /* Thora sa margin taake bilkul edge pe na katay */
-      }
+/* ===== PRINT ===== */
+@media print {
+  html, body {
+    width: 76mm;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    font-family: Arial, Courier, monospace;
+  }
 
-      /* 5. Agent line hide karein print mein */
-      .hide-agent-print {
-        display: none !important;
-      }
+  .print-area {
+    width: 76mm;
+    font-family: Arial, Courier, monospace;
+  }
+}
 
-      /* Sab kuch black force karein */
-      * { color: #000 !important; background: transparent !important; }
 
-      
-    }
+main{
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+}
 
-    #remarks{
-        font-size: 14px;
-      }
+
+
+.btn-print,
+.btn-back {
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition:
+    background 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* Print Button */
+.btn-print {
+  background: linear-gradient(135deg, #06A56C, #08C086);
+  color: #ffffff !important;
+}
+
+.btn-print:hover {
+  background: linear-gradient(135deg, #058457, #06A56C);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(6, 165, 108, 0.35);
+}
+
+.btn-print:active {
+  transform: scale(0.97);
+  box-shadow: 0 5px 12px rgba(6, 165, 108, 0.25);
+}
+
+/* Back Button */
+.btn-back {
+  background: linear-gradient(135deg, #4A5568, #2D3748);
+  color: #ffffff !important;
+}
+
+.btn-back:hover {
+  background: linear-gradient(135deg, #2D3748, #1A202C);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(45, 55, 72, 0.4);
+}
+
+.btn-back:active {
+  transform: scale(0.97);
+  box-shadow: 0 5px 12px rgba(45, 55, 72, 0.25);
+}
+
+
+
+
+/* ===== PRINT LOGIC (HIDE NAVBAR & BUTTONS) ===== */
+@media print {
+  /* 1. Navbar, Sidebar, aur Buttons ko gayab karne ke liye */
+  nav, 
+  .navbar, 
+  #sidebar, 
+  .sidebar, 
+  .no-print-controls, 
+  header, 
+  aside { 
+    display: none !important; 
+  }
+
+  /* 2. Main container ki koi bhi extra space khatam karne ke liye */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important; /* Flex hata kar block kar diya */
+  }
+
+  /* 3. Page ki settings */
+  html, body {
+    width: 76mm;
+    margin: 0;
+    padding: 0;
+    background: #fff !important;
+  }
+
+  .print-area {
+    width: 76mm;
+    margin: 0 !important;
+    padding: 0;
+    box-shadow: none !important; /* Print mein shadow nahi chahiye */
+    border: none !important;
+  }
+
+  /* Force black text for clear printing */
+  * {
+    color: #000 !important;
+  }
+}
+
+

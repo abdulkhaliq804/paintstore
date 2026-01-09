@@ -3,63 +3,66 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>View Bill </title>
+  <title>View Bill | Hamza Paints</title>
   <link rel="icon" href="/images/weldon-paints-logo.png" type="image/png">
   <link rel="stylesheet" href="/stylesheets/viewBill.css">
 </head>
 
 <body>
-  <%- include('partials/navbar') %>
+<%- include('partials/navbar') %>
+    
+<main>
 
-  <main>
-    <div class="no-print-controls">
-      <button onclick="window.print()" class="btn btn-print">🖨️ Print Invoice</button>
-      <a href="/sales/history" class="btn btn-back">🔙 Back to History</a>
-    </div>
+   <div class="no-print-controls">
+  <button class="btn btn-print">🖨️ Print Bill</button>
+  <a href="/sales/history" class="btn btn-back">🔙 Back to History</a>
+</div>
 
-    <div class="screen-wrapper">
-      <div class="print-area">
-        <div class="shop-header">
-          <img src="/images/weldon-paints-logo.png" id="logo">
-          <div class="shop-name-en">Hamza Weldon Paint & Hardware Store</div>
-          <div class="shop-name-ur">
+
+
+  <div class="print-area">
+
+    <div class="shop-header">
+      <img src="/images/weldon-paints-logo.png" id="logo">
+      <div class="shop-name-en">
+        Hamza Weldon Paint & Hardware Store
+      </div>
+      <div class="shop-name-ur">
         حمزہ ویلڈن پینٹ اینڈ ہارڈویئر سٹور
       </div>
-          <div class="shop-phones">
-            <span dir="ltr">0319-9303154</span>(حمزہ)
-            <span dir="ltr">0332-9780911</span>(اسماعیل)
-            <span dir="ltr">0335-0502041</span>(مبارک شاہ)
-          </div>
-        </div>
+      <div class="shop-phones">
+        <span dir="ltr">0319-9303154</span>(حمزہ)
+        <span dir="ltr">0332-9780911</span>(اسماعیل)
+        <span dir="ltr">0335-0502041</span>(مبارک شاہ)
+      </div>
+      <br>
+      
+    </div>
+    
+    <p><b>Customer name:  </b><b><%= bill.customerName %></b></p>
+    <br>
+    <p><b>Entry date: <%= new Date(bill.createdAt).toLocaleDateString('en-GB', {timeZone: 'Asia/Karachi'}) %> | 
+            <%= new Date(bill.createdAt).toLocaleTimeString('en-US', {timeZone: 'Asia/Karachi', hour:'2-digit', minute:'2-digit', hour12:true}) %></b> </p>
+    <br>
+    
 
-        <br>
+    <h3>Remarks:</h3>
 
-        <p><b>Customer Name:</b> <span><%= bill.customerName %></span></p>
-        
-        <p class="hide-agent-print"><b>Agent:</b> <%= bill.agentId ? bill.agentId.name : 'Direct Sale' %></p>
-        
-        <p><b>Entry Date:</b> 
-            <%= new Date(bill.createdAt).toLocaleDateString('en-GB', {timeZone: 'Asia/Karachi'}) %> | 
-            <%= new Date(bill.createdAt).toLocaleTimeString('en-US', {timeZone: 'Asia/Karachi', hour:'2-digit', minute:'2-digit', hour12:true}) %>
-        </p>
-
-        <h3 id="remarks">Remarks:</h3>
-
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 15%;">Stock ID</th>
-              <th style="width: 15%;">Sale ID</th>
-              <th style="width: 20%;">Item</th>
-              <th style="width: 15%;">Color</th>
-              <th style="width: 10%;">Unit</th>
-              <th style="width: 5%;">Qty</th>
-              <th style="width: 10%;">Price</th>
-              <th style="width: 10%;">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% bill.salesItems.forEach(item => { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Stock ID</th>
+          <th>Sale ID</th>
+          <th>Item</th>
+          <th>Color</th>
+          <th>Unit</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="billTableBody">
+        <% bill.salesItems.forEach(item => { %>
             <tr>
               <td><%= item.stockID %></td>
               <td><%= item.saleID %></td>
@@ -67,31 +70,37 @@
               <td><%= item.colourName %></td>
               <td><%= item.qty %></td>
               <td><%= item.quantitySold %></td>
-              <td><%= item.rate.toFixed(0) %></td>
-              <td><%= (item.quantitySold * item.rate).toFixed(0) %></td>
+              <td>Rs <%= item.rate.toFixed(2) %></td>
+              <td>Rs <%= (item.quantitySold * item.rate).toFixed(2) %></td>
             </tr>
             <% }) %>
-          </tbody>
-        </table>
+      </tbody>
+    </table>
 
-        <div class="footer">
-          <span>Items: <%= bill.salesItems.length %></span>
-          <span>Total: Rs <%= totalAmount.toFixed(0) %></span>
-        </div>
-
-        <div class="urdu-footer">
-          پتہ: ملک تاج مارکیٹ، دکان نمبر 5،6 کوہاٹ بورڈ ہائی وے چوک
-        </div>
-
-        <div class="urdu-warning">.بل کے بغیر واپسی نہیں ہوگی</div>
-        <div class="thank-you-section">THANK YOU FOR VISITING HAMZA PAINTS</div>
-
-        <div class="dev-footer">
-          <span>Software Developed by: M.SHOUKAT (0335 8004900)</span>
-        </div>
-      </div>
+    <div class="footer">
+      <span id="billTotalItems">Total items: <%= bill.salesItems.length %></span>
+      <span id="billTotalAmount">Total amount: Rs <%= totalAmount.toFixed(2) %></span>
     </div>
-  </main>
-</body>
 
+    <div class="urdu-footer">
+      پتہ: ملک تاج مارکیٹ، دکان نمبر 5،6 کوہاٹ بورڈ ہائی وے چوک
+    </div>
+
+    <div class="urdu-warning">
+      .بل کے بغیر واپسی نہیں ہوگی
+    </div>
+    <div class="thank-you-section">
+      THANK YOU FOR VISITING HAMZA PAINTS
+    </div>
+
+    <div class="dev-footer">
+      <span>Software Developed by: M.SHOUKAT (0335 8004900)</span><br>
+    </div>
+
+  </div>
+
+  </main>
+
+  <script src="/javascripts/viewBill.js"></script>
+</body>
 </html>
