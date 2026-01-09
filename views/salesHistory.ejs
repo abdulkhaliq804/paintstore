@@ -94,8 +94,9 @@
                             <td>
                                 <button type="button" class="view-btn action-btn" data-id="<%= bill._id %>" id="view">View</button>
                                 
+                                 <% if(role=="admin" ){ %>
                                 <button type="button" class="delete-btn action-btn" data-id="<%= bill._id %>" id="delete">Delete</button>
-                               
+                                <% } %>
                             </td>
                         </tr>
                     <% }) %>

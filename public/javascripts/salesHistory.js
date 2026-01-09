@@ -91,14 +91,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (e.target.classList.contains('delete-btn')) {
-            if (confirm("⚠️ Delete this bill?")) {
-                const res = await fetch(`/sales/delete-bill/${id}`, { method: 'DELETE' });
-                const result = await res.json();
-                if (result.success) {
-                    alert("Deleted!");
-                    fetchFilteredData(); // Reload table data
-                }
+    if (confirm("⚠️ Delete this bill?")) {
+        try {
+            const res = await fetch(`/sales/delete-bill/${id}`, { method: 'DELETE' });
+            
+            // 1. Pehle status check karein (403 = Access Denied)
+            if (res.status === 403) {
+                const errorData = await res.json();
+                alert("❌ " + errorData.message); // Worker ko message dikhayega
+                return; // Yahin ruk jayein
             }
+
+            const result = await res.json();
+            
+            // 2. Agar success hai toh reload karein
+            if (result.success) {
+                alert("✅ Deleted!");
+                fetchFilteredData(); 
+            } else {
+                alert("❌ Error: " + result.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("❌ Server se rabta nahi ho saka.");
         }
+    }
+}
     });
 });
+
