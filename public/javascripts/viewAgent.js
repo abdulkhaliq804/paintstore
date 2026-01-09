@@ -76,17 +76,20 @@ const pkrTime = dateObj.toLocaleTimeString('en-US', {
 }).toUpperCase();
 
 const status = i.paidAmount >= i.percentageAmount ? 'Paid' : (i.paidAmount > 0 ? 'Partially' : 'Unpaid');
-const leftAmt = (Number(i.percentageAmount) - Number(i.paidAmount)).toFixed(2);
+const totalAmt = Number(i.totalProductAmount || 0).toFixed(2);
+const percAmt = Number(i.percentageAmount || 0).toFixed(2);
+const paidAmt = Number(i.paidAmount || 0).toFixed(2);
+const leftAmt = (Number(i.percentageAmount || 0) - Number(i.paidAmount || 0)).toFixed(2);
 
 html += `
 <tr id="row-${i._id}">
-    <td>${i.totalProductSold}</td>
-    <td>${i.totalProductAmount}</td>
-    <td>${i.percentage}%</td>
-    <td>${i.percentageAmount}</td>
-    <td class="paid-status"><span class="status-tag">${status}</span></td>
-    <td>Rs ${i.paidAmount}</td>
-    <td>Rs ${leftAmt}</td>
+   <td>${i.totalProductSold}</td>
+        <td>Rs ${totalAmt}</td>
+        <td>${i.percentage}%</td>
+        <td>Rs ${percAmt}</td>
+        <td class="paid-status"><span class="status-tag">${status}</span></td>
+        <td>Rs ${paidAmt}</td>
+        <td>Rs ${leftAmt}</td>
     <td>
         <div>${pkrDate}</div>
         <small style="color: #007bff; font-weight: bold;">${pkrTime}</small>
