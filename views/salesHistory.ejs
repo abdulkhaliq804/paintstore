@@ -69,14 +69,16 @@
                     %>
                         <tr>
                             <td>
-                                <%= new Date(bill.createdAt).toLocaleDateString('en-GB') %> <br>
+                                <%= new Date(bill.createdAt).toLocaleDateString('en-GB', { 
+            timeZone: 'Asia/Karachi' 
+        }) %> <br>
                                 <small style="color: #007bff; font-weight: bold;">
-                            <%= new Date(bill.createdAt).toLocaleTimeString('en-US', { 
-                                 timeZone: 'Asia/Karachi', 
-                                 hour: '2-digit', 
-                                 minute: '2-digit', 
-                                 hour12: true 
-                                 }).toUpperCase() %>
+                           <%= new Date(bill.createdAt).toLocaleTimeString('en-US', { 
+            timeZone: 'Asia/Karachi', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: true 
+        }).toUpperCase() %>
                                 </small>
                             </td>
                             <td class="customer-name"><%= bill.customerName %></td>

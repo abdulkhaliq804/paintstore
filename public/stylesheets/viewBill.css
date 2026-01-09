@@ -1,94 +1,24 @@
-/* body{ 
-font-family: "Poppins", 
-sans-serif; 
-margin: 40px; 
-color: #222; 
-}
+ /* ===== THERMAL SAFE RESET ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-h1,h2{ 
-text-align:center; 
-margin:5px 0; 
-}
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f7fa;
+      overflow-x: hidden;
+    }
 
-table{
-width:100%; 
-border-collapse: collapse; 
-margin-top: 20px;
-}
+    /* Screen view margin for sidebar */
+    main {
+      margin-left: 250px;
+      padding: 25px;
+      transition: .3s ease;
+    }
 
-th, td{ 
-padding: 8px 12px; 
-border-bottom: 1px solid #ddd; 
-text-align:center; 
-}
-
-th{ 
-background:#f7f7f7; 
-font-weight:600; 
-}
-
-
-.footer{ 
-margin-top:10px; 
-font-weight:bold; 
-display:flex; 
-justify-content:space-between; 
-}
-
-
-#logo{
-    width: 100px;
-    height: 80px;
-}
-
-
-@media print {
-  body {
-    width: 80mm;
-    margin: 0;
-    font-size: 12px;
-  }
-
-  table, th, td {
-    font-size: 12px;
-  }
-
-  .footer {
-    font-size: 12px;
-  }
-}
-.thank-you-section {
-    text-align: center;
-    font-weight: bold;
-    margin-top: 20px;
-    font-size: 14px;
-}
-.dev-footer {
-    margin-top: 30px;
-    font-size: 10px;
-    text-align: center;
-    color: #555;
-}
-.dev-footer span {
-    display: block;
-} */
-/* ===== THERMAL SAFE RESET ===== */
-* {
-  box-sizing: border-box;
-  color: #000 !important;
-  background: transparent !important;
-  font-weight: 550;
-}
-
-body {
-  font-family: Arial, Courier, monospace;
-  font-size: 12px;
-  margin: 0;
-  padding: 0;
-}
-
-
-::-webkit-scrollbar {
+    ::-webkit-scrollbar {
   width: 8px;
 }
 
@@ -100,66 +30,66 @@ body {
   background-color: #f1f1f1;
 }
 
+    /* ===== SCREEN ONLY CONTROLLERS ===== */
+    .no-print-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px;
+      background: #f8f9fa;
+    }
 
-.print-area {
-  width: 76mm;
-  margin: 0;
-  padding: 0;
-}
+    .btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
 
-/* ===== SHOP HEADER ===== */
-.shop-header {
+    /* .btn-print { background-color: #06A56C; color: white !important; }
+    .btn-back { background-color: #6c757d; color: white !important; } */
+
+    .screen-wrapper {
+      display: flex;
+      justify-content: center;
+      /* background-color: #e9ecef; */
+      padding: 20px 0;
+    }
+
+    /* ===== THERMAL PRINT AREA ===== */
+    .print-area {
+      background: white !important;
+      padding: 10px;
+      width: 76mm; /* Exact Thermal Size */
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .shop-header { text-align: center; margin-top: 5px; }
+    #logo { width: 70px; display: block; margin: 1px auto; }
+    .shop-name-en { font-size: 12px; font-weight: 800; }
+    .shop-name-ur { font-size: 13.9px; font-weight: 800; }
+    .shop-phones { font-size: 9px; font-weight: 700; white-space: nowrap; }
+
+    p { font-size: 10px; margin: 1px 0; }
+    #remarks { text-align: start; font-weight: 600; }
+
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+   td {
+  font-size: 10px;
+  padding: 1px;
   text-align: center;
-  margin-top: 5px;
-}
-
-#logo {
-  width: 70px;
-  display: block;
-  margin: 1px auto;
-}
-
-.shop-name-en {
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.shop-name-ur {
-  font-size: 13.9px;
-  font-weight: 800;
-}
-
-.shop-phones {
-  font-size: 10px;
+  border-bottom: 1.2px dashed #000;
+  word-break: break-word;
   font-weight: 700;
-  /* margin-top: 1px; */
-  white-space: nowrap;
 }
 
-.divider-line {
-  font-size: 10px;
-  margin: 1px 0;
-}
-
-/* ===== TABLE ===== */
-p {
-  font-size: 10px;
-  margin: 1px 0;
-}
-
-h3 {
-  text-align: start;
-  margin: 1px 0;
-  font-weight: 600;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
-th, td {
+th{
   font-size: 9px;
   padding: 1px;
   text-align: center;
@@ -168,62 +98,71 @@ th, td {
   font-weight: 700;
 }
 
-th {
-  font-weight: 800;
-}
+    .footer {
+      margin-top: 3px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+    }
 
-/* ===== TOTAL ===== */
-.footer {
-  margin-top: 3px;
-  font-size: 12px;
-  font-weight: 800;
-  display: flex;
-  justify-content: space-between;
-}
+    .thank-you-section { margin-top: 10px; font-size: 11px; text-align: center; font-weight: 800; }
+    .urdu-footer { font-size: 13px; text-align: center; font-weight: 800; margin-top: 6px; }
+    .urdu-warning { font-size: 12px; text-align: center; font-weight: 900; margin-top: 4px; }
 
-/* ===== THANK YOU ===== */
-.thank-you-section {
-  margin-top: 10px;
-  font-size: 11px;
-  text-align: center;
-  font-weight: 800;
-}
+    .dev-footer {
+      margin-top: 3px;
+      font-size: 10px;
+      text-align: center;
+      font-weight: 800;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #000;
+    }
 
-/* ===== URDU FOOTER ===== */
-.urdu-footer {
-  font-size: 13px;
-  text-align: center;
-  font-weight: 800;
-  margin-top: 6px;
-}
+    /* ===========================================
+        ===== PRINT LOGIC (AB KONE MEIN AYAY GA) =====
+        =========================================== */
+    @media print {
+      /* 1. Navbar, Sidebar aur baaki faltu cheezein hide */
+      nav, .navbar, #sidebar, .sidebar, header, .no-print-controls, aside { 
+        display: none !important; 
+      }
 
-.urdu-warning {
-  font-size: 13px;
-  text-align: center;
-  font-weight: 900;
-  margin-top: 4px;
-}
+      /* 2. Main margin hatayein taake bill left side (kone) par chipak jaye */
+      main {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
 
-/* ===== DEV FOOTER ===== */
-.dev-footer {
-  margin-top: 3px;
-  font-size: 10px;
-  text-align: center;
-  font-weight: 800;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #000;
-}
+      /* 3. Screen wrapper ko left align karna */
+      .screen-wrapper {
+        display: block !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
 
-/* ===== PRINT ===== */
-@media print {
-  html, body {
-    width: 76mm;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-  }
+      /* 4. Bill ko kone (Left) mein lana */
+      .print-area {
+        width: 76mm !important;
+        margin: 0 !important; /* Yahan pe 0 karne se ye kone mein chala jayega */
+        box-shadow: none !important;
+        border: none !important;
+        padding-left: 2mm !important; /* Thora sa margin taake bilkul edge pe na katay */
+      }
 
-  .print-area {
-    width: 76mm;
-  }
-}
+      /* 5. Agent line hide karein print mein */
+      .hide-agent-print {
+        display: none !important;
+      }
+
+      /* Sab kuch black force karein */
+      * { color: #000 !important; background: transparent !important; }
+
+      
+    }
+
+    #remarks{
+        font-size: 14px;
+      }
