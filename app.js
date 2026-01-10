@@ -67,21 +67,22 @@ app.use(
 // =======================================================
 // Allowed origins
 
-// Allowed origins
-const allowedOrigins = [
-  "https://paintsstore.vercel.app", 
-  "http://localhost:3000"
-];
+const allowedOrigins = process.env.NODE_ENV === "production"
+  ? ["https://hamzapaints.vercel.app"]   // Add your production domain(s) here
+  : ["http://localhost:3000"];           // Localhost for dev
 
 // ===== CORS Middleware =====
 app.use(cors({
   origin: function (origin, callback) {
-    // Agar origin list mein hai ya origin null hai (Postman wagera) toh allow kar do
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+    // origin null -> Postman, curl, server-side request
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true); // allowed
     }
+
+    // not allowed
+    return callback(null, false);
   },
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
@@ -129,12 +130,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || "defaultsecret",
   resave: false,
   saveUninitialized: false,
-  proxy: true, // ✅ Vercel ke liye trust proxy ke sath ye zaroori hai
   cookie: {
-    maxAge: 5 * 60 * 1000, // 30 minutes (5 min bohot kam tha) theak hai 5 minute 
+    maxAge: 5 * 60 * 1000, // 5 minutes
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Production mein true
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax" // ✅ Ye lazmi add karein
+    secure: process.env.NODE_ENV === "production"
   }
 }));
 
