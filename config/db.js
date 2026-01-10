@@ -1,25 +1,34 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 
-// Load .env
-dotenv.config();
+let cached = global.mongoose;
 
-const connectDB = async () => {
-  try {
-    const mongoURI = process.env.MONGO_URI;
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
-    if (!mongoURI) {
-      throw new Error("❌ MONGO_URI not defined in .env file");
-    }
+async function connectDB() {
+  if (cached.conn) return cached.conn;
 
-    // ✅ Connect without deprecated options
-    await mongoose.connect(mongoURI);
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
 
-    console.log("✅ MongoDB Connected Successfully");
-  } catch (err) {
-    console.error("❌ MongoDB Connection Error:", err);
-    process.exit(1); // Stop the app on DB failure
+    cached.promise = mongoose.connect(process.env.MONGO_URI, opts).then((mongoose) => {
+      console.log("✅ MongoDB Connected Successfully");
+      return mongoose;
+    });
   }
-};
+  
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    console.error("❌ MongoDB Connection Error:", e.message);
+    throw e;
+  }
+
+  return cached.conn;
+}
 
 export default connectDB;
