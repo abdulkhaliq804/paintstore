@@ -16,7 +16,11 @@ const saleSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: "AgentItem",
     default: null 
-  }
+  },
+  billId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PrintSale" 
+    }
 
 }, { timestamps: true });
 

@@ -83,7 +83,7 @@ const leftAmt = (Number(i.percentageAmount || 0) - Number(i.paidAmount || 0)).to
 
 // ✅ Bill Link logic (Check karein ke billId exist karti hai ya nahi)
 const billLinkHtml = i.billId 
-    ? `<a href="/sales/bill/${i.billId._id}" target="_blank" class="bill-link" 
+    ? `<a href="/sales/bill/${i.billId._id}"  class="bill-link" 
           style="display:block; margin-top:5px; color:#007bff; text-decoration:none; font-size:11px; font-weight:bold;">
           📄 View Bill
        </a>` 

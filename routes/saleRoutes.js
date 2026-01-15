@@ -86,11 +86,11 @@ router.post("/add", isLoggedIn, allowRoles("admin", "worker"), async (req, res) 
       totalAmountForAgent += (s.quantitySold * s.rate);
     }
 
-    // 1. Sales Save karen
+    // 1. Sales & Products Update
     const savedSales = await Sale.insertMany(salesToCreate);
     await Product.bulkWrite(productUpdates);
 
-    // 2. Bill (PrintSale) Create karen
+    // 2. Bill Create karen (Ye hamesha banna chahiye)
     let dbAgent = null;
     if (agentID) {
         dbAgent = await Agent.findOne({ agentID });
@@ -102,7 +102,16 @@ router.post("/add", isLoggedIn, allowRoles("admin", "worker"), async (req, res) 
         agentId: dbAgent ? dbAgent._id : null
     });
 
-    // 3. Agent Commission Logic & Sale Linking
+    // 3. ✅ Bill ID ko hamesha update karen (Agent ho ya na ho)
+    const saleIds = savedSales.map(s => s._id);
+    
+    // Default update (Sirf Bill ID)
+    await Sale.updateMany(
+      { _id: { $in: saleIds } },
+      { $set: { billId: savedBill._id } }
+    );
+
+    // 4. Agent Commission Logic (Sirf agar Agent ho)
     if (dbAgent && percentage > 0) {
       const percentageAmount = Math.round((totalAmountForAgent * percentage / 100) * 100) / 100;
       
@@ -116,8 +125,7 @@ router.post("/add", isLoggedIn, allowRoles("admin", "worker"), async (req, res) 
         paidStatus: "Unpaid"
       });
 
-      // ✅ Har sale record mein is AgentItem ki ID save karna
-      const saleIds = savedSales.map(s => s._id);
+      // ✅ Agent Item ID bhi update karen unhi sales par
       await Sale.updateMany(
         { _id: { $in: saleIds } },
         { $set: { agentItemId: agentItem._id } }
@@ -127,7 +135,7 @@ router.post("/add", isLoggedIn, allowRoles("admin", "worker"), async (req, res) 
       await dbAgent.save();
     }
 
-    res.json({ success: true, message: "Sale and History Saved!" });
+    res.json({ success: true, message: "Sale and History Saved!", billId: savedBill._id });
 
   } catch (err) {
     console.error("❌ Add Sale Error:", err);
@@ -364,26 +372,26 @@ router.post('/refund', isLoggedIn, allowRoles("admin", "worker"), async (req, re
     productQuantity = parseInt(productQuantity);
 
     if (!stockID || !productQuantity || productQuantity <= 0) {
-      return res.status(400).send("❌ Invalid Input");
+      return res.status(400).json({ success: false, message: "❌ Invalid Input" });
     }
 
     const sale = await Sale.findOne({ stockID, saleID });
     const product = await Product.findOne({ stockID });
 
     if (!sale || !product) {
-      return res.status(404).send("❌ Sale or Product not found");
+      return res.status(404).json({ success: false, message: "❌ Sale or Product not found" });
     }
 
-    // Maximum refundable quantity check (Sale ke mutabiq)
+    // Maximum refundable quantity check
     const maxRefundable = sale.quantitySold - (sale.refundQuantity || 0);
     if (productQuantity > maxRefundable) {
-      return res.status(400).send(`❌ Refund quantity exceeds remaining sold quantity. Max allowed: ${maxRefundable}`);
+      return res.status(400).json({ success: false, message: `❌ Refund quantity exceeds remaining sold quantity. Max allowed: ${maxRefundable}` });
     }
 
     const refundQty = productQuantity;
     const refundAmount = refundQty * sale.rate;
 
-    // --- 1. Update Sale (Customer ko paise wapas aur record update) ---
+    // --- 1. Update Sale (Profit & Qty) ---
     const purchaseRate = product.rate || 0;
     const refundProfit = parseFloat(((sale.rate - purchaseRate) * refundQty).toFixed(2));
     
@@ -397,14 +405,11 @@ router.post('/refund', isLoggedIn, allowRoles("admin", "worker"), async (req, re
     }
     await sale.save();
 
-    // --- 2. ✅ Update Product (Stock wapas barhao) ---
-    // Jab sale refund hogi, toh maal wapas 'remaining' mein add ho jayega
+    // --- 2. Update Product (Stock wapas barhao) ---
     product.remaining = product.remaining + refundQty;
-    
-    // Yahan product.refundQuantity update nahi kar rahe kyunki wo aap Company Refund wale page par karenge
     await product.save();
 
-    // --- 3. Update Agent Commission (Minus karen kyunki sale cancel hui) ---
+    // --- 3. Update Agent Commission ---
     if (sale.agentItemId) {
         const agentItem = await Item.findById(sale.agentItemId);
         if (agentItem) {
@@ -421,16 +426,28 @@ router.post('/refund', isLoggedIn, allowRoles("admin", "worker"), async (req, re
             } else {
                 agentItem.paidStatus = "Unpaid";
             }
-
             await agentItem.save();
         }
     }
 
-    res.send(`✅ Sale Refund successful. Stock added back to inventory.`);
+    // ✅ Response with billId check
+    if (!sale.billId) {
+        return res.json({ 
+            success: true, 
+            message: "✅ Refund successfull, but Bill ID not found. Check and print the updated bill from history.",
+            billId: null 
+        });
+    }
+
+    res.json({ 
+        success: true, 
+        message: "✅ Refund successfull.",
+        billId: sale.billId 
+    });
 
   } catch (err) {
     console.error("❌ Refund Error:", err);
-    res.status(500).send("❌ Internal Server Error");
+    res.status(500).json({ success: false, message: "❌ Internal Server Error" });
   }
 });
 
