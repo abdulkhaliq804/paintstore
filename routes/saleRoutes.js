@@ -430,20 +430,17 @@ router.post('/refund', isLoggedIn, allowRoles("admin", "worker"), async (req, re
         }
     }
 
-    // ✅ Response with billId check
-    if (!sale.billId) {
-        return res.json({ 
-            success: true, 
-            message: "✅ Refund successfull",
-            billId: null 
-        });
-    }
+    
 
-    res.json({ 
-        success: true, 
-        message: "✅ Refund successfull.",
-        billId: sale.billId 
-    });
+    // ✅ Simple and Clean Response
+   res.json({ 
+    success: true, 
+    message: sale.billId 
+        ? "✅ Refund successful." 
+        : "✅ Refund successful, but Bill ID not found.",
+    billId: sale.billId || null 
+});
+
 
   } catch (err) {
     console.error("❌ Refund Error:", err);
@@ -636,6 +633,8 @@ router.get("/fix-old-sales", isLoggedIn, allowRoles("admin"), async (req, res) =
     res.status(500).send("❌ Error fixing data: " + err.message);
   }
 });
+
+
 
 
 export default router;
