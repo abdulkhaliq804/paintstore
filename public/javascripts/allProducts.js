@@ -346,7 +346,7 @@ async function updateTable() {
                 statsPs[1].innerText = `Rs ${Number(data.stats.totalValue || 0).toFixed(2)}`;
                 statsPs[2].innerText = data.stats.totalRemaining || 0;
                 statsPs[3].innerText = `Rs ${Number(data.stats.remaining || 0).toFixed(2)}`;
-                // statsPs[4].innerText = `Rs ${Number(data.stats.totalRefundedValue || 0).toFixed(2)}`;
+                statsPs[4].innerText = `Rs ${Number(data.stats.totalRefundedValue || 0).toFixed(2)}`;
             }
 
             // 🟢 3. Build Table Content
