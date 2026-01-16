@@ -68,7 +68,7 @@ app.use(
 // Allowed origins
 
 const allowedOrigins = process.env.NODE_ENV === "production"
-  ? ["https://paintsstore.vercel.app"]   // Add your production domain(s) here
+  ? ["https://paintstore-production-073c.up.railway.app"]   // Add your production domain(s) here
   : ["http://localhost:3000"];           // Localhost for dev
 
 // ===== CORS Middleware =====
