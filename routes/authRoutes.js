@@ -175,160 +175,141 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
   try {
     const { username, password } = req.body;
 
+    // 1. Check fields
     if (!username || !password) {
       return res.status(400).json({ success: false, message: "All fields are required!" });
     }
 
+    // 2. Find user
     const user = await Admin.findOne({ username });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
       return res.status(401).json({ success: false, message: "Username or password is wrong!" });
     }
 
-    // OTP Logic
-    const otp = Math.floor(100000 + Math.random() * 900000);
-    user.otp = otp;
-    user.otpExpires = Date.now() + 5 * 60 * 1000;
-    await user.save();
-
-    req.session.otpUserId = user._id;
-
-    let emailUser = user.role === "admin" ? process.env.ADMIN_EMAIL_USER : process.env.WORKER_EMAIL_USER;
-    let emailPass = user.role === "admin" ? process.env.ADMIN_EMAIL_PASS : process.env.WORKER_EMAIL_PASS;
-    let sendTo = user.role === "admin" ? process.env.ADMIN_RECEIVE_EMAIL : process.env.WORKER_RECEIVE_EMAIL;
-
-    // ✅ THE MOST STABLE CONFIG FOR CLOUD CONTAINERS
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: emailUser,
-        pass: emailPass.replace(/\s+/g, "") // Removing spaces
-      },
-      // Railway bypass settings
-      debug: true, // Logs more info
-      logger: true, // Logs in Railway terminal
-      connectionTimeout: 30000, // High timeout for slow cloud boots
-      greetingTimeout: 30000,
-    });
-
-    try {
-      await transporter.sendMail({
-        from: `"Secure Login" <${emailUser}>`,
-        to: sendTo,
-        subject: "Your OTP Code",
-        text: `Hello ${user.username},\nYour OTP is: ${otp}\nIt expires in 5 minutes.`
-      });
-
-      return res.json({ success: true, message: "OTP sent successfully!", redirect2FA: true });
-
-    } catch (mailErr) {
-      console.error("📧 SMTP ERROR:", mailErr);
-      
-      // ✅ RAILWAY EMERGENCY BYPASS (Testing purpose only)
-      // Agar email system bar bar fail ho raha hai, to aap logs se OTP dekh kar enter kar sakte hain
-      console.log("CRITICAL: OTP for", user.username, "is:", otp);
-
-      return res.status(500).json({ 
-        success: false, 
-        message: "Railway is blocking Gmail SMTP. Please check server logs for OTP or try again." 
-      });
+    // 3. Verify Password
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ success: false, message: "Username or password is wrong!" });
     }
 
-  } catch (err) {
-    console.error("🔥 Global Error:", err);
-    return res.status(500).json({ success: false, message: "Server error!" });
-  }
-});
-
-
-
-
-router.get('/2FA',ensure2FA,(req,res)=>{
-res.render("2FA");
-});
-
-
-
-// VERIFY OTP
-router.post("/verify-otp", ensure2FA, async (req, res) => {
-  try {
-    const { otp } = req.body;
-
-    // 1. Validation: OTP khali na ho
-    if (!otp) {
-      return res.status(400).json({ success: false, message: "OTP is required!" });
-    }
-
-    // 2. CastError Fix: Check karein ke OTP sirf numbers hain
-    const otpNumber = Number(otp);
-    if (isNaN(otpNumber)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid OTP format! Please enter numbers only." 
-      });
-    }
-
-    // 3. Find user with matching OTP and valid expiry
-    // Hum otpNumber use kar rahe hain taake database crash na ho
-    const user = await Admin.findOne({
-      otp: otpNumber, 
-      otpExpires: { $gt: Date.now() } // OTP expired na ho
-    });
-
-    if (!user) {
-      return res.status(400).json({ success: false, message: "Invalid or expired OTP!" });
-    }
-
-    // 4. Success: OTP correct hai → Clear OTP fields
-    user.otp = null;
-    user.otpExpires = null;
-    await user.save();
-    
-    // 5. 🔥 Destroy Temporary Session (Security)
-    req.session.destroy(err => {
-      if (err) console.error("Session destroy error:", err);
-    });
-
-    // 6. 🔥 Remove temporary session cookie
-    res.clearCookie("connect.sid");
-
-    // 7. CREATE JWT TOKEN (Final Auth)
+    // 4. CREATE JWT TOKEN
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       process.env.SECRET_KEY,
       { expiresIn: "365d" }
     );
 
-    // 8. Set Cookie with Production/Live checks
+    // 5. Set Cookie (Railway & Localhost friendly)
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Live (Railway/Vercel) par true hoga
+      secure: process.env.NODE_ENV === "production", 
       sameSite: "strict",
       maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
     });
 
-    return res.json({ success: true, message: "OTP verified successfully!" });
+    // 6. Final Success Response
+    return res.json({ 
+      success: true, 
+      message: "Login successful! Redirecting...",
+      redirectDashboard: true // Frontend par ab seedha dashboard bhej dena
+    });
 
   } catch (err) {
-    console.error("Verification API Error:", err);
-    return res.status(500).json({ success: false, message: "Server error. Try again!" });
+    console.error("🔥 Global Error:", err);
+    return res.status(500).json({ success: false, message: "Server error! Please try again." });
   }
 });
 
 
 
+
+// router.get('/2FA',ensure2FA,(req,res)=>{
+// res.render("2FA");
+// });
+
+
+
+// VERIFY OTP
+// router.post("/verify-otp", ensure2FA, async (req, res) => {
+//   try {
+//     const { otp } = req.body;
+
+//     // 1. Validation: OTP khali na ho
+//     if (!otp) {
+//       return res.status(400).json({ success: false, message: "OTP is required!" });
+//     }
+
+//     // 2. CastError Fix: Check karein ke OTP sirf numbers hain
+//     const otpNumber = Number(otp);
+//     if (isNaN(otpNumber)) {
+//       return res.status(400).json({ 
+//         success: false, 
+//         message: "Invalid OTP format! Please enter numbers only." 
+//       });
+//     }
+
+//     // 3. Find user with matching OTP and valid expiry
+//     // Hum otpNumber use kar rahe hain taake database crash na ho
+//     const user = await Admin.findOne({
+//       otp: otpNumber, 
+//       otpExpires: { $gt: Date.now() } // OTP expired na ho
+//     });
+
+//     if (!user) {
+//       return res.status(400).json({ success: false, message: "Invalid or expired OTP!" });
+//     }
+
+//     // 4. Success: OTP correct hai → Clear OTP fields
+//     user.otp = null;
+//     user.otpExpires = null;
+//     await user.save();
+    
+//     // 5. 🔥 Destroy Temporary Session (Security)
+//     req.session.destroy(err => {
+//       if (err) console.error("Session destroy error:", err);
+//     });
+
+//     // 6. 🔥 Remove temporary session cookie
+//     res.clearCookie("connect.sid");
+
+//     // 7. CREATE JWT TOKEN (Final Auth)
+//     const token = jwt.sign(
+//       { id: user._id, username: user.username, role: user.role },
+//       process.env.SECRET_KEY,
+//       { expiresIn: "365d" }
+//     );
+
+//     // 8. Set Cookie with Production/Live checks
+//     res.cookie("token", token, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production", // Live (Railway/Vercel) par true hoga
+//       sameSite: "strict",
+//       maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
+//     });
+
+//     return res.json({ success: true, message: "OTP verified successfully!" });
+
+//   } catch (err) {
+//     console.error("Verification API Error:", err);
+//     return res.status(500).json({ success: false, message: "Server error. Try again!" });
+//   }
+// });
+
+
+
 // LOGOUT FROM 2FA PAGE
-router.post("/logout-2fa",ensure2FA,(req, res) => {
-  // Destroy session
-  req.session.destroy(err => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ success: false, message: "Could not log out!" });
-    }
-    // Clear connect.sid cookie
-    res.clearCookie("connect.sid");
-    return res.json({ success: true, message: "Logged out successfully!" });
-  });
-});
+// router.post("/logout-2fa",ensure2FA,(req, res) => {
+//   // Destroy session
+//   req.session.destroy(err => {
+//     if (err) {
+//       console.error(err);
+//       return res.status(500).json({ success: false, message: "Could not log out!" });
+//     }
+//     // Clear connect.sid cookie
+//     res.clearCookie("connect.sid");
+//     return res.json({ success: true, message: "Logged out successfully!" });
+//   });
+// });
 
 
 

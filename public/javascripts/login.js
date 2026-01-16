@@ -1,11 +1,11 @@
 // ===============================
-// Login Page JS - 2FA Only
+// Login Page JS - Direct Home
 // ===============================
 
 document.addEventListener('DOMContentLoaded', () => {
-  initParticles(30);        // Floating background particles
-  initPasswordToggle();     // Show/Hide password
-  initLoginForm2FA();       // Login form submit with 2FA only
+  initParticles(30);         // Floating background particles
+  initPasswordToggle();      // Show/Hide password
+  initLoginForm();           // Updated: Simple Login without 2FA
 });
 
 // ===== Floating Particles =====
@@ -57,8 +57,8 @@ function initPasswordToggle() {
   });
 }
 
-// ===== Login Form Submit (2FA Only) =====
-function initLoginForm2FA() {
+// ===== Login Form Submit (Direct to Home) =====
+function initLoginForm() {
   const loginForm = document.getElementById("loginForm");
   const messageEl = document.getElementById("message");
   if (!loginForm || !messageEl) return;
@@ -66,7 +66,7 @@ function initLoginForm2FA() {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     messageEl.textContent = "";
-    showMessage("Checking cridentials, please wait...", "orange");
+    showMessage("Checking credentials, please wait...", "orange");
 
     const username = e.target.username.value.trim();
     const passwordVal = e.target.password.value.trim();
@@ -90,9 +90,13 @@ function initLoginForm2FA() {
         return;
       }
 
-      // 2FA always required
-      showMessage("OTP sent! Redirecting to 2FA...", "lightgreen");
-      setTimeout(() => { window.location.href = "/auth/2FA"; }, 1000);
+      // ✅ SUCCESS: Redirect to Home instead of 2FA
+      showMessage("Login successful! Redirecting to Home...", "lightgreen");
+      
+      setTimeout(() => { 
+        // Agar backend redirectHome bhej raha hai to wo use karo, warna direct '/home'
+        window.location.href = data.redirectHome ? "/home" : "/home"; 
+      }, 1000);
 
     } catch (err) {
       console.error(err);
