@@ -211,7 +211,7 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
     return res.json({ 
       success: true, 
       message: "Login successful! Redirecting...",
-      redirectDashboard: true // Frontend par ab seedha dashboard bhej dena
+      redirectHome: true // Frontend par ab seedha dashboard bhej dena
     });
 
   } catch (err) {
