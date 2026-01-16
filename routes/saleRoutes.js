@@ -11,6 +11,24 @@ import moment from 'moment-timezone';
 
 const router = express.Router();
 
+
+
+// router.get("/api/sync-all", async (req, res) => {
+//   try {
+//     const products = await Product.find({}).lean();
+//     const sales = await Sale.find({}).lean();
+//     const agents = await Agent.find({}).lean();
+//     const items = await Item.find({}).lean();
+//     const printsales=await PrintSale.find({}).lean();
+//     // Isi tarah baaqi collections bhi add karein
+    
+//     res.json({ products, sales, agents,items,printsales });
+//   } catch (err) {
+//     res.status(500).json({ error: "Local sync failed" });
+//   }
+// });
+
+
 /* ================================
    🟢 1️⃣ Add Sale Page (GET)
 ================================ */
