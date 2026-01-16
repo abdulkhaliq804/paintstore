@@ -189,7 +189,7 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
       return res.status(401).json({ success: false, message: "Username or password is wrong!" });
     }
 
-    // OTP Logic
+    // ===== GENERATE OTP =====
     const otp = Math.floor(100000 + Math.random() * 900000);
     user.otp = otp;
     user.otpExpires = Date.now() + 5 * 60 * 1000;
@@ -197,6 +197,7 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
 
     req.session.otpUserId = user._id;
 
+    // ===== EMAIL CONFIGURATION =====
     let emailUser, emailPass, sendTo;
     if (user.role === "admin") {
       emailUser = process.env.ADMIN_EMAIL_USER;
@@ -208,23 +209,27 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
       sendTo = process.env.WORKER_RECEIVE_EMAIL;
     }
 
-    // ✅ LIVE PRODUCTION TRANSPORTER (Railway Friendly)
+    // ✅ DYNAMIC CONFIG FOR LOCAL & RAILWAY
+    const isProd = process.env.NODE_ENV === "production";
+
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465, // SSL Port (Railway aur Local dono par kaam karta hai)
+      secure: true, 
       auth: {
         user: emailUser,
-        pass: emailPass // Must be 16-digit App Password
+        pass: emailPass
       },
-      pool: true, // Connection reuse karta hai
-      maxConnections: 1,
-      maxMessages: Infinity,
       tls: {
-        rejectUnauthorized: false // Live server certificate issues bypass karne ke liye
-      }
+        // Railway par certificates ka masla hota hai isliye production mein isey false rakhen
+        rejectUnauthorized: false 
+      },
+      connectionTimeout: 15000, // Railway ke liye extra time
+      socketTimeout: 20000
     });
 
+    // ===== SEND EMAIL =====
     try {
-      // Timeout handle karne ke liye Promise.race use kar sakte hain ya simple await
       await transporter.sendMail({
         from: `"Secure Login" <${emailUser}>`,
         to: sendTo,
@@ -239,19 +244,19 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
       });
 
     } catch (mailErr) {
-      console.error("📧 Live Mail Error:", mailErr.message);
+      console.error("📧 Mail System Error:", mailErr.message);
       
-      // Detailed error for you in logs
-      if (mailErr.code === 'ETIMEDOUT') console.log("Check Railway Firewall/Port settings.");
+      // Agar Localhost hai toh console mein detail dikhao
+      if (!isProd) console.log("Check if your App Password is correct for:", emailUser);
 
       return res.status(500).json({ 
         success: false, 
-        message: "OTP service is slow or timed out. Please try again in 30 seconds." 
+        message: "OTP could not be sent. Please try again or check your email settings." 
       });
     }
 
   } catch (err) {
-    console.error("🔥 Global Login Error:", err);
+    console.error("🔥 Global Error:", err);
     return res.status(500).json({ success: false, message: "Server error! Please try again." });
   }
 });
@@ -266,55 +271,67 @@ res.render("2FA");
 
 
 // VERIFY OTP
-router.post("/verify-otp",ensure2FA, async (req, res) => {
+router.post("/verify-otp", ensure2FA, async (req, res) => {
   try {
     const { otp } = req.body;
+
+    // 1. Validation: OTP khali na ho
     if (!otp) {
       return res.status(400).json({ success: false, message: "OTP is required!" });
     }
 
-    // Find user with matching OTP and valid expiry
+    // 2. CastError Fix: Check karein ke OTP sirf numbers hain
+    const otpNumber = Number(otp);
+    if (isNaN(otpNumber)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid OTP format! Please enter numbers only." 
+      });
+    }
+
+    // 3. Find user with matching OTP and valid expiry
+    // Hum otpNumber use kar rahe hain taake database crash na ho
     const user = await Admin.findOne({
-      otp: otp,
-      otpExpires: { $gt: Date.now() } // OTP not expired
+      otp: otpNumber, 
+      otpExpires: { $gt: Date.now() } // OTP expired na ho
     });
 
     if (!user) {
       return res.status(400).json({ success: false, message: "Invalid or expired OTP!" });
     }
 
-    // OTP is correct → Clear OTP fields
+    // 4. Success: OTP correct hai → Clear OTP fields
     user.otp = null;
     user.otpExpires = null;
     await user.save();
-   
-    // 🔥 Remove connect.sid cookie
+    
+    // 5. 🔥 Destroy Temporary Session (Security)
     req.session.destroy(err => {
       if (err) console.error("Session destroy error:", err);
     });
 
-    // 🔥 Remove connect.sid cookie
+    // 6. 🔥 Remove temporary session cookie
     res.clearCookie("connect.sid");
 
-
-    // CREATE JWT TOKEN (session)
+    // 7. CREATE JWT TOKEN (Final Auth)
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       process.env.SECRET_KEY,
       { expiresIn: "365d" }
     );
 
+    // 8. Set Cookie with Production/Live checks
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // Live (Railway/Vercel) par true hoga
       sameSite: "strict",
-      maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year in milliseconds
+      maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
     });
 
     return res.json({ success: true, message: "OTP verified successfully!" });
 
   } catch (err) {
-    console.error(err);
+    console.error("Verification API Error:", err);
     return res.status(500).json({ success: false, message: "Server error. Try again!" });
   }
 });
