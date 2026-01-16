@@ -171,7 +171,6 @@ const loginLimiter = rateLimit({
 
 
 // LOGIN POST
-
 router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -190,18 +189,15 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
       return res.status(401).json({ success: false, message: "Username or password is wrong!" });
     }
 
-    // ===== GENERATE OTP =====
+    // OTP Logic
     const otp = Math.floor(100000 + Math.random() * 900000);
     user.otp = otp;
-    user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 mins
+    user.otpExpires = Date.now() + 5 * 60 * 1000;
     await user.save();
 
-    // ✅ TEMPORARY SESSION FOR 2FA ACCESS
     req.session.otpUserId = user._id;
 
-    // ===== SELECT EMAIL ACCOUNT BASED ON ROLE =====
     let emailUser, emailPass, sendTo;
-
     if (user.role === "admin") {
       emailUser = process.env.ADMIN_EMAIL_USER;
       emailPass = process.env.ADMIN_EMAIL_PASS;
@@ -212,23 +208,23 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
       sendTo = process.env.WORKER_RECEIVE_EMAIL;
     }
 
-    // ===== CREATE OPTIMIZED TRANSPORTER FOR RAILWAY =====
+    // ✅ LIVE PRODUCTION TRANSPORTER (Railway Friendly)
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: process.env.NODE_ENV === "production", // Railway aur cloud platforms par port 465 + secure true zyada stable hai
+      service: "gmail",
       auth: {
         user: emailUser,
-        pass: emailPass
+        pass: emailPass // Must be 16-digit App Password
       },
+      pool: true, // Connection reuse karta hai
+      maxConnections: 1,
+      maxMessages: Infinity,
       tls: {
-        rejectUnauthorized: false // Certificate issues se bachne ke liye
-      },
-      connectionTimeout: 10000 // 10 seconds timeout
+        rejectUnauthorized: false // Live server certificate issues bypass karne ke liye
+      }
     });
 
-    // ===== SEND EMAIL WITH INTERNAL TRY-CATCH =====
     try {
+      // Timeout handle karne ke liye Promise.race use kar sakte hain ya simple await
       await transporter.sendMail({
         from: `"Secure Login" <${emailUser}>`,
         to: sendTo,
@@ -236,7 +232,6 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
         text: `Hello ${user.username},\nYour OTP is: ${otp}\nIt expires in 5 minutes.`
       });
 
-      // Email Success Response
       return res.json({
         success: true,
         message: "OTP sent successfully! Redirecting...",
@@ -244,22 +239,20 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
       });
 
     } catch (mailErr) {
-      console.error("📧 Email Sending Failed:", mailErr.message);
+      console.error("📧 Live Mail Error:", mailErr.message);
       
-      // Agar email fail ho jaye lekin password sahi ho, 
-      // toh humein user ko block nahi karna chahiye.
+      // Detailed error for you in logs
+      if (mailErr.code === 'ETIMEDOUT') console.log("Check Railway Firewall/Port settings.");
+
       return res.status(500).json({ 
         success: false, 
-        message: "Login successful but Email service (OTP) failed. Please try again or contact support." 
+        message: "OTP service is slow or timed out. Please try again in 30 seconds." 
       });
     }
 
   } catch (err) {
     console.error("🔥 Global Login Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Server error! Please try again."
-    });
+    return res.status(500).json({ success: false, message: "Server error! Please try again." });
   }
 });
 
