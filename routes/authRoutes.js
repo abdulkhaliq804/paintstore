@@ -171,6 +171,7 @@ const loginLimiter = rateLimit({
 
 
 // LOGIN POST
+
 router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -196,7 +197,7 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
     await user.save();
 
     // ✅ TEMPORARY SESSION FOR 2FA ACCESS
-    req.session.otpUserId = user._id;  // <-- yahi line OTP generate hone ke turant baad dalni hai
+    req.session.otpUserId = user._id;
 
     // ===== SELECT EMAIL ACCOUNT BASED ON ROLE =====
     let emailUser, emailPass, sendTo;
@@ -204,39 +205,57 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
     if (user.role === "admin") {
       emailUser = process.env.ADMIN_EMAIL_USER;
       emailPass = process.env.ADMIN_EMAIL_PASS;
-      sendTo = process.env.ADMIN_RECEIVE_EMAIL; // jisko OTP milega
+      sendTo = process.env.ADMIN_RECEIVE_EMAIL;
     } else {
       emailUser = process.env.WORKER_EMAIL_USER;
       emailPass = process.env.WORKER_EMAIL_PASS;
       sendTo = process.env.WORKER_RECEIVE_EMAIL;
     }
 
-    // ===== CREATE TRANSPORTER =====
+    // ===== CREATE OPTIMIZED TRANSPORTER FOR RAILWAY =====
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: process.env.NODE_ENV === "production", // Railway aur cloud platforms par port 465 + secure true zyada stable hai
       auth: {
         user: emailUser,
         pass: emailPass
-      }
+      },
+      tls: {
+        rejectUnauthorized: false // Certificate issues se bachne ke liye
+      },
+      connectionTimeout: 10000 // 10 seconds timeout
     });
 
-    // Send OTP
-    await transporter.sendMail({
-      from: `"Secure Login" <${emailUser}>`,
-      to: sendTo,
-      subject: "Your OTP Code",
-      text: `Hello ${user.username},\nYour OTP is: ${otp}\nIt expires in 5 minutes.`
-    });
+    // ===== SEND EMAIL WITH INTERNAL TRY-CATCH =====
+    try {
+      await transporter.sendMail({
+        from: `"Secure Login" <${emailUser}>`,
+        to: sendTo,
+        subject: "Your OTP Code",
+        text: `Hello ${user.username},\nYour OTP is: ${otp}\nIt expires in 5 minutes.`
+      });
 
-    // RESPONSE
-    return res.json({
-      success: true,
-      message: "OTP sent successfully! Redirecting...",
-      redirect2FA: true
-    });
+      // Email Success Response
+      return res.json({
+        success: true,
+        message: "OTP sent successfully! Redirecting...",
+        redirect2FA: true
+      });
+
+    } catch (mailErr) {
+      console.error("📧 Email Sending Failed:", mailErr.message);
+      
+      // Agar email fail ho jaye lekin password sahi ho, 
+      // toh humein user ko block nahi karna chahiye.
+      return res.status(500).json({ 
+        success: false, 
+        message: "Login successful but Email service (OTP) failed. Please try again or contact support." 
+      });
+    }
 
   } catch (err) {
-    console.error(err);
+    console.error("🔥 Global Login Error:", err);
     return res.status(500).json({
       success: false,
       message: "Server error! Please try again."
