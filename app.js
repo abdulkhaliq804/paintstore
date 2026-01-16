@@ -108,7 +108,10 @@ app.use((req, res, next) => {
 // =======================================================
 // 🛡 SECURITY LAYER 4 → Trust proxy (for Vercel)
 // =======================================================
-app.set("trust proxy", process.env.NODE_ENV === "production");
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1); // Railway ke liye correct
+}
+
 // =======================================================
 // 🛡 SECURITY LAYER 5 → Parsers
 // =======================================================
