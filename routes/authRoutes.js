@@ -209,23 +209,21 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
       sendTo = process.env.WORKER_RECEIVE_EMAIL;
     }
 
-    // ✅ DYNAMIC CONFIG FOR LOCAL & RAILWAY
-    const isProd = process.env.NODE_ENV === "production";
-
+    // ✅ PORT 587 CONFIG (Best for Railway)
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 465, // SSL Port (Railway aur Local dono par kaam karta hai)
-      secure: true, 
+      port: 587,
+      secure: false, // 587 ke liye hamesha false
+      requireTLS: true,
       auth: {
         user: emailUser,
-        pass: emailPass
+        pass: emailPass.replace(/\s+/g, "") // Password se saari spaces automatic khatam kar dega
       },
       tls: {
-        // Railway par certificates ka masla hota hai isliye production mein isey false rakhen
-        rejectUnauthorized: false 
+        rejectUnauthorized: false
       },
-      connectionTimeout: 15000, // Railway ke liye extra time
-      socketTimeout: 20000
+      connectionTimeout: 20000,
+      socketTimeout: 30000
     });
 
     // ===== SEND EMAIL =====
@@ -244,14 +242,10 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
       });
 
     } catch (mailErr) {
-      console.error("📧 Mail System Error:", mailErr.message);
-      
-      // Agar Localhost hai toh console mein detail dikhao
-      if (!isProd) console.log("Check if your App Password is correct for:", emailUser);
-
+      console.error("📧 Railway SMTP Error:", mailErr.message);
       return res.status(500).json({ 
         success: false, 
-        message: "OTP could not be sent. Please try again or check your email settings." 
+        message: "OTP service is temporarily unavailable on Railway. Please try again." 
       });
     }
 
