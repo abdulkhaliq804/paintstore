@@ -215,6 +215,6 @@ app.use((err, req, res, next) => {
 // =======================================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on ${process.env.NODE_ENV === "production" ? "Vercel" : "http://localhost:" + PORT}`);
+  console.log(`🚀 Server running on ${process.env.NODE_ENV === "production" ? "Railway" : "http://localhost:" + PORT}`);
 });
 
