@@ -180,16 +180,11 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
     }
 
     const user = await Admin.findOne({ username });
-    if (!user) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ success: false, message: "Username or password is wrong!" });
     }
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(401).json({ success: false, message: "Username or password is wrong!" });
-    }
-
-    // ===== GENERATE OTP =====
+    // OTP Logic
     const otp = Math.floor(100000 + Math.random() * 900000);
     user.otp = otp;
     user.otpExpires = Date.now() + 5 * 60 * 1000;
@@ -197,36 +192,24 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
 
     req.session.otpUserId = user._id;
 
-    // ===== EMAIL CONFIGURATION =====
-    let emailUser, emailPass, sendTo;
-    if (user.role === "admin") {
-      emailUser = process.env.ADMIN_EMAIL_USER;
-      emailPass = process.env.ADMIN_EMAIL_PASS;
-      sendTo = process.env.ADMIN_RECEIVE_EMAIL;
-    } else {
-      emailUser = process.env.WORKER_EMAIL_USER;
-      emailPass = process.env.WORKER_EMAIL_PASS;
-      sendTo = process.env.WORKER_RECEIVE_EMAIL;
-    }
+    let emailUser = user.role === "admin" ? process.env.ADMIN_EMAIL_USER : process.env.WORKER_EMAIL_USER;
+    let emailPass = user.role === "admin" ? process.env.ADMIN_EMAIL_PASS : process.env.WORKER_EMAIL_PASS;
+    let sendTo = user.role === "admin" ? process.env.ADMIN_RECEIVE_EMAIL : process.env.WORKER_RECEIVE_EMAIL;
 
-    // ✅ PORT 587 CONFIG (Best for Railway)
+    // ✅ THE MOST STABLE CONFIG FOR CLOUD CONTAINERS
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // 587 ke liye hamesha false
-      requireTLS: true,
+      service: "gmail",
       auth: {
         user: emailUser,
-        pass: emailPass.replace(/\s+/g, "") // Password se saari spaces automatic khatam kar dega
+        pass: emailPass.replace(/\s+/g, "") // Removing spaces
       },
-      tls: {
-        rejectUnauthorized: false
-      },
-      connectionTimeout: 20000,
-      socketTimeout: 30000
+      // Railway bypass settings
+      debug: true, // Logs more info
+      logger: true, // Logs in Railway terminal
+      connectionTimeout: 30000, // High timeout for slow cloud boots
+      greetingTimeout: 30000,
     });
 
-    // ===== SEND EMAIL =====
     try {
       await transporter.sendMail({
         from: `"Secure Login" <${emailUser}>`,
@@ -235,23 +218,24 @@ router.post("/login", checkIPBlocked, loginLimiter, isAlreadyLoggedIn, async (re
         text: `Hello ${user.username},\nYour OTP is: ${otp}\nIt expires in 5 minutes.`
       });
 
-      return res.json({
-        success: true,
-        message: "OTP sent successfully! Redirecting...",
-        redirect2FA: true
-      });
+      return res.json({ success: true, message: "OTP sent successfully!", redirect2FA: true });
 
     } catch (mailErr) {
-      console.error("📧 Railway SMTP Error:", mailErr.message);
+      console.error("📧 SMTP ERROR:", mailErr);
+      
+      // ✅ RAILWAY EMERGENCY BYPASS (Testing purpose only)
+      // Agar email system bar bar fail ho raha hai, to aap logs se OTP dekh kar enter kar sakte hain
+      console.log("CRITICAL: OTP for", user.username, "is:", otp);
+
       return res.status(500).json({ 
         success: false, 
-        message: "OTP service is temporarily unavailable on Railway. Please try again." 
+        message: "Railway is blocking Gmail SMTP. Please check server logs for OTP or try again." 
       });
     }
 
   } catch (err) {
     console.error("🔥 Global Error:", err);
-    return res.status(500).json({ success: false, message: "Server error! Please try again." });
+    return res.status(500).json({ success: false, message: "Server error!" });
   }
 });
 
